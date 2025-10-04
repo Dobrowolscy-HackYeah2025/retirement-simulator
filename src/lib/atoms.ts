@@ -1,14 +1,29 @@
 import { atom } from 'jotai';
-import { atomWithQuery } from 'jotai-tanstack-query';
 
-// Example: Simple counter atom
-export const counterAtom = atom(0);
+import type {
+  RetirementInputsState,
+  RetirementProjection,
+} from './retirementUtils';
+import {
+  computeMonthlyPension,
+  getAdjustedLifeExpectancy,
+  getSickLeavePenalty,
+  normalizeInputs,
+  projectContributions,
+  roundCurrency,
+  roundRatio,
+} from './retirementUtils';
 
-// Example: User preferences atom
-export const userPreferencesAtom = atom({
-  theme: 'light' as 'light' | 'dark',
-  currency: 'USD' as string,
-  retirementAge: 65 as number,
+export type { Gender, RetirementInputsState } from './retirementUtils';
+
+// Stan wejściowy: dane osobiste i finansowe wymagane przez symulator.
+export const retirementInputsAtom = atom<RetirementInputsState>({
+  age: 31, // Dla dema: osoba w wieku 31 lat zaczynająca karierę w 2014 r.
+  gender: 'female', // Płeć wykorzystywana w tablicach trwania życia i statystykach ZUS.
+  grossMonthlySalary: 7200, // Aktualne miesięczne wynagrodzenie brutto (PLN).
+  workStartYear: 2014, // Rok rozpoczęcia pracy zawodowej (przyjmujemy styczeń jako miesiąc startowy).
+  plannedRetirementYear: 2056, // Rok planowanego zakończenia pracy (domyślne: ustawowy wiek emerytalny).
+  zusAccountBalance: 42000, // Aktualny stan środków na koncie i subkoncie w ZUS (wartość fakultatywna).
 });
 
 // User gender atom for onboarding
@@ -40,51 +55,99 @@ export const retirementDataAtom = atomWithQuery(() => ({
     };
   },
 }));
+// Wewnętrzna projekcja gromadząca kapitał i parametry potrzebne do dalszych obliczeń.
+const retirementComputationAtom = atom<RetirementProjection | null>((get) => {
+  const inputs = get(retirementInputsAtom);
+  const normalized = normalizeInputs(inputs);
 
-// Example: Dynamic query atom that depends on other atoms
-export const portfolioAtom = atomWithQuery((get) => {
-  const preferences = get(userPreferencesAtom);
-
-  return {
-    queryKey: ['portfolio', preferences.currency],
-    queryFn: async () => {
-      // Simulate API call that depends on user preferences
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      return {
-        currency: preferences.currency,
-        totalValue: preferences.currency === 'USD' ? 75000 : 68000,
-        assets: [
-          { name: 'Stocks', value: 45000, percentage: 60 },
-          { name: 'Bonds', value: 22500, percentage: 30 },
-          { name: 'Cash', value: 7500, percentage: 10 },
-        ],
-      };
-    },
-  };
-});
-
-// Example: Derived atom for calculations
-export const retirementProjectionAtom = atom((get) => {
-  const data = get(retirementDataAtom);
-  const preferences = get(userPreferencesAtom);
-
-  if (data.isLoading || data.error) {
+  if (!normalized) {
     return null;
   }
 
-  const yearsToRetirement = preferences.retirementAge - 30; // Assuming current age 30
-  const monthlyReturn = data.data!.expectedReturn / 12;
-  const totalMonths = yearsToRetirement * 12;
+  const { contributionsSum, monthlySalaryInFinalYear } =
+    projectContributions(normalized);
+  const capital = normalized.zusAccountBalance + contributionsSum;
+  const sickLeavePenalty = getSickLeavePenalty(normalized.gender);
+  const capitalWithSickLeave =
+    normalized.zusAccountBalance + contributionsSum * (1 - sickLeavePenalty);
+  const lifeExpectancyYears = getAdjustedLifeExpectancy(
+    normalized.gender,
+    normalized.retirementAge
+  );
 
-  // Future value calculation
-  const futureValue =
-    data.data!.currentSavings * Math.pow(1 + monthlyReturn, totalMonths) +
-    data.data!.monthlyContribution *
-      ((Math.pow(1 + monthlyReturn, totalMonths) - 1) / monthlyReturn);
+  if (!Number.isFinite(lifeExpectancyYears) || lifeExpectancyYears <= 0) {
+    return null;
+  }
 
   return {
-    yearsToRetirement,
-    projectedValue: Math.round(futureValue),
-    monthlyIncome: Math.round((futureValue * 0.04) / 12), // 4% rule
+    capital,
+    capitalWithSickLeave,
+    finalMonthlySalary: monthlySalaryInFinalYear,
+    lifeExpectancyYears,
   };
 });
+
+// Zgromadzony kapitał emerytalny bez efektu absencji chorobowej (PLN).
+export const retirementAccumulatedCapitalAtom = atom((get) => {
+  const projection = get(retirementComputationAtom);
+  if (!projection) {
+    return null;
+  }
+  return roundCurrency(projection.capital);
+});
+
+// Miesięczna emerytura brutto wynikająca z zgromadzonego kapitału.
+export const retirementMonthlyPensionAtom = atom((get) => {
+  const projection = get(retirementComputationAtom);
+  if (!projection) {
+    return null;
+  }
+  const monthlyPension = computeMonthlyPension(
+    projection.capital,
+    projection.lifeExpectancyYears
+  );
+  return roundCurrency(monthlyPension);
+});
+
+// Relacja emerytury brutto do ostatniego wynagrodzenia brutto w momencie przejścia.
+export const retirementPensionReplacementRatioAtom = atom((get) => {
+  const projection = get(retirementComputationAtom);
+  if (!projection || projection.finalMonthlySalary <= 0) {
+    return null;
+  }
+
+  const monthlyPension = computeMonthlyPension(
+    projection.capital,
+    projection.lifeExpectancyYears
+  );
+  return roundRatio(monthlyPension / projection.finalMonthlySalary);
+});
+
+// Miesięczna emerytura z uwzględnieniem obniżki kapitału o statystyczne L4.
+export const retirementMonthlyPensionWithSickLeaveAtom = atom((get) => {
+  const projection = get(retirementComputationAtom);
+  if (!projection) {
+    return null;
+  }
+  const monthlyPension = computeMonthlyPension(
+    projection.capitalWithSickLeave,
+    projection.lifeExpectancyYears
+  );
+  return roundCurrency(monthlyPension);
+});
+
+// Relacja emerytury (po uwzględnieniu L4) do ostatniej pensji brutto.
+export const retirementPensionReplacementRatioWithSickLeaveAtom = atom(
+  (get) => {
+    const projection = get(retirementComputationAtom);
+    if (!projection || projection.finalMonthlySalary <= 0) {
+      return null;
+    }
+
+    const monthlyPension = computeMonthlyPension(
+      projection.capitalWithSickLeave,
+      projection.lifeExpectancyYears
+    );
+    return roundRatio(monthlyPension / projection.finalMonthlySalary);
+  }
+);

@@ -1,12 +1,21 @@
 import { Button } from '@/components/ui/button';
+import { useRetirementReport } from '@/lib/report';
 import { AboutPage } from '@/routes/about';
 import { HomePage } from '@/routes/index';
 import { OnboardingPage } from '@/routes/onboarding';
 import { Onboarding2SalaryPage } from '@/routes/onboarding-2-salary';
 
+import { useCallback } from 'react';
+
 import { HashRouter, Link, Route, Routes } from 'react-router-dom';
 
 export function App() {
+  const generateRetirementReport = useRetirementReport();
+
+  const handleGenerateReport = useCallback(() => {
+    void generateRetirementReport();
+  }, [generateRetirementReport]);
+
   return (
     <HashRouter>
       <div className="h-full w-full">
@@ -21,9 +30,7 @@ export function App() {
             <Link to="/onboarding">
               <Button variant="ghost">Onboarding</Button>
             </Link>
-            <Button onClick={() => alert('Generate raport')}>
-              Generate raport
-            </Button>
+            <Button onClick={handleGenerateReport}>Generate raport</Button>
           </nav>
         )}
 
