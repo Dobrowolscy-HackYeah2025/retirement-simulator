@@ -78,7 +78,7 @@ export function OnboardingPage() {
   const isDisabled = missingFields.length > 0;
 
   return (
-    <OnboardingPageWrapper>
+    <OnboardingPageWrapper waveIndex={0}>
       <h1 className="text-3xl font-bold mb-2 text-foreground">
         Uzupełnij swoje dane
       </h1>

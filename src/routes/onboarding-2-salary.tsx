@@ -234,7 +234,7 @@ export function Onboarding2SalaryPage() {
   const isDisabled = missingFields.length > 0;
 
   return (
-    <OnboardingPageWrapper>
+    <OnboardingPageWrapper waveIndex={1}>
       <h1 className="text-3xl font-bold mb-2 text-foreground">
         Zarobki i aktywność zawodowa
       </h1>
