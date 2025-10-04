@@ -64,7 +64,7 @@ export function OnboardingPage() {
                   <CheckIcon className="size-4 text-primary ml-auto" />
                 )}
               </SelectTrigger>
-              <SelectContent className="border-none">
+              <SelectContent>
                 <SelectItem value="man">mężczyzna</SelectItem>
                 <SelectItem value="woman">kobieta</SelectItem>
               </SelectContent>
@@ -171,13 +171,6 @@ export function OnboardingPage() {
           onClick={handleContinue}
         >
           Kontynuuj
-        </Button>
-        <Button
-          variant="ghost"
-          className="text-gray-500 font-medium"
-          onClick={handleGoBack}
-        >
-          Wróć
         </Button>
       </div>
     </OnboardingPageWrapper>

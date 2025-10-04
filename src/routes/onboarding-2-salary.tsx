@@ -10,12 +10,7 @@ import {
 import { useState } from 'react';
 
 import { useAtom } from 'jotai';
-import {
-  CalendarIcon,
-  CheckIcon,
-  ClockIcon,
-  DollarSignIcon,
-} from 'lucide-react';
+import { CheckIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from '../components/ui/button';
@@ -70,15 +65,15 @@ export function Onboarding2SalaryPage() {
       <h1 className="text-2xl font-bold mb-2 text-foreground">
         Zarobki i aktywność zawodowa
       </h1>
-      <p className="text-sm mb-8 text-muted-foreground">
+
+      <p className="text-sm mb-6 text-muted-foreground">
         Podaj informacje o swoich zarobkach i planach zawodowych.
       </p>
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-6">
         {/* Current Salary Gross */}
         <div className="relative">
           <div className="flex items-center gap-2 mb-3">
-            <DollarSignIcon className="size-4 text-muted-foreground" />
             <span className="text-sm font-medium text-foreground">
               Obecne zarobki brutto
             </span>
@@ -107,7 +102,6 @@ export function Onboarding2SalaryPage() {
         {/* Work Start Year */}
         <div className="relative">
           <div className="flex items-center gap-2 mb-3">
-            <CalendarIcon className="size-4 text-muted-foreground" />
             <span className="text-sm font-medium text-foreground">
               Rok rozpoczęcia pracy
             </span>
@@ -122,12 +116,9 @@ export function Onboarding2SalaryPage() {
             onValueChange={(value) => setWorkStartYear(Number(value))}
           >
             <SelectTrigger className="w-full">
-              <div className="flex items-center gap-2">
-                <CalendarIcon className="size-4 text-muted-foreground" />
-                <SelectValue placeholder="Wybierz rok" />
-              </div>
+              <SelectValue placeholder="Wybierz rok" />
             </SelectTrigger>
-            <SelectContent className="border-none max-h-60">
+            <SelectContent className="max-h-60">
               {workStartYears.map((year) => (
                 <SelectItem key={year} value={year.toString()}>
                   {year}
@@ -140,7 +131,6 @@ export function Onboarding2SalaryPage() {
         {/* Retirement Year */}
         <div className="relative">
           <div className="flex items-center gap-2 mb-3">
-            <ClockIcon className="size-4 text-muted-foreground" />
             <span className="text-sm font-medium text-foreground">
               Planowany rok zakończenia aktywności zawodowej
             </span>
@@ -155,12 +145,9 @@ export function Onboarding2SalaryPage() {
             onValueChange={(value) => setRetirementYear(Number(value))}
           >
             <SelectTrigger className="w-full">
-              <div className="flex items-center gap-2">
-                <ClockIcon className="size-4 text-muted-foreground" />
-                <SelectValue placeholder="Wybierz rok" />
-              </div>
+              <SelectValue placeholder="Wybierz rok" />
             </SelectTrigger>
-            <SelectContent className="border-none max-h-60">
+            <SelectContent className="max-h-60">
               {retirementYears.map((year) => (
                 <SelectItem key={year} value={year.toString()}>
                   {year}
@@ -180,7 +167,7 @@ export function Onboarding2SalaryPage() {
           </Button>
           <Button
             variant="ghost"
-            className="text-gray-500 font-medium"
+            className="text-muted-foreground font-medium"
             onClick={handleGoBack}
           >
             Wróć
