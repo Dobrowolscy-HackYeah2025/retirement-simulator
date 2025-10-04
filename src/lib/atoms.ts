@@ -19,14 +19,14 @@ import {
 export const showReportGeneratorAtom = atom<boolean>(false);
 
 // Wejścia użytkownika jako osobne atomy
-export const inputAgeAtom = atom<number | null>(null); // Wiek
-export const inputGenderAtom = atom<Gender | null>(null); // Płeć
-export const inputCityAtom = atom<string | null>(''); // Miasto
-export const inputGrossMonthlySalaryAtom = atom<number | null>(null); // Pensja brutto
-export const inputWorkStartYearAtom = atom<number | null>(null); // Rok startu pracy
-export const inputPlannedRetirementYearAtom = atom<number | null>(null); // Rok emerytury
-export const inputZusAccountBalanceAtom = atom<number | null>(null); // Stan konta ZUS
-export const onboardingCompletedAtom = atom<boolean>(false); // Onboarding zakończony
+export const inputAgeAtom = atom<number | null>(35); // Wiek
+export const inputGenderAtom = atom<Gender | null>('male'); // Płeć
+export const inputCityAtom = atom<string | null>('Warszawa'); // Miasto
+export const inputGrossMonthlySalaryAtom = atom<number | null>(8000); // Pensja brutto
+export const inputWorkStartYearAtom = atom<number | null>(2010); // Rok startu pracy
+export const inputPlannedRetirementYearAtom = atom<number | null>(2055); // Rok emerytury
+export const inputZusAccountBalanceAtom = atom<number | null>(150000); // Stan konta ZUS
+export const onboardingCompletedAtom = atom<boolean>(true); // Onboarding zakończony
 
 // (Legacy) Zbiorczy widok wejść, do zgodności w miejscach gdzie potrzebny obiekt
 export const retirementInputsAtom = atom<RetirementInputsState>((get) => ({
@@ -37,6 +37,7 @@ export const retirementInputsAtom = atom<RetirementInputsState>((get) => ({
   workStartYear: get(inputWorkStartYearAtom),
   plannedRetirementYear: get(inputPlannedRetirementYearAtom),
   zusAccountBalance: get(inputZusAccountBalanceAtom),
+  expectedPension: null, // Oczekiwana emerytura użytkownika
 }));
 
 export type RetirementProjection = {
@@ -53,7 +54,7 @@ export const selectedScenarioAtom = atom<
 >('realistic');
 
 // Wewnętrzna projekcja gromadząca kapitał i parametry potrzebne do dalszych obliczeń.
-const retirementComputationAtom = atom<RetirementProjection | null>((get) => {
+export const retirementComputationAtom = atom<RetirementProjection | null>((get) => {
   const age = get(inputAgeAtom);
   const gender = get(inputGenderAtom);
   const grossMonthlySalary = get(inputGrossMonthlySalaryAtom);
@@ -82,13 +83,14 @@ const retirementComputationAtom = atom<RetirementProjection | null>((get) => {
   }
 
   const capital = zusAccountBalance + contributionsSum;
-  const sickLeavePenalty = getSickLeavePenalty(gender);
+  const yearsOfWork = plannedRetirementYear - workStartYear;
+  const sickLeavePenalty = getSickLeavePenalty(gender, yearsOfWork);
   // Oblicz wiek emerytalny na podstawie wieku i planowanego roku przejścia
   const currentYear = new Date().getFullYear();
   const birthYear = currentYear - age;
   const retirementAge = plannedRetirementYear - birthYear;
   const capitalWithSickLeave =
-    zusAccountBalance + contributionsSum * (1 - sickLeavePenalty);
+    (zusAccountBalance + contributionsSum) * (1 - sickLeavePenalty);
   const lifeExpectancyYears = getAdjustedLifeExpectancy(gender, retirementAge);
 
   if (!Number.isFinite(lifeExpectancyYears) || lifeExpectancyYears <= 0) {
@@ -400,6 +402,7 @@ export const pensionForecastDataAtom = atom<PensionForecastData[]>((get) => {
     workStartYear,
     plannedRetirementYear: baseRetirementYear,
     zusAccountBalance,
+    expectedPension: null,
   };
 
   const baseProjection = get(contributionProjectionForInputsFamily(baseInputs));
@@ -412,30 +415,65 @@ export const pensionForecastDataAtom = atom<PensionForecastData[]>((get) => {
   const genderNN = gender!;
 
   // Uwzględnij L4 jeśli checkbox jest zaznaczony
-  const finalCapital = includeSickLeave
-    ? baseCapital * (1 - getSickLeavePenalty(gender))
-    : baseCapital;
+  // Usunięto nieużywane obliczenia bazowego kapitału
 
   return ages.map((age) => {
     const yearsToRetirement = age - currentAge;
+    const targetRetirementYear = currentYear + yearsToRetirement;
 
-    // Skorygowany kapitał - dla wcześniejszego przejścia mniejszy, dla późniejszego większy
-    const wageGrowthRate = 0.035; // 3.5% roczny wzrost płac
-    const adjustedCapital =
-      finalCapital * Math.pow(1 + wageGrowthRate, yearsToRetirement);
+    // Oblicz kapitał dla konkretnego wieku przejścia na emeryturę
+    const targetInputs = {
+      age: currentAge,
+      gender,
+      city,
+      grossMonthlySalary,
+      workStartYear,
+      plannedRetirementYear: targetRetirementYear,
+      zusAccountBalance,
+      expectedPension: null,
+    };
+
+    const targetProjection = get(contributionProjectionForInputsFamily(targetInputs));
+    if (!targetProjection) {
+      return { age, amount: 0, realAmount: 0 };
+    }
+
+    const targetCapital = (zusAccountBalance || 0) + targetProjection.contributionsSum;
+    const targetCapitalWithSickLeave = includeSickLeave
+      ? targetCapital * (1 - getSickLeavePenalty(gender, yearsToRetirement))
+      : targetCapital;
 
     const adjustedLifeExpectancy = getAdjustedLifeExpectancy(genderNN, age);
     const nominalPension = computeMonthlyPension(
-      adjustedCapital,
+      targetCapitalWithSickLeave,
       adjustedLifeExpectancy
     );
 
-    // Emerytura realna - użyj średniej inflacji z danych ZUS
-    // Średnia inflacja w Polsce w ostatnich latach: ~3.5% rocznie
-    const averageInflationRate = 0.035; // 3.5% rocznie
-    const realPension =
-      nominalPension *
-      Math.pow(1 + averageInflationRate, -Math.abs(yearsToRetirement));
+    // Emerytura realna - użyj rzeczywistych danych inflacji ZUS
+    let inflationFactor = 1.0;
+    const baseYear = currentYear;
+    const targetYear = currentYear + yearsToRetirement;
+    
+    for (let year = baseYear; year < targetYear; year++) {
+      const yearIndex = year - 2014;
+      if (
+        yearIndex >= 0 &&
+        yearIndex < parametryData['parametry roczne'].rows.length
+      ) {
+        const parametry = parametryData['parametry roczne'].rows[yearIndex];
+        const inflationIndex =
+          parametry?.[
+            'średnioroczny wskaźnik cen towarów i usług konsumpcyjnych ogółem*)'
+          ] || 1.0;
+        inflationFactor *= inflationIndex;
+      } else {
+        // Dla lat poza danymi, użyj średniej inflacji z prognozy ZUS (2.5%)
+        inflationFactor *= 1.025;
+      }
+    }
+    
+    // Urealniona emerytura = nominalna / wskaźnik inflacji
+    const realPension = nominalPension / inflationFactor;
 
     return {
       age,
@@ -658,9 +696,10 @@ function computeScenarioProjection(
   const retirementAge = inputs.plannedRetirementYear! - birthYear;
 
   const capital = (inputs.zusAccountBalance ?? 0) + contributionsSum;
-  const sickLeavePenalty = getSickLeavePenalty(inputs.gender!);
+  const yearsOfWork = inputs.plannedRetirementYear! - inputs.workStartYear!;
+  const sickLeavePenalty = getSickLeavePenalty(inputs.gender!, yearsOfWork);
   const capitalWithSickLeave =
-    (inputs.zusAccountBalance ?? 0) + contributionsSum * (1 - sickLeavePenalty);
+    ((inputs.zusAccountBalance ?? 0) + contributionsSum) * (1 - sickLeavePenalty);
 
   // Długość życia z korektą scenariusza
   const baseLifeExpectancy = getAdjustedLifeExpectancy(
@@ -693,6 +732,10 @@ function projectContributionsWithScenario(
 ) {
   const projectionStartYear = inputs.workStartYear;
   const projectionEndYear = inputs.plannedRetirementYear;
+
+  if (!projectionStartYear || !projectionEndYear || !inputs.grossMonthlySalary) {
+    return { contributionsSum: 0, monthlySalaryInFinalYear: 0 };
+  }
 
   let monthlySalary = inputs.grossMonthlySalary;
 
@@ -792,12 +835,13 @@ export const selectedScenarioRealPensionAtom = atom((get) => {
         ] || 1.0;
       totalInflationFactor *= inflationIndex;
     } else {
-      // Dla lat poza danymi, użyj średniej inflacji z ostatnich lat
-      totalInflationFactor *= 1.04; // 4% rocznie (średnia z 2024-2025)
+      // Dla lat poza danymi, użyj średniej inflacji z ostatnich lat (2.5% zgodnie z prognozą ZUS)
+      totalInflationFactor *= 1.025; // 2.5% rocznie (średnia z prognozy ZUS 2026-2080)
     }
   }
 
-  // Urealniona emerytura = rzeczywista / wskaźnik_inflacji
+  // Urealniona emerytura = nominalna emerytura / łączny wskaźnik inflacji
+  // To daje emeryturę w wartościach z roku bieżącego (2025)
   const realPension = selectedPension / totalInflationFactor;
 
   return Math.round(realPension);
