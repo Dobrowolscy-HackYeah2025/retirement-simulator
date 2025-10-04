@@ -50,7 +50,7 @@ export function OnboardingPage() {
             value={userGender || ''}
             onValueChange={(value) => setUserGender(value as 'man' | 'woman')}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full" hideIcon={true}>
               <div className="flex items-center gap-2">
                 <UserIcon className="size-4 text-muted-foreground" />
                 <SelectValue placeholder="Wybierz płeć" />
@@ -68,7 +68,53 @@ export function OnboardingPage() {
           </Select>
         </div>
 
+        {/* City Field */}
         <div className="relative">
+          <div className="relative">
+            <Input
+              type="text"
+              placeholder="Miasto zamieszkania"
+              value={cityInput}
+              onChange={(e) => {
+                setCityInput(e.target.value);
+                setShowCitySuggestions(true);
+                if (e.target.value === '') {
+                  setUserCity('');
+                }
+              }}
+              onFocus={() => setShowCitySuggestions(true)}
+              onBlur={() =>
+                setTimeout(() => setShowCitySuggestions(false), 200)
+              }
+              className="w-full pl-9"
+            />
+            <MapPinIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
+            {userCity && (
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-primary text-primary-foreground flex size-4 items-center justify-center rounded-full">
+                <CheckIcon className="size-3" />
+              </div>
+            )}
+            {showCitySuggestions && cityInput && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                {filterCities(cityInput).map((city) => (
+                  <div
+                    key={city}
+                    className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                    onClick={() => {
+                      setUserCity(city);
+                      setCityInput(city);
+                      setShowCitySuggestions(false);
+                    }}
+                  >
+                    {city}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="relative p-3 border rounded-md">
           <div className="flex items-center gap-2 mb-3">
             <CalendarIcon className="size-4 text-muted-foreground" />
             <span className="text-sm font-medium text-foreground">
@@ -91,57 +137,6 @@ export function OnboardingPage() {
           <div className="flex justify-between text-xs text-muted-foreground mt-1">
             <span>18</span>
             <span>120</span>
-          </div>
-        </div>
-
-        {/* City Field */}
-        <div className="relative">
-          <div className="flex items-center gap-2 mb-3">
-            <MapPinIcon className="size-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-foreground">
-              Miasto zamieszkania
-            </span>
-            {userCity && (
-              <div className="bg-primary text-primary-foreground flex size-4 items-center justify-center rounded-full ml-auto">
-                <CheckIcon className="size-3" />
-              </div>
-            )}
-          </div>
-          <div className="relative">
-            <Input
-              type="text"
-              placeholder="Wpisz nazwę miasta"
-              value={cityInput}
-              onChange={(e) => {
-                setCityInput(e.target.value);
-                setShowCitySuggestions(true);
-                if (e.target.value === '') {
-                  setUserCity('');
-                }
-              }}
-              onFocus={() => setShowCitySuggestions(true)}
-              onBlur={() =>
-                setTimeout(() => setShowCitySuggestions(false), 200)
-              }
-              className="w-full"
-            />
-            {showCitySuggestions && cityInput && (
-              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                {filterCities(cityInput).map((city) => (
-                  <div
-                    key={city}
-                    className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
-                    onClick={() => {
-                      setUserCity(city);
-                      setCityInput(city);
-                      setShowCitySuggestions(false);
-                    }}
-                  >
-                    {city}
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         </div>
 
