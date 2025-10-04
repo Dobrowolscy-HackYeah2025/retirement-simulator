@@ -1,8 +1,8 @@
 import ZusLogo from '@/assets/zus_logo.svg';
 import { useRetirementReport } from '@/lib/report';
 
-import { useCallback, useState } from 'react';
 import type { MouseEvent } from 'react';
+import { useCallback, useState } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { FileTextIcon } from 'lucide-react';
@@ -126,6 +126,12 @@ export const PageNavigationBar = () => {
           </Link>
 
           <div className="flex items-center gap-2">
+            <Link to="https://www.zus.pl/" target="_blank">
+              <Button variant="outline" className="text-foreground">
+                Strona ZUS
+              </Button>
+            </Link>
+
             <Button
               onClick={handleGenerateReport}
               className="bg-transparent bg-gradient-to-r from-zus-green via-zus-green/97 to-zus-green [background-size:200%_auto] text-white hover:bg-transparent hover:bg-[99%_center] focus-visible:ring-primary/20 relative overflow-hidden group cursor-pointer"
