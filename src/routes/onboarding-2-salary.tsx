@@ -4,7 +4,7 @@ import { ZUSReportGenerator } from '@/components/ZUSReportGenerator';
 import { retirementInputsAtom, showReportGeneratorAtom } from '@/lib/atoms';
 
 import { useAtom } from 'jotai';
-import { CheckIcon } from 'lucide-react';
+import { CheckIcon, InfoIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from '../components/ui/button';
@@ -153,7 +153,7 @@ export function Onboarding2SalaryPage() {
             )}
           </div>
           <Select
-            value={workStartYear.toString()}
+            value={workStartYear || 'choose'}
             onValueChange={(value) => setWorkStartYear(Number(value))}
           >
             <SelectTrigger className="w-full">
@@ -178,7 +178,7 @@ export function Onboarding2SalaryPage() {
             )}
           </div>
           <Select
-            value={retirementYear.toString()}
+            value={retirementYear || 'choose'}
             onValueChange={(value) => setRetirementYear(Number(value))}
           >
             <SelectTrigger className="w-full">

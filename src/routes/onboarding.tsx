@@ -29,7 +29,7 @@ import { cn } from '../lib/utils';
 export function OnboardingPage() {
   const [retirementInputs, setRetirementInputs] = useAtom(retirementInputsAtom);
   const navigate = useNavigate();
-  const [cityInput, setCityInput] = useState('');
+  const [cityInput, setCityInput] = useState(retirementInputs.city);
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
 
   const userGender =
@@ -39,7 +39,7 @@ export function OnboardingPage() {
         ? 'woman'
         : null;
   const userAge = retirementInputs.age;
-  const userCity = ''; // City will be stored in a separate field if needed
+  const userCity = retirementInputs.city;
 
   const setUserGender = (value: 'man' | 'woman') => {
     setRetirementInputs((prev) => ({
@@ -56,8 +56,10 @@ export function OnboardingPage() {
   };
 
   const setUserCity = (city: string) => {
-    // City can be stored in a separate state or added to retirementInputs if needed
-    setCityInput(city);
+    setRetirementInputs((prev) => ({
+      ...prev,
+      city,
+    }));
   };
 
   const handleContinue = () => {

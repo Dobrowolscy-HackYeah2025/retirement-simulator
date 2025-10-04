@@ -18,12 +18,13 @@ export type { Gender, RetirementInputsState } from './retirementUtils';
 
 // Stan wejściowy: dane osobiste i finansowe wymagane przez symulator.
 export const retirementInputsAtom = atom<RetirementInputsState>({
-  age: 31, // Dla dema: osoba w wieku 31 lat zaczynająca karierę w 2014 r.
-  gender: 'female', // Płeć wykorzystywana w tablicach trwania życia i statystykach ZUS.
-  grossMonthlySalary: 7200, // Aktualne miesięczne wynagrodzenie brutto (PLN).
-  workStartYear: 2014, // Rok rozpoczęcia pracy zawodowej (przyjmujemy styczeń jako miesiąc startowy).
-  plannedRetirementYear: 2056, // Rok planowanego zakończenia pracy (domyślne: ustawowy wiek emerytalny).
-  zusAccountBalance: 42000, // Aktualny stan środków na koncie i subkoncie w ZUS (wartość fakultatywna).
+  age: null, // Wiek użytkownika
+  gender: null, // Płeć wykorzystywana w tablicach trwania życia i statystykach ZUS.
+  city: '', // Miasto zamieszkania
+  grossMonthlySalary: null, // Aktualne miesięczne wynagrodzenie brutto (PLN).
+  workStartYear: null, // Rok rozpoczęcia pracy zawodowej (przyjmujemy styczeń jako miesiąc startowy).
+  plannedRetirementYear: null, // Rok planowanego zakończenia pracy (domyślne: ustawowy wiek emerytalny).
+  zusAccountBalance: null, // Aktualny stan środków na koncie i subkoncie w ZUS (wartość fakultatywna).
 });
 
 // User gender atom for onboarding

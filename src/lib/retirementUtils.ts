@@ -4,7 +4,8 @@ export type Gender = 'female' | 'male';
 
 export type RetirementInputsState = {
   age: number | null;
-  gender: Gender;
+  gender: Gender | null;
+  city: string | null;
   grossMonthlySalary: number | null;
   workStartYear: number | null;
   plannedRetirementYear: number | null;
@@ -103,8 +104,12 @@ const createYearLookup = (table: Record<number, number>) => {
   };
 };
 
-export const getRealWageGrowthFactor = createYearLookup(REAL_WAGE_GROWTH_VARIANT_1);
-export const getContributionRate = createYearLookup(CONTRIBUTION_RATE_VARIANT_1);
+export const getRealWageGrowthFactor = createYearLookup(
+  REAL_WAGE_GROWTH_VARIANT_1
+);
+export const getContributionRate = createYearLookup(
+  CONTRIBUTION_RATE_VARIANT_1
+);
 
 export const getSickLeavePenalty = (gender: Gender) => {
   const days = SICK_LEAVE_DAYS_BY_GENDER[gender] ?? 0;
@@ -112,7 +117,10 @@ export const getSickLeavePenalty = (gender: Gender) => {
   return shareOfYear * (1 - SICK_LEAVE_REPLACEMENT_RATE);
 };
 
-export const getAdjustedLifeExpectancy = (gender: Gender, retirementAge: number) => {
+export const getAdjustedLifeExpectancy = (
+  gender: Gender,
+  retirementAge: number
+) => {
   const baseExpectancy = LIFE_EXPECTANCY_AT_RETIREMENT[gender];
   const statutoryAge = STATUTORY_RETIREMENT_AGE[gender];
 
@@ -132,7 +140,7 @@ export const roundRatio = (value: number) => Number(value.toFixed(3));
 
 export const normalizeInputs = (
   inputs: RetirementInputsState,
-  calendarYear = new Date().getFullYear(),
+  calendarYear = new Date().getFullYear()
 ) => {
   if (
     inputs.grossMonthlySalary == null ||
@@ -180,7 +188,7 @@ export type NormalizedInputs = {
 
 export const projectContributions = (
   inputs: NormalizedInputs,
-  calendarYear = new Date().getFullYear(),
+  calendarYear = new Date().getFullYear()
 ) => {
   const projectionStartYear = Math.max(calendarYear, inputs.workStartYear);
   const projectionEndYear = inputs.plannedRetirementYear;
@@ -230,10 +238,12 @@ export type RetirementProjection = {
   lifeExpectancyYears: number;
 };
 
-export const computeMonthlyPension = (capital: number, lifeExpectancyYears: number) => {
+export const computeMonthlyPension = (
+  capital: number,
+  lifeExpectancyYears: number
+) => {
   if (lifeExpectancyYears <= 0) {
     return 0;
   }
   return capital / (lifeExpectancyYears * 12);
 };
-
