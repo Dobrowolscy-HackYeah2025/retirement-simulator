@@ -2,7 +2,7 @@ import { OnboardingPageWrapper } from '@/components/OnboardingPageWrapper';
 
 import { useState } from 'react';
 
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { CalendarIcon, CheckIcon, MapPinIcon, UserIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,11 +22,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '../components/ui/tooltip';
-import {
-  inputAgeAtom,
-  inputCityAtom,
-  inputGenderAtom,
-} from '../lib/atoms';
+import { inputAgeAtom, inputCityAtom, inputGenderAtom } from '../lib/atoms';
 import { filterCities } from '../lib/polish-cities';
 import { cn } from '../lib/utils';
 
@@ -39,11 +35,7 @@ export function OnboardingPage() {
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
 
   const userGender =
-    gender === 'male'
-      ? 'man'
-      : gender === 'female'
-        ? 'woman'
-        : null;
+    gender === 'male' ? 'man' : gender === 'female' ? 'woman' : null;
   const userAge = age;
   const userCity = city;
 

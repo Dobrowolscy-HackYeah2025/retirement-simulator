@@ -6,6 +6,7 @@ import {
   inputCityAtom,
   inputGenderAtom,
   inputGrossMonthlySalaryAtom,
+  onboardingCompletedAtom,
   inputPlannedRetirementYearAtom,
   inputWorkStartYearAtom,
   inputZusAccountBalanceAtom,
@@ -14,7 +15,7 @@ import {
 
 import { useEffect, useMemo } from 'react';
 
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { InfoIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -38,6 +39,7 @@ export function Onboarding2SalaryPage() {
   const age = useAtomValue(inputAgeAtom);
   const gender = useAtomValue(inputGenderAtom);
   const city = useAtomValue(inputCityAtom);
+  const onboardingCompleted = useAtomValue(onboardingCompletedAtom);
   const [grossMonthlySalary, setGrossMonthlySalary] = useAtom(
     inputGrossMonthlySalaryAtom
   );
@@ -51,6 +53,7 @@ export function Onboarding2SalaryPage() {
   const [showReportGenerator, setShowReportGenerator] = useAtom(
     showReportGeneratorAtom
   );
+  const setOnboardingCompleted = useSetAtom(onboardingCompletedAtom);
   const navigate = useNavigate();
 
   const currentSalaryGross = grossMonthlySalary ?? 0;
@@ -120,6 +123,7 @@ export function Onboarding2SalaryPage() {
   }, [workStartYear]);
 
   const handleGenerateReport = () => {
+    setOnboardingCompleted(true);
     setShowReportGenerator(true);
   };
 
@@ -156,6 +160,11 @@ export function Onboarding2SalaryPage() {
   const isDisabled = missingFields.length > 0;
 
   useEffect(() => {
+    if (onboardingCompleted && !showReportGenerator) {
+      navigate('/dashboard', { replace: true });
+      return;
+    }
+
     if (!showReportGenerator) {
       return;
     }
@@ -170,6 +179,7 @@ export function Onboarding2SalaryPage() {
       zusAccountBalance,
     });
   }, [
+    onboardingCompleted,
     showReportGenerator,
     age,
     gender,
@@ -178,6 +188,7 @@ export function Onboarding2SalaryPage() {
     workStartYear,
     plannedRetirementYear,
     zusAccountBalance,
+    navigate,
   ]);
 
   return (

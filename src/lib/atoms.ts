@@ -28,6 +28,7 @@ export const inputGrossMonthlySalaryAtom = atom<number | null>(null); // Pensja 
 export const inputWorkStartYearAtom = atom<number | null>(null); // Rok startu pracy
 export const inputPlannedRetirementYearAtom = atom<number | null>(null); // Rok emerytury
 export const inputZusAccountBalanceAtom = atom<number | null>(null); // Stan konta ZUS
+export const onboardingCompletedAtom = atom<boolean>(false); // Onboarding zakończony
 
 // (Legacy) Zbiorczy widok wejść, do zgodności w miejscach gdzie potrzebny obiekt
 export const retirementInputsAtom = atom<RetirementInputsState>((get) => ({

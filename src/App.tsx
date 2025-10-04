@@ -5,6 +5,7 @@ import { Onboarding2SalaryPage } from '@/routes/onboarding-2-salary';
 import { useAtomValue } from 'jotai';
 import {
   HashRouter,
+  Link,
   Navigate,
   Route,
   Routes,
@@ -13,7 +14,7 @@ import {
 
 import { OnboardingProgressBar } from './components/OnboardingProgressBar';
 import { PageNavigationBar } from './components/PageNavigationBar';
-import { inputAgeAtom } from './lib/atoms';
+import { inputAgeAtom, onboardingCompletedAtom } from './lib/atoms';
 import { cn } from './lib/utils';
 import { NotFoundPage } from './routes/404';
 
@@ -22,6 +23,15 @@ function RequireOnboarding({ children }: { children: React.ReactNode }) {
 
   if (age == null) {
     return <Navigate to="/onboarding" replace />;
+  }
+
+  return children;
+}
+
+function NoOnboardingReEntry({ children }: { children: React.ReactNode }) {
+  const onboardingCompleted = useAtomValue(onboardingCompletedAtom);
+  if (onboardingCompleted) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;
@@ -44,14 +54,30 @@ const AppContent = () => {
       {!isOnboarding && isAnyRouteMatch && <PageNavigationBar />}
 
       <Routes>
-        <Route path="/" element={<Navigate to="/onboarding" replace />} />
-        <Route path="/onboarding" element={<OnboardingPage />} />
+        <Route
+          path="/"
+          element={
+            <Link to="/onboarding">
+              <button className="m-4 p-4 bg-primary absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%]">
+                Idź do onboardingu
+              </button>
+            </Link>
+          }
+        />
+        <Route
+          path="/onboarding"
+          element={
+            <NoOnboardingReEntry>
+              <OnboardingPage />
+            </NoOnboardingReEntry>
+          }
+        />
         <Route
           path="/onboarding/2-zarobki"
           element={
-            <RequireOnboarding>
+            <NoOnboardingReEntry>
               <Onboarding2SalaryPage />
-            </RequireOnboarding>
+            </NoOnboardingReEntry>
           }
         />
         <Route
