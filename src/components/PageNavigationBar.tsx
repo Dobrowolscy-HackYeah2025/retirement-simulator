@@ -2,7 +2,7 @@ import ZusLogo from '@/assets/zus_logo.svg';
 import { useRetirementReport } from '@/lib/report';
 
 import type { MouseEvent } from 'react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { FileTextIcon } from 'lucide-react';
@@ -30,6 +30,39 @@ import {
   AlertDialogTitle,
 } from './ui/alert-dialog';
 import { Button } from './ui/button';
+
+const GeneratingReportOverlay = () => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => setIsVisible(true));
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-live="assertive"
+      aria-busy="true"
+      aria-label="Generowanie raportu PDF"
+      className={`fixed inset-0 z-[999] flex flex-col items-center justify-center gap-6 bg-[color:var(--black)]/55 backdrop-blur-sm px-6 text-center transition-opacity duration-300 ease-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+    >
+      <div
+        className="h-16 w-16 rounded-full border-4 border-[color:var(--gray-blue)] border-t-[color:var(--amber)] animate-spin"
+        aria-hidden="true"
+      />
+      <div className="flex flex-col gap-3 max-w-md">
+        <p className="text-2xl font-semibold text-white">
+          Przygotowujemy raport PDF
+        </p>
+        <p className="text-sm text-white/90">
+          Prosimy o chwilę cierpliwości. Dokument otworzy się w nowej karcie zaraz po zakończeniu generowania.
+        </p>
+      </div>
+    </div>
+  );
+};
 
 export const PageNavigationBar = () => {
   const age = useAtomValue(inputAgeAtom);
@@ -200,30 +233,7 @@ export const PageNavigationBar = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {isGeneratingReport && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-live="assertive"
-          aria-busy="true"
-          aria-label="Generowanie dokumentu"
-          className="fixed inset-0 z-[999] flex flex-col items-center justify-center gap-6 bg-[color:var(--black)]/55 backdrop-blur-sm px-6 text-center"
-        >
-          <div
-            className="h-16 w-16 rounded-full border-4 border-[color:var(--gray-blue)] border-t-[color:var(--amber)] animate-spin"
-            aria-hidden="true"
-          />
-          <div className="flex flex-col gap-3 max-w-md">
-            <p className="text-3xl font-semibold text-white">
-              Przygotowujemy raport
-            </p>
-            <p className="text-xl text-white/90">
-              Prosimy o chwilę cierpliwości. Dokument otworzy się w nowej karcie
-              zaraz po zakończeniu generowania.
-            </p>
-          </div>
-        </div>
-      )}
+      {isGeneratingReport ? <GeneratingReportOverlay /> : null}
     </>
   );
 };
