@@ -5,12 +5,14 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { Info, Stethoscope } from 'lucide-react';
 
 import { KpiRows } from '../components/dashboard/KpiRows';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../components/ui/tooltip';
 import {
   averagePensionAtom,
   contributionHistoryAtom,
   expectedPensionComparisonAtom,
   includeSickLeaveAtom,
   inputAgeAtom,
+  inputCityAtom,
   inputGrossMonthlySalaryAtom,
   inputPlannedRetirementYearAtom,
   lifeExpectancyInfoAtom,
@@ -45,10 +47,10 @@ const zusColors = {
 // Usunięto sampleData - teraz używamy derived atomów
 
 export default function Dashboard() {
-  const [retirementAge, setRetirementAge] = useState(65);
+  const [retirementAge, setRetirementAge] = useState(60);
   const [salary, setSalary] = useState(5000);
   const [includeSickLeave, setIncludeSickLeave] = useAtom(includeSickLeaveAtom);
-  const [selectedRegion, setSelectedRegion] = useState('Mazowieckie');
+  const [selectedCity, setSelectedCity] = useAtom(inputCityAtom);
   const [selectedScenario, setSelectedScenario] = useAtom(selectedScenarioAtom);
 
   // Aktualizacja pojedynczych atomów wejściowych
@@ -166,12 +168,7 @@ export default function Dashboard() {
           },
         },
         title: {
-          text: 'Prognoza emerytury vs wiek przejścia',
-          style: {
-            color: zusColors.darkBlue,
-            fontSize: '16px',
-            fontWeight: 'bold',
-          },
+          text: '',
         },
         xAxis: {
           type: 'linear',
@@ -233,13 +230,35 @@ export default function Dashboard() {
         chart: {
           type: 'pie',
           backgroundColor: 'transparent',
+          plotBackgroundColor: null,
+          plotBorderWidth: null,
+          plotShadow: false,
         },
         title: {
-          text: 'Stopa zastąpienia',
-          style: {
-            color: zusColors.darkBlue,
-            fontSize: '16px',
-            fontWeight: 'bold',
+          text: '',
+        },
+        tooltip: {
+          enabled: false, // Wyłączamy tooltips jak prosiłeś
+        },
+        plotOptions: {
+          pie: {
+            allowPointSelect: false,
+            cursor: 'default',
+            dataLabels: {
+              enabled: true,
+              format: '{point.name}<br/><b>{point.y}%</b>',
+              style: { 
+                color: zusColors.darkBlue, 
+                fontWeight: 'bold',
+                fontSize: '14px',
+                textOutline: 'none',
+              },
+              distance: 20,
+            },
+            showInLegend: false,
+            borderWidth: 0,
+            innerSize: '40%',
+            size: '80%',
           },
         },
         series: [
@@ -248,24 +267,21 @@ export default function Dashboard() {
             type: 'pie',
             data: [
               {
-                name: 'Zastąpienie',
+                name: 'Emerytura',
                 y: replacementRate,
                 color: zusColors.primary,
               },
               {
-                name: 'Pozostałe',
+                name: 'Różnica',
                 y: 100 - replacementRate,
                 color: zusColors.greenLight,
               },
             ],
-            dataLabels: {
-              enabled: true,
-              format: '{point.name}: {point.y}%',
-              style: { color: zusColors.darkBlue, fontWeight: 'bold' },
-            },
-            borderWidth: 0,
           },
         ],
+        credits: {
+          enabled: false,
+        },
       });
       setReplacementRateChart(chart);
     }
@@ -277,12 +293,7 @@ export default function Dashboard() {
           backgroundColor: 'transparent',
         },
         title: {
-          text: 'Wpływ absencji chorobowych',
-          style: {
-            color: zusColors.darkBlue,
-            fontSize: '16px',
-            fontWeight: 'bold',
-          },
+          text: '',
         },
         xAxis: {
           categories: ['Z L4', 'Bez L4'],
@@ -324,12 +335,7 @@ export default function Dashboard() {
           backgroundColor: 'transparent',
         },
         title: {
-          text: 'Historia składek + kapitał początkowy',
-          style: {
-            color: zusColors.darkBlue,
-            fontSize: '16px',
-            fontWeight: 'bold',
-          },
+          text: '',
         },
         xAxis: {
           categories: contributionHistory.map((item) => item.year.toString()),
@@ -388,12 +394,7 @@ export default function Dashboard() {
           backgroundColor: 'transparent',
         },
         title: {
-          text: 'Scenariusze "co-jeśli"',
-          style: {
-            color: zusColors.darkBlue,
-            fontSize: '16px',
-            fontWeight: 'bold',
-          },
+          text: '',
         },
         xAxis: {
           categories: ['Pesymistyczny', 'Realistyczny', 'Optymistyczny'],
@@ -451,15 +452,20 @@ export default function Dashboard() {
           {
             name: 'Średnia w regionie',
             type: 'column',
-            data: regionalBenchmark.map((item) => item.average),
-            color: zusColors.greenLight,
+            data: regionalBenchmark.map((item) => ({
+              y: item.average,
+              color: item.isSelected ? zusColors.primary : zusColors.greenLight,
+            })),
             borderWidth: 0,
             borderRadius: 4,
           },
           {
             name: 'Twoja prognoza',
             type: 'column',
-            data: regionalBenchmark.map((item) => item.user),
+            data: regionalBenchmark.map((item) => ({
+              y: item.user,
+              color: item.isSelected ? zusColors.greenDark : zusColors.gray,
+            })),
             color: zusColors.primary,
             borderWidth: 0,
             borderRadius: 4,
@@ -486,6 +492,24 @@ export default function Dashboard() {
     }
   }, [pensionForecastData, pensionForecastChart]);
 
+  // Update replacement rate chart when data changes
+  useEffect(() => {
+    if (replacementRateChart) {
+      replacementRateChart.series[0].setData([
+        {
+          name: 'Emerytura',
+          y: replacementRate,
+          color: zusColors.primary,
+        },
+        {
+          name: 'Różnica',
+          y: 100 - replacementRate,
+          color: zusColors.greenLight,
+        },
+      ]);
+    }
+  }, [replacementRate, replacementRateChart]);
+
   useEffect(() => {
     if (sickLeaveChart && sickLeaveImpact) {
       const withSickLeave = includeSickLeave
@@ -494,11 +518,52 @@ export default function Dashboard() {
       const withoutSickLeave = sickLeaveImpact.withoutSickLeave;
 
       sickLeaveChart.series[0].setData([
-        { y: withSickLeave, color: zusColors.red },
-        { y: withoutSickLeave, color: zusColors.green },
+        { y: withSickLeave, color: zusColors.greenDark },
+        { y: withoutSickLeave, color: zusColors.primary },
       ]);
     }
   }, [includeSickLeave, sickLeaveChart, sickLeaveImpact]);
+
+  // Update contribution history chart when data changes
+  useEffect(() => {
+    if (contributionHistoryChart && contributionHistory.length > 0) {
+      contributionHistoryChart.series[0].setData(
+        contributionHistory.map((item) => item.contributions)
+      );
+      contributionHistoryChart.series[1].setData(
+        contributionHistory.map((item) => item.cumulativeCapital)
+      );
+    }
+  }, [contributionHistory, contributionHistoryChart]);
+
+  // Update scenarios chart when data changes
+  useEffect(() => {
+    if (scenariosChart && scenariosData) {
+      scenariosChart.series[0].setData([
+        { y: scenariosData.pessimistic, color: zusColors.greenDark },
+        { y: scenariosData.realistic, color: zusColors.primary },
+        { y: scenariosData.optimistic, color: zusColors.green },
+      ]);
+    }
+  }, [scenariosData, scenariosChart]);
+
+  // Update regional benchmark chart when data changes
+  useEffect(() => {
+    if (regionalBenchmarkChart && regionalBenchmark.length > 0) {
+      regionalBenchmarkChart.series[0].setData(
+        regionalBenchmark.map((item) => ({
+          y: item.average,
+          color: item.isSelected ? zusColors.primary : zusColors.greenLight,
+        }))
+      );
+      regionalBenchmarkChart.series[1].setData(
+        regionalBenchmark.map((item) => ({
+          y: item.user,
+          color: item.isSelected ? zusColors.greenDark : zusColors.gray,
+        }))
+      );
+    }
+  }, [regionalBenchmark, regionalBenchmarkChart]);
 
   // Cleanup charts on unmount
   useEffect(() => {
@@ -556,12 +621,33 @@ export default function Dashboard() {
             >
               Emerytura rzeczywista
             </h3>
-            <div
-              className="text-3xl font-bold"
-              style={{ color: zusColors.primary }}
-            >
-              {selectedPension.toLocaleString()} zł
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div
+                  className="text-3xl font-bold cursor-help"
+                  style={{ color: zusColors.primary }}
+                >
+                  {selectedPension.toLocaleString()} zł
+                </div>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-sm bg-white text-gray-800 border border-gray-200 shadow-lg">
+                <div className="text-sm">
+                  <div className="font-semibold mb-2">Emerytura nominalna</div>
+                  <div className="mb-2">
+                    <strong>Wzór:</strong> Kapitał emerytalny ÷ (Długość życia × 12)
+                  </div>
+                  <div className="mb-2">
+                    <strong>Kapitał:</strong> Stan konta ZUS + Składki przez całe życie
+                  </div>
+                  <div className="mb-2">
+                    <strong>Długość życia:</strong> {lifeExpectancyInfo.years} lat {lifeExpectancyInfo.months} miesięcy
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    * Wartość w cenach z roku przejścia na emeryturę
+                  </div>
+                </div>
+              </TooltipContent>
+            </Tooltip>
             <div className="mt-2 text-sm text-gray-600">
               vs średnia: {averagePension.toLocaleString()} zł
               <span
@@ -584,8 +670,8 @@ export default function Dashboard() {
                 Emerytura urealniona
               </h3>
               <div className="group relative">
-                <Info className="w-4 h-4 text-gray-400 hover:text-[var(--zus-green)] cursor-help" />
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-3 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-80">
+                <Info className="w-4 h-4 text-gray-600 hover:text-[var(--zus-green)] cursor-help transition-colors" />
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-3 bg-white text-gray-800 border border-gray-200 shadow-lg text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-80">
                   <div className="text-left">
                     <div className="font-semibold mb-2">
                       Emerytura urealniona
@@ -616,17 +702,58 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-            <div
-              className="text-3xl font-bold"
-              style={{ color: zusColors.green }}
-            >
-              {selectedRealPension.toLocaleString()} zł
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div
+                  className="text-3xl font-bold cursor-help"
+                  style={{ color: zusColors.green }}
+                >
+                  {selectedRealPension.toLocaleString()} zł
+                </div>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-sm bg-white text-gray-800 border border-gray-200 shadow-lg">
+                <div className="text-sm">
+                  <div className="font-semibold mb-2">Emerytura urealniona</div>
+                  <div className="mb-2">
+                    <strong>Wzór:</strong> Emerytura nominalna ÷ Wskaźnik inflacji
+                  </div>
+                  <div className="mb-2">
+                    <strong>Inflacja:</strong> Rzeczywiste dane ZUS 2025-{inputs.plannedRetirementYear}
+                  </div>
+                  <div className="mb-2">
+                    <strong>Średnia inflacja:</strong> ~2.5% rocznie (prognoza ZUS)
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    * Wartość w cenach z 2025 roku (siła nabywcza)
+                  </div>
+                </div>
+              </TooltipContent>
+            </Tooltip>
             <div className="mt-2 text-sm text-gray-600">
-              siła nabywcza po inflacji
-              <span className="ml-2 font-semibold text-[var(--zus-green)]">
-                ({purchasingPowerPercentage}% nominalnej)
-              </span>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="cursor-help">
+                    siła nabywcza po inflacji
+                    <span className="ml-2 font-semibold text-[var(--zus-green)]">
+                      ({purchasingPowerPercentage}% nominalnej)
+                    </span>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-sm bg-white text-gray-800 border border-gray-200 shadow-lg">
+                  <div className="text-sm">
+                    <div className="font-semibold mb-2">Siła nabywcza</div>
+                    <div className="mb-2">
+                      <strong>Wzór:</strong> (Emerytura realna ÷ Emerytura nominalna) × 100%
+                    </div>
+                    <div className="mb-2">
+                      <strong>Oznacza:</strong> Jaki procent siły nabywczej zachowasz po inflacji
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      * Im wyższy %, tym lepiej dla Twojej emerytury
+                    </div>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
             </div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow text-center">
@@ -658,16 +785,21 @@ export default function Dashboard() {
             {/* Pension Forecast Chart */}
             <div className="bg-white p-6 rounded-lg shadow">
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
+                <div className="mb-4">
                   <h3
-                    className="text-lg font-semibold"
+                    className="text-lg font-semibold mb-1"
                     style={{ color: zusColors.darkBlue }}
                   >
                     Prognoza emerytury vs wiek przejścia
                   </h3>
+                  <p className="text-sm text-gray-600">
+                    Wpływ wieku przejścia na emeryturę na wysokość świadczenia
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
                   <div className="group relative">
-                    <Info className="w-4 h-4 text-gray-400 hover:text-[var(--zus-green)] cursor-help" />
-                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-96">
+                    <Info className="w-4 h-4 text-gray-600 hover:text-[var(--zus-green)] cursor-help transition-colors" />
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-white text-gray-800 border border-gray-200 shadow-lg text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-96">
                       <div className="text-left">
                         <div className="font-semibold mb-2">
                           Emerytura nominalna vs realna
@@ -743,8 +875,8 @@ export default function Dashboard() {
                   Scenariusze "co-jeśli"
                 </h3>
                 <div className="group relative">
-                  <Info className="w-4 h-4 text-gray-400 hover:text-[var(--zus-green)] cursor-help" />
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-80">
+                  <Info className="w-4 h-4 text-gray-600 hover:text-[var(--zus-green)] cursor-help transition-colors" />
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-white text-gray-800 border border-gray-200 shadow-lg text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-80">
                     <div className="text-left">
                       <div className="font-semibold mb-2">
                         Scenariusze emerytalne
@@ -797,8 +929,8 @@ export default function Dashboard() {
                   Historia składek emerytalnych
                 </h3>
                 <div className="group relative">
-                  <Info className="w-4 h-4 text-gray-400 hover:text-[var(--zus-green)] cursor-help" />
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-88">
+                  <Info className="w-4 h-4 text-gray-600 hover:text-[var(--zus-green)] cursor-help transition-colors" />
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-white text-gray-800 border border-gray-200 shadow-lg text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-88">
                     <div className="text-left">
                       <div className="font-semibold mb-2">
                         Historia składek emerytalnych
@@ -849,8 +981,8 @@ export default function Dashboard() {
                   Porównanie z innymi regionami
                 </h3>
                 <div className="group relative">
-                  <Info className="w-4 h-4 text-gray-400 hover:text-[var(--zus-green)] cursor-help" />
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-88">
+                  <Info className="w-4 h-4 text-gray-600 hover:text-[var(--zus-green)] cursor-help transition-colors" />
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-white text-gray-800 border border-gray-200 shadow-lg text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-88">
                     <div className="text-left">
                       <div className="font-semibold mb-2">
                         Benchmark regionalny
@@ -863,7 +995,7 @@ export default function Dashboard() {
                           <div>Na podstawie Twoich składek</div>
                         </div>
                         <div>
-                          <div className="font-medium text-gray-400">
+                          <div className="font-medium text-gray-600">
                             Średnia regionalna:
                           </div>
                           <div>Średnia emerytura w województwie</div>
@@ -909,8 +1041,8 @@ export default function Dashboard() {
                     Wybierz scenariusz ekonomiczny:
                   </label>
                   <div className="group relative">
-                    <Info className="w-4 h-4 text-gray-400 hover:text-[var(--zus-green)] cursor-help" />
-                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-3 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-96">
+                    <Info className="w-4 h-4 text-gray-600 hover:text-[var(--zus-green)] cursor-help transition-colors" />
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-3 bg-white text-gray-800 border border-gray-200 shadow-lg text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-96">
                       <div className="text-left">
                         <div className="font-semibold mb-3">
                           Scenariusze ekonomiczne ZUS
@@ -984,10 +1116,10 @@ export default function Dashboard() {
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2 -mr-2">
+                <div className="flex flex-row gap-2">
                   <button
                     onClick={() => setSelectedScenario('pessimistic')}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 flex-shrink-0 ${
+                    className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 ${
                       selectedScenario === 'pessimistic'
                         ? 'bg-red-100 text-red-700 border-red-300'
                         : 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200'
@@ -997,7 +1129,7 @@ export default function Dashboard() {
                   </button>
                   <button
                     onClick={() => setSelectedScenario('realistic')}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 flex-shrink-0 ${
+                    className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 ${
                       selectedScenario === 'realistic'
                         ? 'bg-green-100 text-green-700 border-green-300'
                         : 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200'
@@ -1007,7 +1139,7 @@ export default function Dashboard() {
                   </button>
                   <button
                     onClick={() => setSelectedScenario('optimistic')}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 flex-shrink-0 ${
+                    className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 ${
                       selectedScenario === 'optimistic'
                         ? 'bg-blue-100 text-blue-700 border-blue-300'
                         : 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200'
@@ -1027,7 +1159,42 @@ export default function Dashboard() {
                     htmlFor="retirement-age"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Wiek przejścia na emeryturę: {retirementAge}
+                    <div className="flex items-center gap-2">
+                      <span>Wiek przejścia na emeryturę: {retirementAge}</span>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info 
+                            className="h-4 w-4 text-gray-600 hover:text-gray-800 transition-colors cursor-help" 
+                            aria-label="Informacje o obliczeniach emerytury"
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-sm bg-white text-gray-800 border border-gray-200 shadow-lg">
+                          <div className="text-sm">
+                            <div className="font-semibold mb-2">Jak obliczana jest emerytura?</div>
+                            <div className="mb-2">
+                              <strong>Wzór:</strong> Kapitał emerytalny ÷ (Długość życia × 12)
+                            </div>
+                            <div className="mb-2">
+                              <strong>Kapitał:</strong> Stan konta ZUS + Składki przez całe życie
+                            </div>
+                            <div className="mb-2">
+                              <strong>Długość życia:</strong> Maleje z wiekiem przejścia na emeryturę
+                            </div>
+                            <div className="mb-2">
+                              <strong>Wpływ opóźnienia:</strong>
+                            </div>
+                            <ul className="text-xs ml-4 space-y-1">
+                              <li>• Więcej składek = wyższy kapitał</li>
+                              <li>• Krótsza emerytura = wyższa miesięczna emerytura</li>
+                              <li>• Razem: ~3-6% wzrostu rocznie</li>
+                            </ul>
+                            <div className="text-xs text-gray-500 mt-2">
+                              * Wzrost jest realistyczny dzięki danym ZUS
+                            </div>
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
                   </label>
                   <input
                     type="range"
@@ -1046,7 +1213,34 @@ export default function Dashboard() {
                     htmlFor="salary"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Wysokość wynagrodzenia brutto (zł)
+                    <div className="flex items-center gap-2">
+                      <span>Wysokość wynagrodzenia brutto (zł)</span>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info 
+                            className="h-4 w-4 text-gray-600 hover:text-gray-800 transition-colors cursor-help" 
+                            aria-label="Informacje o wpływie pensji na emeryturę"
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-sm bg-white text-gray-800 border border-gray-200 shadow-lg">
+                          <div className="text-sm">
+                            <div className="font-semibold mb-2">Wpływ pensji na emeryturę</div>
+                            <div className="mb-2">
+                              <strong>Składki:</strong> 19.52% pensji brutto rocznie
+                            </div>
+                            <div className="mb-2">
+                              <strong>Wzrost płac:</strong> Rzeczywiste dane ZUS (3-5% rocznie)
+                            </div>
+                            <div className="mb-2">
+                              <strong>Kapitał:</strong> Składki × lata pracy + stan konta ZUS
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              * Wyższa pensja = więcej składek = wyższa emerytura
+                            </div>
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
                   </label>
                   <input
                     id="salary"
@@ -1076,14 +1270,14 @@ export default function Dashboard() {
                         <Stethoscope className="w-4 h-4 text-[var(--zus-green)] flex-shrink-0" />
                         <span>Uwzględnij absencję chorobową</span>
                         <div className="group relative flex-shrink-0">
-                          <Info className="w-4 h-4 text-gray-400 hover:text-[var(--zus-green)] cursor-help" />
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-6 py-4 bg-[var(--background)] border-2 border-[var(--zus-green)] text-[var(--foreground)] text-sm rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-80 shadow-lg">
+                          <Info className="w-4 h-4 text-gray-600 hover:text-[var(--zus-green)] cursor-help transition-colors" />
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-6 py-4 bg-white border border-gray-200 text-gray-800 text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-80 shadow-lg">
                             <div className="text-left">
-                              <div className="font-bold mb-3 text-center text-[var(--zus-green)] text-base">
+                              <div className="font-bold mb-3 text-center text-gray-800 text-base">
                                 Wpływ L4 na emeryturę
                               </div>
                               <div className="space-y-2">
-                                <div className="font-semibold text-[var(--foreground)]">
+                                <div className="font-semibold text-gray-800">
                                   Jak to działa:
                                 </div>
                                 <div className="pl-2">
@@ -1095,8 +1289,8 @@ export default function Dashboard() {
                                 <div className="pl-2">
                                   • To oznacza niższy kapitał emerytalny
                                 </div>
-                                <div className="border-t border-[var(--border)] pt-3 mt-3">
-                                  <div className="font-semibold text-[var(--foreground)]">
+                                <div className="border-t border-gray-200 pt-3 mt-3">
+                                  <div className="font-semibold text-gray-800">
                                     Średnio w roku:
                                   </div>
                                   <div className="pl-2">
@@ -1132,8 +1326,8 @@ export default function Dashboard() {
                   </label>
                   <select
                     id="region"
-                    value={selectedRegion}
-                    onChange={(e) => setSelectedRegion(e.target.value)}
+                    value={selectedCity || 'Warszawa'}
+                    onChange={(e) => setSelectedCity(e.target.value)}
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
                   >
                     {regionalBenchmark.map((region) => (
@@ -1148,11 +1342,27 @@ export default function Dashboard() {
 
             {/* Replacement Rate Gauge */}
             <div className="bg-white p-6 rounded-lg shadow">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold mb-1" style={{ color: zusColors.darkBlue }}>
+                  Stopa zastąpienia
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Stosunek emerytury do ostatniego wynagrodzenia
+                </p>
+              </div>
               <div ref={replacementRateRef} style={{ height: '300px' }}></div>
             </div>
 
             {/* Sick Leave Impact */}
             <div className="bg-white p-6 rounded-lg shadow">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold mb-1" style={{ color: zusColors.darkBlue }}>
+                  Wpływ absencji chorobowych
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Porównanie emerytury z uwzględnieniem L4 i bez
+                </p>
+              </div>
               <div ref={sickLeaveRef} style={{ height: '300px' }}></div>
             </div>
 
@@ -1207,10 +1417,10 @@ export default function Dashboard() {
               >
                 Siła nabywcza emerytury (IRE)
                 <div className="group relative">
-                  <Info className="w-4 h-4 text-gray-400 hover:text-[var(--zus-green)] cursor-help" />
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-2 bg-[var(--background)] border-2 border-[var(--zus-green)] text-[var(--foreground)] text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-64 shadow-lg">
+                  <Info className="w-4 h-4 text-gray-600 hover:text-[var(--zus-green)] cursor-help transition-colors" />
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-2 bg-white border border-gray-200 text-gray-800 text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-64 shadow-lg">
                     <div className="text-center">
-                      <div className="font-bold text-[var(--zus-green)] mb-1">
+                      <div className="font-bold text-gray-800 mb-1">
                         Średnia długość życia
                       </div>
                       <div className="text-sm">

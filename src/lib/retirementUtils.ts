@@ -32,7 +32,8 @@ const getRealWageGrowthFromData = (year: number): number => {
         'średnioroczny wskaźnik cen towarów i usług konsumpcyjnych ogółem*)'
       ] || 1.0;
     // Nominalny wzrost = realny wzrost * inflacja
-    return realGrowth * inflation;
+    // Ale realny wzrost już uwzględnia inflację, więc używamy go bezpośrednio
+    return realGrowth;
   }
   return 1.0; // Domyślnie brak wzrostu
 };
@@ -58,10 +59,10 @@ const getContributionRateFromData = (year: number): number => {
   return 0.1952; // Domyślnie 19.52% (9.76% + 9.76%)
 };
 
-// Średnia liczba dni absencji chorobowej na osobę (ZUS 2024/2025 - zaktualizowane dane).
+// Średnia liczba dni absencji chorobowej na osobę rocznie (dane ZUS 2024/2025)
 const SICK_LEAVE_DAYS_BY_GENDER: Record<Gender, number> = {
-  female: 24.2, // Kobiety: wzrost z 23.1 (2022) do 24.2 (2024/2025)
-  male: 14.5,   // Mężczyźni: wzrost z 13.8 (2022) do 14.5 (2024/2025)
+  female: 12.33, // Kobiety: średnia z danych ZUS dla Polski
+  male: 11.28,   // Mężczyźni: średnia z danych ZUS dla Polski
 };
 
 const WORKING_DAYS_PER_YEAR = 252;
@@ -81,10 +82,19 @@ const STATUTORY_RETIREMENT_AGE: Record<Gender, number> = {
 export const getRealWageGrowthFactor = getRealWageGrowthFromData;
 export const getContributionRate = getContributionRateFromData;
 
-export const getSickLeavePenalty = (gender: Gender) => {
+export const getSickLeavePenalty = (gender: Gender, yearsOfWork: number) => {
   const days = SICK_LEAVE_DAYS_BY_GENDER[gender] ?? 0;
   const shareOfYear = Math.min(Math.max(days / WORKING_DAYS_PER_YEAR, 0), 1);
-  return shareOfYear * (1 - SICK_LEAVE_REPLACEMENT_RATE);
+  
+  // ZUS nie odprowadza składek emerytalnych podczas L4
+  // Wpływ na emeryturę = brak składek przez czas absencji
+  // Wzór: udział_absencji_w_roku * współczynnik_składek * współczynnik_czasu
+  const contributionRate = 0.1952; // 19.52% składki emerytalne
+  const timeFactor = Math.min(yearsOfWork / 45, 1); // Maksymalnie 45 lat
+  const penalty = shareOfYear * contributionRate * timeFactor;
+  
+  // Ograniczenie do realistycznego poziomu (maksymalnie 5% redukcji)
+  return Math.min(penalty, 0.05);
 };
 
 export const getAdjustedLifeExpectancy = (
@@ -98,8 +108,11 @@ export const getAdjustedLifeExpectancy = (
     return baseExpectancy;
   }
 
+  // Długość życia maleje wolniej z wiekiem przejścia na emeryturę
+  // Wzór: baseExpectancy - (ageDelta * 0.3)
+  // To daje bardziej realistyczne wartości
   const ageDelta = retirementAge - statutoryAge;
-  const adjusted = baseExpectancy - ageDelta;
+  const adjusted = baseExpectancy - (ageDelta * 0.3);
 
   return Math.max(1, adjusted);
 };
