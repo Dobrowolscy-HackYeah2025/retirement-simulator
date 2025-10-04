@@ -162,7 +162,7 @@ export function Onboarding2SalaryPage() {
               placeholder="0"
               value={localSalary}
               onChange={(e) => setCurrentSalaryGross(e.target.value)}
-              className="w-full pr-8"
+              className="w-full pr-11"
             />
             <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground">
               PLN
@@ -240,7 +240,7 @@ export function Onboarding2SalaryPage() {
               placeholder="0"
               value={localZusBalance}
               onChange={(e) => setLocalZusBalance(e.target.value)}
-              className="w-full pr-8"
+              className="w-full pr-11"
             />
             <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground">
               PLN
