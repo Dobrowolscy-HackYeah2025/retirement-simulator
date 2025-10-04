@@ -51,18 +51,51 @@ export const PageNavigationBar = () => {
   const generateRetirementReport = useRetirementReport();
   const navigate = useNavigate();
   const [isExitDialogOpen, setIsExitDialogOpen] = useState(false);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
-  const handleGenerateReport = useCallback(() => {
-    trackEvent('generate-report', {
-      age,
-      gender,
-      city,
-      grossMonthlySalary,
-      workStartYear,
-      plannedRetirementYear,
-      zusAccountBalance,
-    });
-    void generateRetirementReport();
+  const handleGenerateReport = useCallback(async () => {
+    setIsGeneratingReport(true);
+    const MIN_LOADER_DURATION_MS = 1_500;
+    const loaderStartedAt = performance.now();
+    const ensureNextFrame = () =>
+      new Promise<void>((resolve) => {
+        if (typeof window === 'undefined') {
+          resolve();
+          return;
+        }
+        const raf = window.requestAnimationFrame?.bind(window);
+        if (raf) {
+          raf(() => resolve());
+        } else {
+          window.setTimeout(resolve, 0);
+        }
+      });
+
+    await ensureNextFrame();
+    let reportHandle: { open: () => void } | null = null;
+    try {
+      trackEvent('generate-report', {
+        age,
+        gender,
+        city,
+        grossMonthlySalary,
+        workStartYear,
+        plannedRetirementYear,
+        zusAccountBalance,
+      });
+      reportHandle = await generateRetirementReport();
+    } catch (error) {
+      console.error('Failed to generate retirement report PDF', error);
+    } finally {
+      const elapsed = performance.now() - loaderStartedAt;
+      if (elapsed < MIN_LOADER_DURATION_MS) {
+        await new Promise((resolve) =>
+          window.setTimeout(resolve, MIN_LOADER_DURATION_MS - elapsed)
+        );
+      }
+      reportHandle?.open();
+      setIsGeneratingReport(false);
+    }
   }, [
     generateRetirementReport,
     age,
@@ -130,7 +163,9 @@ export const PageNavigationBar = () => {
             </Link>
 
             <Button
-              onClick={handleGenerateReport}
+              onClick={() => {
+                void handleGenerateReport();
+              }}
               className="bg-transparent bg-gradient-to-r from-zus-green via-zus-green/97 to-zus-green [background-size:200%_auto] text-white hover:bg-transparent hover:bg-[99%_center] focus-visible:ring-primary/20 relative overflow-hidden group cursor-pointer"
             >
               <span className="group-hover:translate-x-40 transition duration-500 flex items-center gap-2">
@@ -164,6 +199,31 @@ export const PageNavigationBar = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {isGeneratingReport && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-live="assertive"
+          aria-busy="true"
+          aria-label="Generowanie dokumentu"
+          className="fixed inset-0 z-[999] flex flex-col items-center justify-center gap-6 bg-[color:var(--black)]/55 backdrop-blur-sm px-6 text-center"
+        >
+          <div
+            className="h-16 w-16 rounded-full border-4 border-[color:var(--gray-blue)] border-t-[color:var(--amber)] animate-spin"
+            aria-hidden="true"
+          />
+          <div className="flex flex-col gap-3 max-w-md">
+            <p className="text-3xl font-semibold text-white">
+              Przygotowujemy raport
+            </p>
+            <p className="text-xl text-white/90">
+              Prosimy o chwilę cierpliwości. Dokument otworzy się w nowej karcie
+              zaraz po zakończeniu generowania.
+            </p>
+          </div>
+        </div>
+      )}
     </>
   );
 };
