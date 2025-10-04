@@ -209,6 +209,12 @@ const styles = StyleSheet.create({
   chartCanvasWrapper: {
     alignItems: 'center',
   },
+  chartOverlayText: {
+    position: 'absolute',
+    fontSize: 9,
+    color: '#4B5563',
+    fontFamily: 'ZUS Sans',
+  },
   itemRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -269,9 +275,6 @@ const formatAxisValue = (value: number) => {
   }
   return numberFormatter.format(Math.round(value));
 };
-
-const SvgText: typeof PdfText =
-  (Svg as unknown as { Text?: typeof PdfText }).Text ?? PdfText;
 
 function Highlights({ items }: { items: RetirementReportHighlight[] }) {
   return (
@@ -357,7 +360,9 @@ function LineChartSvg({ chart }: { chart: RetirementReportChart }) {
 
   if (numericPoints.length === 0) {
     return (
-      <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} />
+      <View style={{ width, height }}>
+        <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} />
+      </View>
     );
   }
 
@@ -388,93 +393,119 @@ function LineChartSvg({ chart }: { chart: RetirementReportChart }) {
     minY + ((maxY - minY) / yTickCount) * index
   );
 
-  return (
-    <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
-      <Path
-        d={`M ${left} ${height - bottom} L ${width - right} ${height - bottom}`}
-        stroke="#D1D5DB"
-        strokeWidth={1}
-      />
-      <Path
-        d={`M ${left} ${top} L ${left} ${height - bottom}`}
-        stroke="#D1D5DB"
-        strokeWidth={1}
-      />
+  const overlays: ReactElement[] = [];
 
-      {xTickValues.map((tick) => {
-        const x = xScale(tick);
-        return (
-          <G key={`x-tick-${tick}`}>
+  xTickValues.forEach((tick) => {
+    const x = xScale(tick);
+    overlays.push(
+      <PdfText
+        key={`x-label-${tick}`}
+        style={[
+          styles.chartOverlayText,
+          {
+            left: x - 25,
+            top: height - bottom + 6,
+            width: 50,
+            textAlign: 'center',
+          },
+        ]}
+      >
+        {tick.toString()}
+      </PdfText>
+    );
+  });
+
+  yTicks.forEach((tickValue, index) => {
+    const y = yScale(tickValue);
+    overlays.push(
+      <PdfText
+        key={`y-label-${index}`}
+        style={[
+          styles.chartOverlayText,
+          {
+            left: left - 52,
+            top: y - 6,
+            width: 40,
+            textAlign: 'right',
+          },
+        ]}
+      >
+        {formatAxisValue(tickValue)}
+      </PdfText>
+    );
+  });
+
+  return (
+    <View style={{ width, height, position: 'relative' }}>
+      <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+        <Path
+          d={`M ${left} ${height - bottom} L ${width - right} ${height - bottom}`}
+          stroke="#D1D5DB"
+          strokeWidth={1}
+        />
+        <Path
+          d={`M ${left} ${top} L ${left} ${height - bottom}`}
+          stroke="#D1D5DB"
+          strokeWidth={1}
+        />
+
+        {yTicks.map((tickValue, index) => {
+          const y = yScale(tickValue);
+          return (
             <Path
+              key={`y-grid-${index}`}
+              d={`M ${left} ${y} L ${width - right} ${y}`}
+              stroke="#E2E8F0"
+              strokeWidth={index === 0 ? 1.5 : 1}
+            />
+          );
+        })}
+
+        {xTickValues.map((tick) => {
+          const x = xScale(tick);
+          return (
+            <Path
+              key={`x-tick-mark-${tick}`}
               d={`M ${x} ${height - bottom} L ${x} ${height - bottom + 6}`}
               stroke="#94A3B8"
               strokeWidth={1}
             />
-            <SvgText
-              x={x}
-              y={height - bottom + 20}
-              fontSize={9}
-              fill="#4B5563"
-              textAnchor="middle"
-            >
-              {tick.toString()}
-            </SvgText>
-          </G>
-        );
-      })}
+          );
+        })}
 
-      {yTicks.map((tickValue, index) => {
-        const y = yScale(tickValue);
-        return (
-          <G key={`y-tick-${index}`}>
-            <Path
-              d={`M ${left - 4} ${y} L ${width - right} ${y}`}
-              stroke="#E2E8F0"
-              strokeWidth={index === 0 ? 1.5 : 1}
-            />
-            <SvgText
-              x={left - 8}
-              y={y + 3}
-              fontSize={9}
-              fill="#4B5563"
-              textAnchor="end"
-            >
-              {formatAxisValue(tickValue)}
-            </SvgText>
-          </G>
-        );
-      })}
+        {numericSeries.map((series) => {
+          const stroke = series.color ?? ZUS_COLORS.blue;
+          const pathDefinition = series.points
+            .map((point, index) => {
+              const prefix = index === 0 ? 'M' : 'L';
+              return `${prefix} ${xScale(point.x as number)} ${yScale(point.y)}`;
+            })
+            .join(' ');
 
-      {numericSeries.map((series) => {
-        const stroke = series.color ?? ZUS_COLORS.blue;
-        const pathDefinition = series.points
-          .map((point, index) => {
-            const prefix = index === 0 ? 'M' : 'L';
-            return `${prefix} ${xScale(point.x as number)} ${yScale(point.y)}`;
-          })
-          .join(' ');
-
-        return (
-          <G key={series.id}>
-            <Path
-              d={pathDefinition}
-              stroke={stroke}
-              strokeWidth={2.5}
-              fill="none"
-            />
-            {series.points.map((point, index) => (
-              <Circle
-                key={`${series.id}-point-${index}`}
-                cx={xScale(point.x as number)}
-                cy={yScale(point.y)}
-                r={3.5}
-                fill={stroke}
+          return (
+            <G key={series.id}>
+              <Path
+                d={pathDefinition}
+                stroke={stroke}
+                strokeWidth={2.5}
+                fill="none"
               />
-            ))}
-          </G>
-        );
-      })}
-    </Svg>
+              {series.points.map((point, index) => (
+                <Circle
+                  key={`${series.id}-point-${index}`}
+                  cx={xScale(point.x as number)}
+                  cy={yScale(point.y)}
+                  r={3.5}
+                  fill={stroke}
+                />
+              ))}
+            </G>
+          );
+        })}
+      </Svg>
+
+      {overlays}
+    </View>
   );
 }
 
@@ -504,7 +535,9 @@ function ColumnChartSvg({ chart }: { chart: RetirementReportChart }) {
 
   if (categoryOrder.length === 0) {
     return (
-      <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} />
+      <View style={{ width, height }}>
+        <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} />
+      </View>
     );
   }
 
@@ -579,117 +612,143 @@ function ColumnChartSvg({ chart }: { chart: RetirementReportChart }) {
     });
   });
 
-  return (
-    <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
-      <Path
-        d={`M ${left} ${height - bottom} L ${width - right} ${height - bottom}`}
-        stroke="#D1D5DB"
-        strokeWidth={1}
-      />
-      <Path
-        d={`M ${left} ${top} L ${left} ${height - bottom}`}
-        stroke="#D1D5DB"
-        strokeWidth={1}
-      />
+  const overlays: ReactElement[] = [];
 
-      {yTicks.map((tickValue, index) => {
-        const y = yScale(tickValue);
-        return (
-          <G key={`column-y-${index}`}>
+  yTicks.forEach((tickValue, index) => {
+    const y = yScale(tickValue);
+    overlays.push(
+      <PdfText
+        key={`column-y-label-${index}`}
+        style={[
+          styles.chartOverlayText,
+          {
+            left: left - 52,
+            top: y - 6,
+            width: 40,
+            textAlign: 'right',
+          },
+        ]}
+      >
+        {formatAxisValue(tickValue)}
+      </PdfText>
+    );
+  });
+
+  categoryOrder.forEach((categoryKey, index) => {
+    const x = categoryCenters[index];
+    overlays.push(
+      <PdfText
+        key={`column-x-label-${categoryKey}`}
+        style={[
+          styles.chartOverlayText,
+          {
+            left: x - 30,
+            top: height - bottom + 6,
+            width: 60,
+            textAlign: 'center',
+          },
+        ]}
+      >
+        {categoryKey}
+      </PdfText>
+    );
+  });
+
+  return (
+    <View style={{ width, height, position: 'relative' }}>
+      <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+        <Path
+          d={`M ${left} ${height - bottom} L ${width - right} ${height - bottom}`}
+          stroke="#D1D5DB"
+          strokeWidth={1}
+        />
+        <Path
+          d={`M ${left} ${top} L ${left} ${height - bottom}`}
+          stroke="#D1D5DB"
+          strokeWidth={1}
+        />
+
+        {yTicks.map((tickValue, index) => {
+          const y = yScale(tickValue);
+          return (
             <Path
-              d={`M ${left - 4} ${y} L ${width - right} ${y}`}
+              key={`column-grid-${index}`}
+              d={`M ${left} ${y} L ${width - right} ${y}`}
               stroke="#E2E8F0"
               strokeWidth={index === 0 ? 1.5 : 1}
             />
-            <SvgText
-              x={left - 8}
-              y={y + 3}
-              fontSize={9}
-              fill="#4B5563"
-              textAnchor="end"
-            >
-              {formatAxisValue(tickValue)}
-            </SvgText>
-          </G>
-        );
-      })}
+          );
+        })}
 
-      {categoryOrder.map((categoryKey, index) => {
-        const x = categoryCenters[index];
-        return (
-          <G key={`column-x-${categoryKey}`}>
+        {categoryOrder.map((categoryKey, index) => {
+          const x = categoryCenters[index];
+          return (
             <Path
+              key={`column-tick-${categoryKey}`}
               d={`M ${x} ${height - bottom} L ${x} ${height - bottom + 6}`}
               stroke="#94A3B8"
               strokeWidth={1}
             />
-            <SvgText
-              x={x}
-              y={height - bottom + 20}
-              fontSize={9}
-              fill="#4B5563"
-              textAnchor="middle"
-            >
-              {categoryKey}
-            </SvgText>
-          </G>
-        );
-      })}
-
-      {bars}
-
-      {lineSeries.map((series) => {
-        const coordinates = categoryOrder
-          .map((categoryKey, index) => {
-            const point = series.points.find(
-              (point) => String(point.x) === categoryKey
-            );
-            if (!point) {
-              return null;
-            }
-            return {
-              x: categoryCenters[index],
-              y: yScale(point.y),
-            };
-          })
-          .filter(
-            (coordinate): coordinate is { x: number; y: number } =>
-              coordinate !== null
           );
+        })}
 
-        if (coordinates.length === 0) {
-          return null;
-        }
+        {bars}
 
-        const stroke = series.color ?? ZUS_COLORS.blue;
-        const pathDefinition = coordinates
-          .map((coordinate, index) => {
-            const prefix = index === 0 ? 'M' : 'L';
-            return `${prefix} ${coordinate.x} ${coordinate.y}`;
-          })
-          .join(' ');
+        {lineSeries.map((series) => {
+          const coordinates = categoryOrder
+            .map((categoryKey, idx) => {
+              const point = series.points.find(
+                (point) => String(point.x) === categoryKey
+              );
+              if (!point) {
+                return null;
+              }
+              return {
+                x: categoryCenters[idx],
+                y: yScale(point.y),
+              };
+            })
+            .filter(
+              (coordinate): coordinate is { x: number; y: number } =>
+                coordinate !== null
+            );
 
-        return (
-          <G key={`line-series-${series.id}`}>
-            <Path
-              d={pathDefinition}
-              stroke={stroke}
-              strokeWidth={2.5}
-              fill="none"
-            />
-            {coordinates.map((coordinate, index) => (
-              <Circle
-                key={`line-dot-${series.id}-${index}`}
-                cx={coordinate.x}
-                cy={coordinate.y}
-                r={3.5}
-                fill={stroke}
+          if (coordinates.length === 0) {
+            return null;
+          }
+
+          const stroke = series.color ?? ZUS_COLORS.blue;
+          const pathDefinition = coordinates
+            .map((coordinate, idx) => {
+              const prefix = idx === 0 ? 'M' : 'L';
+              return `${prefix} ${coordinate.x} ${coordinate.y}`;
+            })
+            .join(' ');
+
+          return (
+            <G key={`line-series-${series.id}`}>
+              <Path
+                d={pathDefinition}
+                stroke={stroke}
+                strokeWidth={2.5}
+                fill="none"
               />
-            ))}
-          </G>
-        );
-      })}
-    </Svg>
+              {coordinates.map((coordinate, idx) => (
+                <Circle
+                  key={`line-dot-${series.id}-${idx}`}
+                  cx={coordinate.x}
+                  cy={coordinate.y}
+                  r={3.5}
+                  fill={stroke}
+                />
+              ))}
+            </G>
+          );
+        })}
+      </Svg>
+
+      {overlays}
+    </View>
   );
 }
 
