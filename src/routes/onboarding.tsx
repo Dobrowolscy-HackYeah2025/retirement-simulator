@@ -18,6 +18,7 @@ import {
 import { Slider } from '../components/ui/slider';
 import { userAgeAtom, userCityAtom, userGenderAtom } from '../lib/atoms';
 import { filterCities } from '../lib/polish-cities';
+import { cn } from '../lib/utils';
 
 export function OnboardingPage() {
   const [userGender, setUserGender] = useAtom(userGenderAtom);
@@ -114,20 +115,27 @@ export function OnboardingPage() {
           </div>
         </div>
 
-        <div className="relative p-3 border rounded-md">
+        <div
+          className={cn(
+            'relative',
+            'file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input w-full min-w-0 rounded-md border bg-transparent p-3 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
+            'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
+            'aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive'
+          )}
+        >
           <div className="flex items-center gap-2 mb-3">
             <CalendarIcon className="size-4 text-muted-foreground" />
             <span className="text-sm font-medium text-foreground">
-              Wiek: {userAge} lat
+              {userAge ? `Wiek: ${userAge} lat` : 'Wybierz wiek'}
             </span>
-            {userAge >= 18 && userAge <= 120 && (
+            {userAge && userAge >= 18 && userAge <= 120 && (
               <div className="bg-primary text-primary-foreground flex size-4 items-center justify-center rounded-full ml-auto">
                 <CheckIcon className="size-3" />
               </div>
             )}
           </div>
           <Slider
-            value={[userAge]}
+            value={[userAge || 30]}
             onValueChange={(value) => setUserAge(value[0])}
             min={18}
             max={120}
@@ -143,7 +151,13 @@ export function OnboardingPage() {
         <div className="flex flex-col gap-2">
           <Button
             className="w-full"
-            disabled={!userGender || userAge < 18 || userAge > 120 || !userCity}
+            disabled={
+              !userGender ||
+              userAge === null ||
+              userAge < 18 ||
+              userAge > 120 ||
+              !userCity
+            }
             onClick={handleContinue}
           >
             Kontynuuj

@@ -30,7 +30,7 @@ export const retirementInputsAtom = atom<RetirementInputsState>({
 export const userGenderAtom = atom<'man' | 'woman' | null>(null);
 
 // User age atom for onboarding
-export const userAgeAtom = atom<number>(30);
+export const userAgeAtom = atom<number | null>(null);
 
 // User city atom for onboarding
 export const userCityAtom = atom<string>('');
