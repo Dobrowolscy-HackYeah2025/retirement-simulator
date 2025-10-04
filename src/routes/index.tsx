@@ -9,7 +9,6 @@ import {
 } from '@/components/ui/card';
 
 import { useQuery } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
 
 // Sample data fetching function
 const fetchWelcomeMessage = async (): Promise<string> => {
@@ -18,7 +17,7 @@ const fetchWelcomeMessage = async (): Promise<string> => {
   return 'Welcome to your Retirement Simulator!';
 };
 
-function Index() {
+export function HomePage() {
   const {
     data: welcomeMessage,
     isLoading,
@@ -61,7 +60,3 @@ function Index() {
     </div>
   );
 }
-
-export const Route = createFileRoute('/')({
-  component: Index,
-});

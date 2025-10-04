@@ -6,9 +6,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
-import { createFileRoute } from '@tanstack/react-router';
-
-function About() {
+export function AboutPage() {
   return (
     <div className="p-2">
       <Card className="max-w-2xl mx-auto">
@@ -42,7 +40,3 @@ function About() {
     </div>
   );
 }
-
-export const Route = createFileRoute('/about')({
-  component: About,
-});
