@@ -654,16 +654,16 @@ function computeScenarioProjection(
   switch (scenario) {
     case 'pessimistic':
       // Scenariusz pesymistyczny: gorsze warunki ekonomiczne
-      wageGrowthMultiplier = 0.5; // 50% normalnego wzrostu płac
-      contributionRateMultiplier = 1.1; // 10% wyższe stopy składek
-      lifeExpectancyAdjustment = -1.0; // 1 rok krótsza długość życia
+      wageGrowthMultiplier = 0.5; // 50% normalnego wzrostu płac (wolniejszy wzrost)
+      contributionRateMultiplier = 0.9; // 10% niższe stopy składek (mniej składek)
+      lifeExpectancyAdjustment = -2.0; // 2 lata krótsza długość życia
       break;
 
     case 'optimistic':
       // Scenariusz optymistyczny: lepsze warunki ekonomiczne
-      wageGrowthMultiplier = 1.5; // 150% normalnego wzrostu płac
-      contributionRateMultiplier = 0.9; // 10% niższe stopy składek
-      lifeExpectancyAdjustment = +1.0; // 1 rok dłuższa długość życia
+      wageGrowthMultiplier = 1.5; // 150% normalnego wzrostu płac (szybszy wzrost)
+      contributionRateMultiplier = 1.1; // 10% wyższe stopy składek (więcej składek)
+      lifeExpectancyAdjustment = +2.0; // 2 lata dłuższa długość życia
       break;
 
     case 'realistic':

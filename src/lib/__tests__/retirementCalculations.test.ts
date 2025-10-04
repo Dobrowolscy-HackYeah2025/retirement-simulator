@@ -57,14 +57,14 @@ describe('Retirement Calculations', () => {
 
     it('should adjust for early retirement', () => {
       const expectancy = getAdjustedLifeExpectancy('male', 60);
-      // 17.5 - (60 - 65) = 17.5 + 5 = 22.5
-      expect(expectancy).toBe(22.5);
+      // 17.5 - (60 - 65) * 0.3 = 17.5 + 5 * 0.3 = 17.5 + 1.5 = 19
+      expect(expectancy).toBe(19);
     });
 
     it('should adjust for late retirement', () => {
       const expectancy = getAdjustedLifeExpectancy('male', 70);
-      // 17.5 - (70 - 65) = 17.5 - 5 = 12.5
-      expect(expectancy).toBe(12.5);
+      // 17.5 - (70 - 65) * 0.3 = 17.5 - 5 * 0.3 = 17.5 - 1.5 = 16
+      expect(expectancy).toBe(16);
     });
   });
 

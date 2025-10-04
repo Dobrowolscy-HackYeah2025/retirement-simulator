@@ -1116,10 +1116,10 @@ export default function Dashboard() {
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2 -mr-2">
+                <div className="flex flex-row gap-2">
                   <button
                     onClick={() => setSelectedScenario('pessimistic')}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 flex-shrink-0 ${
+                    className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 ${
                       selectedScenario === 'pessimistic'
                         ? 'bg-red-100 text-red-700 border-red-300'
                         : 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200'
@@ -1129,7 +1129,7 @@ export default function Dashboard() {
                   </button>
                   <button
                     onClick={() => setSelectedScenario('realistic')}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 flex-shrink-0 ${
+                    className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 ${
                       selectedScenario === 'realistic'
                         ? 'bg-green-100 text-green-700 border-green-300'
                         : 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200'
@@ -1139,7 +1139,7 @@ export default function Dashboard() {
                   </button>
                   <button
                     onClick={() => setSelectedScenario('optimistic')}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 flex-shrink-0 ${
+                    className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 ${
                       selectedScenario === 'optimistic'
                         ? 'bg-blue-100 text-blue-700 border-blue-300'
                         : 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200'
