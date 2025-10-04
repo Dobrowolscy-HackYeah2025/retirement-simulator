@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Highcharts from 'highcharts';
 import { useAtom } from 'jotai';
 
+import { KpiRows } from '../components/dashboard/KpiRows';
 import {
   contributionHistoryAtom,
   pensionForecastDataAtom,
@@ -500,64 +501,10 @@ export default function Dashboard() {
       }
     >
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1
-            className="text-3xl font-bold mb-2"
-            style={{ color: zusColors.darkBlue }}
-          >
-            ZUS Symulator Emerytalny
-          </h1>
-          <p className="text-gray-600">
-            Narzędzie edukacyjne do prognozowania wysokości emerytury
-          </p>
-        </div>
-
-        {/* Top KPI Row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow text-center">
-            <h3
-              className="text-lg font-semibold mb-2"
-              style={{ color: zusColors.darkBlue }}
-            >
-              Prognoza emerytury nominalna
-            </h3>
-            <div
-              className="text-3xl font-bold"
-              style={{ color: zusColors.blue }}
-            >
-              {scenariosData.realistic.toLocaleString()} zł
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow text-center">
-            <h3
-              className="text-lg font-semibold mb-2"
-              style={{ color: zusColors.darkBlue }}
-            >
-              Prognoza emerytury realna
-            </h3>
-            <div
-              className="text-3xl font-bold"
-              style={{ color: zusColors.green }}
-            >
-              {Math.round(scenariosData.realistic * 0.7).toLocaleString()} zł
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow text-center">
-            <h3
-              className="text-lg font-semibold mb-2"
-              style={{ color: zusColors.darkBlue }}
-            >
-              Stopa zastąpienia
-            </h3>
-            <div
-              className="text-3xl font-bold"
-              style={{ color: zusColors.orange }}
-            >
-              {replacementRate}%
-            </div>
-          </div>
-        </div>
+        <KpiRows
+          scenariosData={scenariosData}
+          replacementRate={replacementRate}
+        />
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
