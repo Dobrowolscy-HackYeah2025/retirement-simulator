@@ -176,9 +176,8 @@ export function Onboarding2SalaryPage() {
   );
 
   const handleGenerateReport = useCallback(() => {
-    setOnboardingCompleted(true);
     handleLoaderState(true);
-  }, [handleLoaderState, setOnboardingCompleted]);
+  }, [handleLoaderState]);
 
   const handleReportComplete = useCallback(() => {
     trackEvent('show-dashboard', {
@@ -192,10 +191,9 @@ export function Onboarding2SalaryPage() {
     });
 
     handleLoaderState(false);
-    navigate('/dashboard', { replace: true });
+    setOnboardingCompleted(true);
   }, [
     handleLoaderState,
-    navigate,
     age,
     gender,
     city,
@@ -203,6 +201,7 @@ export function Onboarding2SalaryPage() {
     workStartYear,
     plannedRetirementYear,
     zusAccountBalance,
+    setOnboardingCompleted,
   ]);
 
   const handleGoBack = useCallback(() => {
