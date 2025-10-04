@@ -5,18 +5,13 @@ import { atomFamily } from 'jotai/utils';
 import absencjaChorobowaData from './data/absencja_chorobowa_all_sheets.json';
 import opoznienieData from './data/opoznienie_przejscia_all_sheets.json';
 import parametryData from './data/parametry_III_2025_all_sheets.json';
-import type {
-  RetirementInputsState,
-  RetirementProjection,
-  ContributionProjection,
-} from './retirementUtils';
+import type { RetirementInputsState } from './retirementUtils';
 import {
   computeMonthlyPension,
   getAdjustedLifeExpectancy,
-  getSickLeavePenalty,
-  normalizeInputs,
-  getRealWageGrowthFactor,
   getContributionRate,
+  getRealWageGrowthFactor,
+  getSickLeavePenalty,
   roundCurrency,
   roundRatio,
 } from './retirementUtils';
@@ -36,12 +31,24 @@ export const retirementInputsAtom = atom<RetirementInputsState>({
   zusAccountBalance: null, // Aktualny stan środków na koncie i subkoncie w ZUS (wartość fakultatywna).
 });
 
+export type RetirementProjection = {
+  capital: number;
+  capitalWithSickLeave: number;
+  finalMonthlySalary: number;
+  lifeExpectancyYears: number;
+};
+
 // Wewnętrzna projekcja gromadząca kapitał i parametry potrzebne do dalszych obliczeń.
 const retirementComputationAtom = atom<RetirementProjection | null>((get) => {
   const inputs = get(retirementInputsAtom);
-  const normalized = normalizeInputs(inputs);
-
-  if (!normalized) {
+  // Wymagane: age, gender, grossMonthlySalary, workStartYear, plannedRetirementYear
+  if (
+    inputs.age == null ||
+    inputs.gender == null ||
+    inputs.grossMonthlySalary == null ||
+    inputs.workStartYear == null ||
+    inputs.plannedRetirementYear == null
+  ) {
     return null;
   }
 
@@ -55,14 +62,16 @@ const retirementComputationAtom = atom<RetirementProjection | null>((get) => {
     return null;
   }
 
-  const capital = normalized.zusAccountBalance + contributionsSum;
-  const sickLeavePenalty = getSickLeavePenalty(normalized.gender);
+  const gender = inputs.gender!;
+  const capital = (inputs.zusAccountBalance ?? 0) + contributionsSum;
+  const sickLeavePenalty = getSickLeavePenalty(gender);
+  // Oblicz wiek emerytalny na podstawie wieku i planowanego roku przejścia
+  const currentYear = new Date().getFullYear();
+  const birthYear = currentYear - inputs.age;
+  const retirementAge = inputs.plannedRetirementYear - birthYear;
   const capitalWithSickLeave =
-    normalized.zusAccountBalance + contributionsSum * (1 - sickLeavePenalty);
-  const lifeExpectancyYears = getAdjustedLifeExpectancy(
-    normalized.gender,
-    normalized.retirementAge
-  );
+    (inputs.zusAccountBalance ?? 0) + contributionsSum * (1 - sickLeavePenalty);
+  const lifeExpectancyYears = getAdjustedLifeExpectancy(gender, retirementAge);
 
   if (!Number.isFinite(lifeExpectancyYears) || lifeExpectancyYears <= 0) {
     console.log(
@@ -80,30 +89,47 @@ const retirementComputationAtom = atom<RetirementProjection | null>((get) => {
   };
 });
 
+export type ContributionProjection = {
+  contributionsSum: number;
+  monthlySalaryInFinalYear: number;
+};
+
 // Projekcja składek i ostatniego wynagrodzenia brutto (derived atom)
 export const contributionProjectionAtom = atom<ContributionProjection | null>(
   (get) => {
     const inputs = get(retirementInputsAtom);
-    const normalized = normalizeInputs(inputs);
-    if (!normalized) {
+    // Wymagane do projekcji składek
+    if (
+      inputs.grossMonthlySalary == null ||
+      inputs.workStartYear == null ||
+      inputs.plannedRetirementYear == null
+    ) {
       return null;
     }
 
     const calendarYear = new Date().getFullYear();
-    const projectionStartYear = normalized.workStartYear;
-    const projectionEndYear = normalized.plannedRetirementYear;
+    const projectionStartYear = inputs.workStartYear;
+    const projectionEndYear = inputs.plannedRetirementYear;
 
-    let monthlySalary = normalized.grossMonthlySalary;
+    let monthlySalary = inputs.grossMonthlySalary;
 
     if (projectionStartYear < calendarYear) {
-      for (let year = calendarYear - 1; year >= projectionStartYear; year -= 1) {
+      for (
+        let year = calendarYear - 1;
+        year >= projectionStartYear;
+        year -= 1
+      ) {
         const growthFactor = getRealWageGrowthFactor(year + 1);
         if (growthFactor > 0) {
           monthlySalary /= growthFactor;
         }
       }
     } else if (projectionStartYear > calendarYear) {
-      for (let year = calendarYear + 1; year <= projectionStartYear; year += 1) {
+      for (
+        let year = calendarYear + 1;
+        year <= projectionStartYear;
+        year += 1
+      ) {
         const growthFactor = getRealWageGrowthFactor(year);
         if (growthFactor > 0) {
           monthlySalary *= growthFactor;
@@ -115,7 +141,11 @@ export const contributionProjectionAtom = atom<ContributionProjection | null>(
     let monthlySalaryInFinalYear = monthlySalary;
 
     if (projectionEndYear > projectionStartYear) {
-      for (let year = projectionStartYear; year < projectionEndYear; year += 1) {
+      for (
+        let year = projectionStartYear;
+        year < projectionEndYear;
+        year += 1
+      ) {
         if (year > projectionStartYear) {
           monthlySalary *= getRealWageGrowthFactor(year);
         }
@@ -139,26 +169,39 @@ export const contributionProjectionAtom = atom<ContributionProjection | null>(
 export const contributionProjectionForInputsFamily = atomFamily(
   (inputs: RetirementInputsState) =>
     atom<ContributionProjection | null>((get) => {
-      const normalized = normalizeInputs(inputs);
-      if (!normalized) {
+      // zaznacz użycie parametru, aby uniknąć TS6133
+      void get;
+      if (
+        inputs.grossMonthlySalary == null ||
+        inputs.workStartYear == null ||
+        inputs.plannedRetirementYear == null
+      ) {
         return null;
       }
 
       const calendarYear = new Date().getFullYear();
-      const projectionStartYear = normalized.workStartYear;
-      const projectionEndYear = normalized.plannedRetirementYear;
+      const projectionStartYear = inputs.workStartYear;
+      const projectionEndYear = inputs.plannedRetirementYear;
 
-      let monthlySalary = normalized.grossMonthlySalary;
+      let monthlySalary = inputs.grossMonthlySalary;
 
       if (projectionStartYear < calendarYear) {
-        for (let year = calendarYear - 1; year >= projectionStartYear; year -= 1) {
+        for (
+          let year = calendarYear - 1;
+          year >= projectionStartYear;
+          year -= 1
+        ) {
           const growthFactor = getRealWageGrowthFactor(year + 1);
           if (growthFactor > 0) {
             monthlySalary /= growthFactor;
           }
         }
       } else if (projectionStartYear > calendarYear) {
-        for (let year = calendarYear + 1; year <= projectionStartYear; year += 1) {
+        for (
+          let year = calendarYear + 1;
+          year <= projectionStartYear;
+          year += 1
+        ) {
           const growthFactor = getRealWageGrowthFactor(year);
           if (growthFactor > 0) {
             monthlySalary *= growthFactor;
@@ -170,7 +213,11 @@ export const contributionProjectionForInputsFamily = atomFamily(
       let monthlySalaryInFinalYear = monthlySalary;
 
       if (projectionEndYear > projectionStartYear) {
-        for (let year = projectionStartYear; year < projectionEndYear; year += 1) {
+        for (
+          let year = projectionStartYear;
+          year < projectionEndYear;
+          year += 1
+        ) {
           if (year > projectionStartYear) {
             monthlySalary *= getRealWageGrowthFactor(year);
           }
@@ -311,7 +358,7 @@ export const pensionForecastDataAtom = atom<PensionForecastData[]>((get) => {
   }
 
   const ages = [60, 62, 64, 65, 67, 70];
-  const currentAge = inputs.age;
+  const currentAge = inputs.age!;
   const currentYear = new Date().getFullYear();
 
   // Oblicz bazowy kapitał na podstawie aktualnych danych (bez uwzględniania plannedRetirementYear)
@@ -323,17 +370,14 @@ export const pensionForecastDataAtom = atom<PensionForecastData[]>((get) => {
     plannedRetirementYear: baseRetirementYear,
   };
 
-  const baseProjection = get(
-    contributionProjectionForInputsFamily(baseInputs)
-  );
+  const baseProjection = get(contributionProjectionForInputsFamily(baseInputs));
   if (!baseProjection) {
     return [];
   }
-  const normalizedBase = normalizeInputs(baseInputs);
   const baseCapital =
-    (normalizedBase?.zusAccountBalance || 0) +
-    baseProjection.contributionsSum;
+    (baseInputs.zusAccountBalance || 0) + baseProjection.contributionsSum;
 
+  const gender = inputs.gender!;
   return ages.map((age) => {
     const yearsToRetirement = age - currentAge;
 
@@ -351,10 +395,7 @@ export const pensionForecastDataAtom = atom<PensionForecastData[]>((get) => {
     const adjustedCapital =
       baseCapital * Math.pow(1 + wageGrowthRate, yearsToRetirement);
 
-    const adjustedLifeExpectancy = getAdjustedLifeExpectancy(
-      inputs.gender,
-      age
-    );
+    const adjustedLifeExpectancy = getAdjustedLifeExpectancy(gender, age);
     const nominalPension = computeMonthlyPension(
       adjustedCapital,
       adjustedLifeExpectancy

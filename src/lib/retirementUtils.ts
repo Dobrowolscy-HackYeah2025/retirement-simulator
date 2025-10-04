@@ -107,67 +107,6 @@ export const roundCurrency = (value: number) => Math.round(value);
 
 export const roundRatio = (value: number) => Number(value.toFixed(3));
 
-export const normalizeInputs = (
-  inputs: RetirementInputsState,
-  calendarYear = new Date().getFullYear()
-) => {
-  if (
-    inputs.grossMonthlySalary == null ||
-    inputs.workStartYear == null ||
-    inputs.plannedRetirementYear == null ||
-    inputs.age == null ||
-    inputs.gender == null
-  ) {
-    return null;
-  }
-
-  if (
-    !Number.isFinite(inputs.grossMonthlySalary) ||
-    inputs.grossMonthlySalary <= 0 ||
-    !Number.isFinite(inputs.workStartYear) ||
-    !Number.isFinite(inputs.plannedRetirementYear)
-  ) {
-    return null;
-  }
-
-  const birthYear = calendarYear - inputs.age;
-  const retirementAge = inputs.plannedRetirementYear - birthYear;
-
-  if (!Number.isFinite(retirementAge) || retirementAge <= 0) {
-    return null;
-  }
-
-  return {
-    grossMonthlySalary: inputs.grossMonthlySalary,
-    workStartYear: Math.trunc(inputs.workStartYear),
-    plannedRetirementYear: Math.trunc(inputs.plannedRetirementYear),
-    zusAccountBalance: Math.max(0, inputs.zusAccountBalance ?? 0),
-    gender: inputs.gender,
-    retirementAge,
-  } satisfies NormalizedInputs;
-};
-
-export type NormalizedInputs = {
-  grossMonthlySalary: number;
-  workStartYear: number;
-  plannedRetirementYear: number;
-  zusAccountBalance: number;
-  gender: Gender;
-  retirementAge: number;
-};
-
-export type ContributionProjection = {
-  contributionsSum: number;
-  monthlySalaryInFinalYear: number;
-};
-
-export type RetirementProjection = {
-  capital: number;
-  capitalWithSickLeave: number;
-  finalMonthlySalary: number;
-  lifeExpectancyYears: number;
-};
-
 export const computeMonthlyPension = (
   capital: number,
   lifeExpectancyYears: number
