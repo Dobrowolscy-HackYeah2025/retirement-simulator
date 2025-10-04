@@ -1,7 +1,7 @@
 # Plik źródłowe
 
-`./llm/requirements.pdf` — odczytaj cele, ograniczenia, wymagania, wejścia, wyjścia, wzory, linki, odwołania do danych. Czytaj pierwsze.
-`./llm/data.pdf` — dataset/schema referenced by the project
+`./llm/requirements.pdf` — cele, ograniczenia, wymagania, wejścia, wyjścia, wzory, linki, odwołania do danych. Zawsze czytaj pierwsze.
+`./llm/data.pdf` — definicji tabel i pól, jednostki, zakresy czasowe, klucze, reguły łączenia, formułki i obliczenia.
 
 Te pliki zostały też skonwertowane do `.txt` ale preferuj `pdfgrep` na oryginalnych plikach `.pdf` jeżeli jest zainstalowany w środowisku.
 
