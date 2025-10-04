@@ -17,6 +17,11 @@ import {
   SelectValue,
 } from '../components/ui/select';
 import { Slider } from '../components/ui/slider';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '../components/ui/tooltip';
 import { userAgeAtom, userCityAtom, userGenderAtom } from '../lib/atoms';
 import { filterCities } from '../lib/polish-cities';
 import { cn } from '../lib/utils';
@@ -36,6 +41,24 @@ export function OnboardingPage() {
   const handleGoBack = () => {
     navigate('/');
   };
+
+  // Get missing fields for tooltip
+  const getMissingFields = () => {
+    const missing: string[] = [];
+    if (!userGender) {
+      missing.push('płeć');
+    }
+    if (!userCity) {
+      missing.push('miasto');
+    }
+    if (!userAge || userAge < 18 || userAge > 120) {
+      missing.push('wiek');
+    }
+    return missing;
+  };
+
+  const missingFields = getMissingFields();
+  const isDisabled = missingFields.length > 0;
 
   return (
     <OnboardingPageWrapper>
@@ -159,19 +182,32 @@ export function OnboardingPage() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Button
-          className="w-full"
-          disabled={
-            !userGender ||
-            userAge === null ||
-            userAge < 18 ||
-            userAge > 120 ||
-            !userCity
-          }
-          onClick={handleContinue}
-        >
-          Kontynuuj
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="w-full">
+              <Button
+                className="w-full"
+                disabled={isDisabled}
+                onClick={handleContinue}
+              >
+                Kontynuuj
+              </Button>
+            </div>
+          </TooltipTrigger>
+          {isDisabled && (
+            <TooltipContent side="top">
+              <p>
+                Uzupełnij brakujące pola:{' '}
+                {missingFields.map((field, index) => (
+                  <span key={field}>
+                    <strong>{field}</strong>
+                    {index < missingFields.length - 1 ? ', ' : ''}
+                  </span>
+                ))}
+              </p>
+            </TooltipContent>
+          )}
+        </Tooltip>
       </div>
     </OnboardingPageWrapper>
   );

@@ -4,10 +4,9 @@ import { ZUSReportGenerator } from '@/components/ZUSReportGenerator';
 import {
   currentSalaryGrossAtom,
   retirementYearAtom,
+  showReportGeneratorAtom,
   workStartYearAtom,
 } from '@/lib/atoms';
-
-import { useState } from 'react';
 
 import { useAtom } from 'jotai';
 import { CheckIcon } from 'lucide-react';
@@ -21,6 +20,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/ui/select';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '../components/ui/tooltip';
 
 export function Onboarding2SalaryPage() {
   const [currentSalaryGross, setCurrentSalaryGross] = useAtom(
@@ -28,7 +32,9 @@ export function Onboarding2SalaryPage() {
   );
   const [workStartYear, setWorkStartYear] = useAtom(workStartYearAtom);
   const [retirementYear, setRetirementYear] = useAtom(retirementYearAtom);
-  const [showReportGenerator, setShowReportGenerator] = useState(false);
+  const [showReportGenerator, setShowReportGenerator] = useAtom(
+    showReportGeneratorAtom
+  );
   const navigate = useNavigate();
 
   // Generate years from 1950 to 2025
@@ -59,6 +65,24 @@ export function Onboarding2SalaryPage() {
   const handleGoBack = () => {
     navigate('/onboarding');
   };
+
+  // Get missing fields for tooltip
+  const getMissingFields = () => {
+    const missing: string[] = [];
+    if (currentSalaryGross <= 0) {
+      missing.push('zarobki brutto');
+    }
+    if (workStartYear < 1950 || workStartYear > 2025) {
+      missing.push('rok rozpoczęcia pracy');
+    }
+    if (retirementYear <= workStartYear) {
+      missing.push('rok zakończenia aktywności zawodowej');
+    }
+    return missing;
+  };
+
+  const missingFields = getMissingFields();
+  const isDisabled = missingFields.length > 0;
 
   return (
     <OnboardingPageWrapper>
@@ -158,13 +182,32 @@ export function Onboarding2SalaryPage() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <Button
-            className="w-full"
-            disabled={!isFormValid}
-            onClick={handleGenerateReport}
-          >
-            Generuj raport ZUS
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="w-full">
+                <Button
+                  className="w-full"
+                  disabled={isDisabled}
+                  onClick={handleGenerateReport}
+                >
+                  Generuj raport ZUS
+                </Button>
+              </div>
+            </TooltipTrigger>
+            {isDisabled && (
+              <TooltipContent side="top">
+                <p>
+                  Uzupełnij brakujące pola:{' '}
+                  {missingFields.map((field, index) => (
+                    <span key={field}>
+                      <strong>{field}</strong>
+                      {index < missingFields.length - 1 ? ', ' : ''}
+                    </span>
+                  ))}
+                </p>
+              </TooltipContent>
+            )}
+          </Tooltip>
           <Button
             variant="ghost"
             className="text-muted-foreground font-medium"

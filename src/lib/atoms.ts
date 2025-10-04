@@ -39,6 +39,7 @@ export const userCityAtom = atom<string>('');
 export const currentSalaryGrossAtom = atom<number>(0);
 export const workStartYearAtom = atom<number>(2020);
 export const retirementYearAtom = atom<number>(2065);
+export const showReportGeneratorAtom = atom<boolean>(false);
 
 // Wewnętrzna projekcja gromadząca kapitał i parametry potrzebne do dalszych obliczeń.
 const retirementComputationAtom = atom<RetirementProjection | null>((get) => {

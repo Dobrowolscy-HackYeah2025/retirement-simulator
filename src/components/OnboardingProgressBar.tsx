@@ -1,7 +1,11 @@
+import { useAtom } from 'jotai';
 import { useLocation } from 'react-router-dom';
+
+import { showReportGeneratorAtom } from '../lib/atoms';
 
 export const OnboardingProgressBar = () => {
   const location = useLocation();
+  const [showReportGenerator] = useAtom(showReportGeneratorAtom);
 
   // Calculate progress based on current route
   const getProgress = () => {
@@ -11,8 +15,8 @@ export const OnboardingProgressBar = () => {
     if (location.pathname === '/onboarding/2-zarobki') {
       return 66;
     }
-    if (location.pathname === '/onboarding/3-final') {
-      return 100;
+    if (location.pathname === '/onboarding/3-final' || showReportGenerator) {
+      return 90;
     }
     return 0;
   };
