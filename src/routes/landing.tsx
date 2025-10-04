@@ -34,7 +34,7 @@ const cards = [
 export function LandingPage() {
   return (
     <div className="min-h-screen overflow-x-hidden">
-      <div className="relative max-w-7xl mx-auto px-6 py-20 pt-24 md:pt-36">
+      <div className="relative max-w-7xl mx-auto px-6 py-20 pt-24 md:pt-36 lg:pt-40">
         <div className="text-left">
           <div className="flex justify-start mb-4">
             <img
@@ -81,7 +81,7 @@ export function LandingPage() {
                 <h3 className="text-base md:text-lg font-semibold text-foreground mb-2">
                   {card.title}
                 </h3>
-                <p className="text-xs md:text-base text-muted-foreground">
+                <p className="text-xs md:text-base text-muted-foreground mix-blend-difference">
                   {card.description}
                 </p>
               </div>
@@ -89,10 +89,24 @@ export function LandingPage() {
           ))}
         </div>
 
-        <p className="text-sm text-muted-foreground/80 fixed left-0 bottom-2 w-full p-4 bg-white/20 rounded-lg backdrop-blur-2xl text-left md:text-center px-6">
-          Kalkulator ma charakter informacyjny i nie stanowi oficjalnej prognozy
-          ZUS.
-        </p>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 1440 320"
+          className="fixed bottom-0 left-0 right-0 -z-10"
+        >
+          <path
+            fill="#35a454"
+            fill-opacity="1"
+            d="M0,128L40,138.7C80,149,160,171,240,181.3C320,192,400,192,480,176C560,160,640,128,720,112C800,96,880,96,960,117.3C1040,139,1120,181,1200,208C1280,235,1360,245,1400,250.7L1440,256L1440,320L1400,320C1360,320,1280,320,1200,320C1120,320,1040,320,960,320C880,320,800,320,720,320C640,320,560,320,480,320C400,320,320,320,240,320C160,320,80,320,40,320L0,320Z"
+          ></path>
+        </svg>
+
+        <div className="flex w-full justify-center fixed bottom-0 left-0">
+          <p className="max-w-7xl mx-auto text-sm text-white/80 left-0 w-full py-4 text-left px-4">
+            Kalkulator ma charakter informacyjny i nie stanowi oficjalnej
+            prognozy ZUS.
+          </p>
+        </div>
       </div>
     </div>
   );
