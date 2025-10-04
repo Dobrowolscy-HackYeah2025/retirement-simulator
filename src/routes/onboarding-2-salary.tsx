@@ -1,18 +1,14 @@
 import { OnboardingPageWrapper } from '@/components/OnboardingPageWrapper';
 import { Input } from '@/components/ui/input';
 import { ZUSReportGenerator } from '@/components/ZUSReportGenerator';
-import {
-  currentSalaryGrossAtom,
-  retirementYearAtom,
-  showReportGeneratorAtom,
-  workStartYearAtom,
-} from '@/lib/atoms';
+import { retirementInputsAtom, showReportGeneratorAtom } from '@/lib/atoms';
 
 import { useAtom } from 'jotai';
 import { CheckIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from '../components/ui/button';
+import { Label } from '../components/ui/label';
 import {
   Select,
   SelectContent,
@@ -27,15 +23,44 @@ import {
 } from '../components/ui/tooltip';
 
 export function Onboarding2SalaryPage() {
-  const [currentSalaryGross, setCurrentSalaryGross] = useAtom(
-    currentSalaryGrossAtom
-  );
-  const [workStartYear, setWorkStartYear] = useAtom(workStartYearAtom);
-  const [retirementYear, setRetirementYear] = useAtom(retirementYearAtom);
+  const [retirementInputs, setRetirementInputs] = useAtom(retirementInputsAtom);
   const [showReportGenerator, setShowReportGenerator] = useAtom(
     showReportGeneratorAtom
   );
   const navigate = useNavigate();
+
+  const currentSalaryGross = retirementInputs.grossMonthlySalary;
+  const workStartYear = retirementInputs.workStartYear;
+  const retirementYear = retirementInputs.plannedRetirementYear;
+  const zusAccountBalance = retirementInputs.zusAccountBalance || 0;
+
+  const setCurrentSalaryGross = (value: number) => {
+    setRetirementInputs((prev) => ({
+      ...prev,
+      grossMonthlySalary: value,
+    }));
+  };
+
+  const setWorkStartYear = (year: number) => {
+    setRetirementInputs((prev) => ({
+      ...prev,
+      workStartYear: year,
+    }));
+  };
+
+  const setRetirementYear = (year: number) => {
+    setRetirementInputs((prev) => ({
+      ...prev,
+      plannedRetirementYear: year,
+    }));
+  };
+
+  const setZusAccountBalance = (value: number) => {
+    setRetirementInputs((prev) => ({
+      ...prev,
+      zusAccountBalance: value,
+    }));
+  };
 
   // Generate years from 1950 to 2025
   const workStartYears = Array.from({ length: 76 }, (_, i) => 1950 + i);
@@ -97,10 +122,8 @@ export function Onboarding2SalaryPage() {
       <div className="flex flex-col gap-6">
         {/* Current Salary Gross */}
         <div className="relative">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-sm font-medium text-foreground">
-              Obecne zarobki brutto
-            </span>
+          <div className="flex items-center gap-2 mb-2">
+            <Label>Obecne zarobki brutto (miesięcznie)</Label>
             {currentSalaryGross > 0 && (
               <CheckIcon className="size-4 text-primary ml-auto" />
             )}
@@ -123,10 +146,8 @@ export function Onboarding2SalaryPage() {
 
         {/* Work Start Year */}
         <div className="relative">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-sm font-medium text-foreground">
-              Rok rozpoczęcia pracy
-            </span>
+          <div className="flex items-center gap-2 mb-2">
+            <Label>Rok rozpoczęcia pracy</Label>
             {workStartYear >= 1950 && workStartYear <= 2025 && (
               <CheckIcon className="size-4 text-primary ml-auto" />
             )}
@@ -150,10 +171,8 @@ export function Onboarding2SalaryPage() {
 
         {/* Retirement Year */}
         <div className="relative">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-sm font-medium text-foreground">
-              Planowany rok zakończenia aktywności zawodowej
-            </span>
+          <div className="flex items-center gap-2 mb-2">
+            <Label>Planowany rok zakończenia aktywności zawodowej</Label>
             {retirementYear > workStartYear && (
               <CheckIcon className="size-4 text-primary ml-auto" />
             )}
@@ -173,6 +192,33 @@ export function Onboarding2SalaryPage() {
               ))}
             </SelectContent>
           </Select>
+        </div>
+
+        {/* ZUS Account Balance (Optional) */}
+        <div className="relative">
+          <div className="flex items-center gap-2 mb-2">
+            <Label className="flex items-center gap-1">
+              Stan konta ZUS (opcjonalnie)
+              <InfoIcon className="size-3 text-muted-foreground" />
+            </Label>
+            {zusAccountBalance > 0 && (
+              <CheckIcon className="size-4 text-primary ml-auto" />
+            )}
+          </div>
+          <div className="relative">
+            <Input
+              type="number"
+              placeholder="0"
+              value={zusAccountBalance || ''}
+              onChange={(e) =>
+                setZusAccountBalance(Number(e.target.value) || 0)
+              }
+              className="w-full pr-8"
+            />
+            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground">
+              PLN
+            </span>
+          </div>
         </div>
 
         <div className="flex flex-col gap-2">

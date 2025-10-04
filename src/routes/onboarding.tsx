@@ -22,17 +22,43 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '../components/ui/tooltip';
-import { userAgeAtom, userCityAtom, userGenderAtom } from '../lib/atoms';
+import { retirementInputsAtom } from '../lib/atoms';
 import { filterCities } from '../lib/polish-cities';
 import { cn } from '../lib/utils';
 
 export function OnboardingPage() {
-  const [userGender, setUserGender] = useAtom(userGenderAtom);
-  const [userAge, setUserAge] = useAtom(userAgeAtom);
-  const [userCity, setUserCity] = useAtom(userCityAtom);
+  const [retirementInputs, setRetirementInputs] = useAtom(retirementInputsAtom);
   const navigate = useNavigate();
-  const [cityInput, setCityInput] = useState(userCity);
+  const [cityInput, setCityInput] = useState('');
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
+
+  const userGender =
+    retirementInputs.gender === 'male'
+      ? 'man'
+      : retirementInputs.gender === 'female'
+        ? 'woman'
+        : null;
+  const userAge = retirementInputs.age;
+  const userCity = ''; // City will be stored in a separate field if needed
+
+  const setUserGender = (value: 'man' | 'woman') => {
+    setRetirementInputs((prev) => ({
+      ...prev,
+      gender: value === 'man' ? 'male' : 'female',
+    }));
+  };
+
+  const setUserAge = (age: number) => {
+    setRetirementInputs((prev) => ({
+      ...prev,
+      age,
+    }));
+  };
+
+  const setUserCity = (city: string) => {
+    // City can be stored in a separate state or added to retirementInputs if needed
+    setCityInput(city);
+  };
 
   const handleContinue = () => {
     navigate('/onboarding/2-zarobki');
