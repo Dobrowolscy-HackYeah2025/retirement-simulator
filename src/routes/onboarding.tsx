@@ -1,9 +1,13 @@
 import { OnboardingPageWrapper } from '@/components/OnboardingPageWrapper';
 
+import { useState } from 'react';
+
 import { useAtom } from 'jotai';
-import { CalendarIcon, CheckIcon, UserIcon } from 'lucide-react';
+import { CalendarIcon, CheckIcon, MapPinIcon, UserIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
 import {
   Select,
   SelectContent,
@@ -12,11 +16,24 @@ import {
   SelectValue,
 } from '../components/ui/select';
 import { Slider } from '../components/ui/slider';
-import { userAgeAtom, userGenderAtom } from '../lib/atoms';
+import { userAgeAtom, userCityAtom, userGenderAtom } from '../lib/atoms';
+import { filterCities } from '../lib/polish-cities';
 
 export function OnboardingPage() {
   const [userGender, setUserGender] = useAtom(userGenderAtom);
   const [userAge, setUserAge] = useAtom(userAgeAtom);
+  const [userCity, setUserCity] = useAtom(userCityAtom);
+  const navigate = useNavigate();
+  const [cityInput, setCityInput] = useState('');
+  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
+
+  const handleContinue = () => {
+    navigate('/onboarding/2-zarobki');
+  };
+
+  const handleGoBack = () => {
+    navigate('/');
+  };
 
   return (
     <OnboardingPageWrapper step={1} numberOfSteps={3}>
@@ -77,14 +94,70 @@ export function OnboardingPage() {
           </div>
         </div>
 
+        {/* City Field */}
+        <div className="relative">
+          <div className="flex items-center gap-2 mb-3">
+            <MapPinIcon className="size-4 text-muted-foreground" />
+            <span className="text-sm font-medium text-foreground">
+              Miasto zamieszkania
+            </span>
+            {userCity && (
+              <div className="bg-primary text-primary-foreground flex size-4 items-center justify-center rounded-full ml-auto">
+                <CheckIcon className="size-3" />
+              </div>
+            )}
+          </div>
+          <div className="relative">
+            <Input
+              type="text"
+              placeholder="Wpisz nazwę miasta"
+              value={cityInput}
+              onChange={(e) => {
+                setCityInput(e.target.value);
+                setShowCitySuggestions(true);
+                if (e.target.value === '') {
+                  setUserCity('');
+                }
+              }}
+              onFocus={() => setShowCitySuggestions(true)}
+              onBlur={() =>
+                setTimeout(() => setShowCitySuggestions(false), 200)
+              }
+              className="w-full"
+            />
+            {showCitySuggestions && cityInput && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                {filterCities(cityInput).map((city) => (
+                  <div
+                    key={city}
+                    className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                    onClick={() => {
+                      setUserCity(city);
+                      setCityInput(city);
+                      setShowCitySuggestions(false);
+                    }}
+                  >
+                    {city}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
         <div className="flex flex-col gap-2">
           <Button
             className="w-full"
-            disabled={!userGender || userAge < 18 || userAge > 120}
+            disabled={!userGender || userAge < 18 || userAge > 120 || !userCity}
+            onClick={handleContinue}
           >
             Kontynuuj
           </Button>
-          <Button variant="ghost" className="text-gray-500 font-medium">
+          <Button
+            variant="ghost"
+            className="text-gray-500 font-medium"
+            onClick={handleGoBack}
+          >
             Wróć
           </Button>
         </div>

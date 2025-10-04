@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { AboutPage } from '@/routes/about';
 import { HomePage } from '@/routes/index';
 import { OnboardingPage } from '@/routes/onboarding';
+import { Onboarding2SalaryPage } from '@/routes/onboarding-2-salary';
 
 import { HashRouter, Link, Route, Routes } from 'react-router-dom';
 
@@ -30,6 +31,10 @@ export function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/onboarding" element={<OnboardingPage />} />
+          <Route
+            path="/onboarding/2-zarobki"
+            element={<Onboarding2SalaryPage />}
+          />
         </Routes>
       </div>
     </HashRouter>
