@@ -1,9 +1,6 @@
 import ZusLogo from '@/assets/zus_logo.svg';
 
-import { ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
-import { Button } from './ui/button';
 
 const OnboardingNavigation = () => {
   const navigate = useNavigate();
@@ -13,11 +10,11 @@ const OnboardingNavigation = () => {
   };
 
   return (
-    <div className="flex justify-between mx-2 mt-2">
+    <div className="flex justify-between mx-4 mt-2">
       <div className="flex gap-2 justify-start items-center">
-        <Button variant="ghost" size="icon-lg" onClick={handleGoToMainPage}>
+        {/* <Button variant="ghost" size="icon-lg" onClick={handleGoToMainPage}>
           <ChevronLeft />
-        </Button>
+        </Button> */}
         <img src={ZusLogo} className="w-16 h-16 mt-1" />
       </div>
     </div>
