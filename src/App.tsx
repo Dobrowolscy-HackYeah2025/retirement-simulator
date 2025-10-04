@@ -12,6 +12,7 @@ import {
   useLocation,
 } from 'react-router-dom';
 
+import { HeroSection } from './components/HeroSection';
 import { OnboardingProgressBar } from './components/OnboardingProgressBar';
 import { PageNavigationBar } from './components/PageNavigationBar';
 import { inputAgeAtom } from './lib/atoms';
@@ -37,7 +38,7 @@ const AppContent = () => {
       {!isOnboarding && <PageNavigationBar />}
 
       <Routes>
-        <Route path="/" element={<OnboardingPage />} />
+        <Route path="/" element={<HeroSection />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/onboarding" element={<OnboardingPage />} />
         <Route
