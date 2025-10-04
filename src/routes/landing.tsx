@@ -81,7 +81,7 @@ export function LandingPage() {
                 <h3 className="text-base md:text-lg font-semibold text-foreground mb-2">
                   {card.title}
                 </h3>
-                <p className="text-xs md:text-base text-muted-foreground mix-blend-plus-lighter">
+                <p className="text-xs md:text-base text-muted-foreground">
                   {card.description}
                 </p>
               </div>
