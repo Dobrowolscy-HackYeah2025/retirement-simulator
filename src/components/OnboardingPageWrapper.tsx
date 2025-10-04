@@ -1,7 +1,5 @@
 import ZusLogo from '@/assets/zus_logo.svg';
 
-import { useEffect } from 'react';
-
 import { AnimatePresence, motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 
@@ -33,13 +31,6 @@ export const OnboardingPageWrapper = ({
   children: React.ReactNode;
   waveIndex?: number;
 }) => {
-  useEffect(() => {
-    document.body.style.backgroundColor = '#10331e05';
-
-    return () => {
-      document.body.style.backgroundColor = '#ffffff';
-    };
-  }, []);
   return (
     <div className="w-full flex flex-col justify-center items-center">
       <div className="m-0 md:m-8 rounded-lg shadow-md border-b border-l border-r border-foreground/15 h-full bg-white w-2xl max-w-[100%] z-50">
