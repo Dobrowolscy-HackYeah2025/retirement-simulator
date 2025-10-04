@@ -27,8 +27,8 @@ export const OnboardingPageWrapper = ({
   children: React.ReactNode;
 }) => {
   return (
-    <div className="h-full w-full flex flex-col grow">
-      <div className="m-4 rounded shadow-md outline outline-gray-200 h-full">
+    <div className="h-full w-full flex flex-col grow bg-foreground/5 justify-center items-center">
+      <div className="m-8 rounded shadow-md outline outline-gray-200 h-full bg-white w-2xl">
         <OnboardingNavigation />
         <div className=" flex justify-center pt-24 p-2">
           <div className="w-md">{children}</div>
