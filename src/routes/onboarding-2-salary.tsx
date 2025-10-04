@@ -1,11 +1,20 @@
 import { OnboardingPageWrapper } from '@/components/OnboardingPageWrapper';
 import { Input } from '@/components/ui/input';
 import { ZUSReportGenerator } from '@/components/ZUSReportGenerator';
-import { retirementInputsAtom, showReportGeneratorAtom } from '@/lib/atoms';
+import {
+  inputAgeAtom,
+  inputCityAtom,
+  inputGenderAtom,
+  inputGrossMonthlySalaryAtom,
+  inputPlannedRetirementYearAtom,
+  inputWorkStartYearAtom,
+  inputZusAccountBalanceAtom,
+  showReportGeneratorAtom,
+} from '@/lib/atoms';
 
 import { useEffect, useState } from 'react';
 
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { InfoIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -26,7 +35,21 @@ import {
 import { trackEvent } from '../lib/analytics';
 
 export function Onboarding2SalaryPage() {
-  const [retirementInputs, setRetirementInputs] = useAtom(retirementInputsAtom);
+  const age = useAtomValue(inputAgeAtom);
+  const gender = useAtomValue(inputGenderAtom);
+  const city = useAtomValue(inputCityAtom);
+  const grossMonthlySalary = useAtomValue(inputGrossMonthlySalaryAtom);
+  const workStartYearAtomValue = useAtomValue(inputWorkStartYearAtom);
+  const plannedRetirementYearAtomValue = useAtomValue(
+    inputPlannedRetirementYearAtom
+  );
+  const zusAccountBalanceAtomValue = useAtomValue(inputZusAccountBalanceAtom);
+  const setGrossMonthlySalary = useSetAtom(inputGrossMonthlySalaryAtom);
+  const setWorkStartYearAtom = useSetAtom(inputWorkStartYearAtom);
+  const setPlannedRetirementYearAtom = useSetAtom(
+    inputPlannedRetirementYearAtom
+  );
+  const setZusAccountBalanceAtom = useSetAtom(inputZusAccountBalanceAtom);
   const [showReportGenerator, setShowReportGenerator] = useAtom(
     showReportGeneratorAtom
   );
@@ -34,61 +57,49 @@ export function Onboarding2SalaryPage() {
 
   // Use local state for inputs to avoid triggering expensive atom computations on every keystroke
   const [localSalary, setLocalSalary] = useState(
-    retirementInputs.grossMonthlySalary?.toString() || ''
+    grossMonthlySalary?.toString() || ''
   );
   const [localZusBalance, setLocalZusBalance] = useState(
-    retirementInputs.zusAccountBalance?.toString() || ''
+    zusAccountBalanceAtomValue?.toString() || ''
   );
 
-  const currentSalaryGross = retirementInputs.grossMonthlySalary || 0;
-  const workStartYear = retirementInputs.workStartYear || 2020;
-  const retirementYear = retirementInputs.plannedRetirementYear || 2065;
-  const zusAccountBalance = retirementInputs.zusAccountBalance || 0;
+  const currentSalaryGross = grossMonthlySalary || 0;
+  const workStartYear = workStartYearAtomValue || 2020;
+  const retirementYear = plannedRetirementYearAtomValue || 2065;
+  const zusAccountBalance = zusAccountBalanceAtomValue || 0;
 
   // Debounce salary input
   useEffect(() => {
     const timeout = setTimeout(() => {
       const value = Number(localSalary) || null;
-      if (value !== retirementInputs.grossMonthlySalary) {
-        setRetirementInputs((prev) => ({
-          ...prev,
-          grossMonthlySalary: value,
-        }));
+      if (value !== grossMonthlySalary) {
+        setGrossMonthlySalary(value);
       }
     }, 300);
     return () => clearTimeout(timeout);
-  }, [localSalary]);
+  }, [localSalary, grossMonthlySalary, setGrossMonthlySalary]);
 
   // Debounce ZUS balance input
   useEffect(() => {
     const timeout = setTimeout(() => {
       const value = Number(localZusBalance) || null;
-      if (value !== retirementInputs.zusAccountBalance) {
-        setRetirementInputs((prev) => ({
-          ...prev,
-          zusAccountBalance: value,
-        }));
+      if (value !== zusAccountBalanceAtomValue) {
+        setZusAccountBalanceAtom(value);
       }
     }, 300);
     return () => clearTimeout(timeout);
-  }, [localZusBalance]);
+  }, [localZusBalance, zusAccountBalanceAtomValue, setZusAccountBalanceAtom]);
 
   const setCurrentSalaryGross = (value: string) => {
     setLocalSalary(value);
   };
 
   const setWorkStartYear = (year: number) => {
-    setRetirementInputs((prev) => ({
-      ...prev,
-      workStartYear: year,
-    }));
+    setWorkStartYearAtom(year);
   };
 
   const setRetirementYear = (year: number) => {
-    setRetirementInputs((prev) => ({
-      ...prev,
-      plannedRetirementYear: year,
-    }));
+    setPlannedRetirementYearAtom(year);
   };
 
   // Generate years from 1950 to 2025
@@ -137,8 +148,25 @@ export function Onboarding2SalaryPage() {
       return;
     }
 
-    trackEvent('show-dashboard', retirementInputs);
-  }, [showReportGenerator, retirementInputs]);
+    trackEvent('show-dashboard', {
+      age,
+      gender,
+      city,
+      grossMonthlySalary,
+      workStartYear: workStartYearAtomValue,
+      plannedRetirementYear: plannedRetirementYearAtomValue,
+      zusAccountBalance: zusAccountBalanceAtomValue,
+    });
+  }, [
+    showReportGenerator,
+    age,
+    gender,
+    city,
+    grossMonthlySalary,
+    workStartYearAtomValue,
+    plannedRetirementYearAtomValue,
+    zusAccountBalanceAtomValue,
+  ]);
 
   return (
     <OnboardingPageWrapper>

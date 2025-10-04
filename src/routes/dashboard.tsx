@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import Highcharts from 'highcharts';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import { KpiRows } from '../components/dashboard/KpiRows';
 import {
@@ -10,7 +10,9 @@ import {
   realPensionIndexAtom,
   regionalBenchmarkAtom,
   replacementRateAtom,
-  retirementInputsAtom,
+  inputAgeAtom,
+  inputGrossMonthlySalaryAtom,
+  inputPlannedRetirementYearAtom,
   scenariosDataAtom,
   sickLeaveImpactAtom,
 } from '../lib/atoms';
@@ -35,18 +37,18 @@ export default function Dashboard() {
   const [selectedRegion, setSelectedRegion] = useState('Mazowieckie');
   const [selectedScenario, setSelectedScenario] = useState('realistic');
 
-  // Pobierz i zaktualizuj retirementInputsAtom na podstawie ustawień
-  const [, setInputs] = useAtom(retirementInputsAtom);
+  // Aktualizacja pojedynczych atomów wejściowych
+  const age = useAtomValue(inputAgeAtom);
+  const setGross = useSetAtom(inputGrossMonthlySalaryAtom);
+  const setPlannedYear = useSetAtom(inputPlannedRetirementYearAtom);
 
   // Zaktualizuj inputs gdy zmieniają się ustawienia
   useEffect(() => {
-    setInputs((prev: any) => ({
-      ...prev,
-      grossMonthlySalary: salary,
-      plannedRetirementYear:
-        new Date().getFullYear() + (retirementAge - prev.age!),
-    }));
-  }, [salary, retirementAge, setInputs]);
+    setGross(salary);
+    if (age != null) {
+      setPlannedYear(new Date().getFullYear() + (retirementAge - age));
+    }
+  }, [salary, retirementAge, age, setGross, setPlannedYear]);
 
   // Pobierz dane z derived atomów
   const [pensionForecastData] = useAtom(pensionForecastDataAtom);

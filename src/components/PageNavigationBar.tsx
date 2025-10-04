@@ -8,17 +8,48 @@ import { FileTextIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { trackEvent } from '../lib/analytics';
-import { retirementInputsAtom } from '../lib/atoms';
+import {
+  inputAgeAtom,
+  inputGenderAtom,
+  inputCityAtom,
+  inputGrossMonthlySalaryAtom,
+  inputWorkStartYearAtom,
+  inputPlannedRetirementYearAtom,
+  inputZusAccountBalanceAtom,
+} from '../lib/atoms';
 import { Button } from './ui/button';
 
 export const PageNavigationBar = () => {
-  const retirementsInput = useAtomValue(retirementInputsAtom);
+  const age = useAtomValue(inputAgeAtom);
+  const gender = useAtomValue(inputGenderAtom);
+  const city = useAtomValue(inputCityAtom);
+  const grossMonthlySalary = useAtomValue(inputGrossMonthlySalaryAtom);
+  const workStartYear = useAtomValue(inputWorkStartYearAtom);
+  const plannedRetirementYear = useAtomValue(inputPlannedRetirementYearAtom);
+  const zusAccountBalance = useAtomValue(inputZusAccountBalanceAtom);
   const generateRetirementReport = useRetirementReport();
 
   const handleGenerateReport = useCallback(() => {
-    trackEvent('generate-report', retirementsInput);
+    trackEvent('generate-report', {
+      age,
+      gender,
+      city,
+      grossMonthlySalary,
+      workStartYear,
+      plannedRetirementYear,
+      zusAccountBalance,
+    });
     void generateRetirementReport();
-  }, [generateRetirementReport, retirementsInput]);
+  }, [
+    generateRetirementReport,
+    age,
+    gender,
+    city,
+    grossMonthlySalary,
+    workStartYear,
+    plannedRetirementYear,
+    zusAccountBalance,
+  ]);
 
   return (
     <nav

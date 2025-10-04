@@ -2,7 +2,7 @@ import { OnboardingPageWrapper } from '@/components/OnboardingPageWrapper';
 
 import { useState } from 'react';
 
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { CalendarIcon, CheckIcon, MapPinIcon, UserIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,44 +22,41 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '../components/ui/tooltip';
-import { retirementInputsAtom } from '../lib/atoms';
+import {
+  inputAgeAtom,
+  inputCityAtom,
+  inputGenderAtom,
+} from '../lib/atoms';
 import { filterCities } from '../lib/polish-cities';
 import { cn } from '../lib/utils';
 
 export function OnboardingPage() {
-  const [retirementInputs, setRetirementInputs] = useAtom(retirementInputsAtom);
+  const [gender, setGender] = useAtom(inputGenderAtom);
+  const [age, setAge] = useAtom(inputAgeAtom);
+  const [city, setCity] = useAtom(inputCityAtom);
   const navigate = useNavigate();
-  const [cityInput, setCityInput] = useState(retirementInputs.city);
+  const [cityInput, setCityInput] = useState(city);
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
 
   const userGender =
-    retirementInputs.gender === 'male'
+    gender === 'male'
       ? 'man'
-      : retirementInputs.gender === 'female'
+      : gender === 'female'
         ? 'woman'
         : null;
-  const userAge = retirementInputs.age;
-  const userCity = retirementInputs.city;
+  const userAge = age;
+  const userCity = city;
 
   const setUserGender = (value: 'man' | 'woman') => {
-    setRetirementInputs((prev) => ({
-      ...prev,
-      gender: value === 'man' ? 'male' : 'female',
-    }));
+    setGender(value === 'man' ? 'male' : 'female');
   };
 
-  const setUserAge = (age: number) => {
-    setRetirementInputs((prev) => ({
-      ...prev,
-      age,
-    }));
+  const setUserAge = (val: number) => {
+    setAge(val);
   };
 
-  const setUserCity = (city: string) => {
-    setRetirementInputs((prev) => ({
-      ...prev,
-      city,
-    }));
+  const setUserCity = (val: string) => {
+    setCity(val);
   };
 
   const handleContinue = () => {

@@ -4,11 +4,16 @@ import { useAtomValue } from 'jotai';
 
 import {
   retirementAccumulatedCapitalAtom,
-  retirementInputsAtom,
   retirementMonthlyPensionAtom,
   retirementMonthlyPensionWithSickLeaveAtom,
   retirementPensionReplacementRatioAtom,
   retirementPensionReplacementRatioWithSickLeaveAtom,
+  inputAgeAtom,
+  inputGenderAtom,
+  inputGrossMonthlySalaryAtom,
+  inputWorkStartYearAtom,
+  inputPlannedRetirementYearAtom,
+  inputZusAccountBalanceAtom,
 } from '@/lib/atoms';
 
 function normalizeStrings<T>(value: T): T {
@@ -34,7 +39,12 @@ function normalizeStrings<T>(value: T): T {
 import { RetirementReportDocument } from './RetirementReportDocument';
 
 export function useRetirementReport() {
-  const inputs = useAtomValue(retirementInputsAtom);
+  const age = useAtomValue(inputAgeAtom);
+  const gender = useAtomValue(inputGenderAtom);
+  const grossMonthlySalary = useAtomValue(inputGrossMonthlySalaryAtom);
+  const workStartYear = useAtomValue(inputWorkStartYearAtom);
+  const plannedRetirementYear = useAtomValue(inputPlannedRetirementYearAtom);
+  const zusAccountBalance = useAtomValue(inputZusAccountBalanceAtom);
   const accumulatedCapital = useAtomValue(retirementAccumulatedCapitalAtom);
   const monthlyPension = useAtomValue(retirementMonthlyPensionAtom);
   const monthlyPensionWithSickLeave = useAtomValue(
@@ -167,32 +177,32 @@ export function useRetirementReport() {
       {
         id: 'highlight-age',
         label: 'Wiek',
-        value: formatNumber(inputs.age, ' lat'),
+        value: formatNumber(age, ' lat'),
       },
       {
         id: 'highlight-gender',
         label: 'Płeć',
-        value: formatGender(inputs.gender),
+        value: formatGender(gender as any),
       },
       {
         id: 'highlight-salary',
         label: 'Pensja brutto',
-        value: formatCurrency(inputs.grossMonthlySalary),
+        value: formatCurrency(grossMonthlySalary),
       },
       {
         id: 'highlight-start',
         label: 'Rok rozpoczęcia pracy',
-        value: formatNumber(inputs.workStartYear),
+        value: formatNumber(workStartYear),
       },
       {
         id: 'highlight-end',
         label: 'Planowany rok emerytury',
-        value: formatNumber(inputs.plannedRetirementYear),
+        value: formatNumber(plannedRetirementYear),
       },
       {
         id: 'highlight-zus',
         label: 'Środki w ZUS',
-        value: formatCurrency(inputs.zusAccountBalance),
+        value: formatCurrency(zusAccountBalance),
       },
     ];
 
@@ -223,7 +233,12 @@ export function useRetirementReport() {
 
     URL.revokeObjectURL(url);
   }, [
-    inputs,
+    age,
+    gender,
+    grossMonthlySalary,
+    workStartYear,
+    plannedRetirementYear,
+    zusAccountBalance,
     accumulatedCapital,
     monthlyPension,
     monthlyPensionWithSickLeave,

@@ -14,13 +14,13 @@ import {
 
 import { OnboardingProgressBar } from './components/OnboardingProgressBar';
 import { PageNavigationBar } from './components/PageNavigationBar';
-import { retirementInputsAtom } from './lib/atoms';
+import { inputAgeAtom } from './lib/atoms';
 import { cn } from './lib/utils';
 
 function RequireOnboarding({ children }: { children: React.ReactNode }) {
-  const inputs = useAtomValue(retirementInputsAtom);
+  const age = useAtomValue(inputAgeAtom);
 
-  if (inputs.age == null) {
+  if (age == null) {
     return <Navigate to="/onboarding" replace />;
   }
 
