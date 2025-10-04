@@ -37,7 +37,7 @@ export function OnboardingPage() {
   };
 
   return (
-    <OnboardingPageWrapper step={1} numberOfSteps={3}>
+    <OnboardingPageWrapper>
       <h1 className="text-2xl font-bold mb-2 text-foreground">
         Uzupełnij swoje dane
       </h1>

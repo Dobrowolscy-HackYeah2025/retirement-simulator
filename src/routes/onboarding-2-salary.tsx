@@ -66,7 +66,7 @@ export function Onboarding2SalaryPage() {
   };
 
   return (
-    <OnboardingPageWrapper step={2} numberOfSteps={3}>
+    <OnboardingPageWrapper>
       <h1 className="text-2xl font-bold mb-2 text-foreground">
         Zarobki i aktywność zawodowa
       </h1>

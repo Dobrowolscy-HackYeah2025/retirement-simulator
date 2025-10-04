@@ -9,6 +9,8 @@ import { useCallback } from 'react';
 
 import { HashRouter, Link, Route, Routes, useLocation } from 'react-router-dom';
 
+import { OnboardingProgressBar } from './components/OnboardingProgressBar';
+
 const AppContent = () => {
   const location = useLocation();
   const generateRetirementReport = useRetirementReport();
@@ -19,6 +21,8 @@ const AppContent = () => {
 
   return (
     <div className="h-full w-full">
+      {location.pathname.includes('onboarding') && <OnboardingProgressBar />}
+
       {!location.pathname.includes('onboarding') && (
         <nav className="p-2 flex gap-2 text-lg border-b">
           <Link to="/">
