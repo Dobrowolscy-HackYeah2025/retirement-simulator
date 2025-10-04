@@ -1,3 +1,6 @@
+// Import danych z parametry_III_2025_all_sheets.json
+import parametryData from './data/parametry_III_2025_all_sheets.json';
+
 // Narzędzia do obliczeń emerytalnych oparte na danych FUS (llm/data.pdf) i GUS.
 
 export type Gender = 'female' | 'male';
@@ -12,53 +15,46 @@ export type RetirementInputsState = {
   zusAccountBalance: number | null;
 };
 
-// Źródło: llm/data.pdf (Tabela 1.1, wariant nr 1) — wskaźniki realnego wzrostu płac.
-const REAL_WAGE_GROWTH_VARIANT_1: Record<number, number> = {
-  2022: 0.98,
-  2023: 1.003,
-  2024: 1.034,
-  2025: 1.037,
-  2026: 1.035,
-  2027: 1.03,
-  2028: 1.029,
-  2029: 1.029,
-  2030: 1.029,
-  2031: 1.029,
-  2032: 1.029,
-  2035: 1.028,
-  2040: 1.027,
-  2045: 1.026,
-  2050: 1.025,
-  2055: 1.024,
-  2060: 1.024,
-  2065: 1.023,
-  2070: 1.022,
-  2075: 1.021,
-  2080: 1.02,
+// Funkcja do pobierania wskaźnika nominalnego wzrostu płac z danych
+const getRealWageGrowthFromData = (year: number): number => {
+  const yearIndex = year - 2014;
+  if (
+    yearIndex >= 0 &&
+    yearIndex < parametryData['parametry roczne'].rows.length
+  ) {
+    const parametry = parametryData['parametry roczne'].rows[yearIndex];
+    const realGrowth =
+      parametry?.['wskaźnik realnego wzrostu przeciętnego wynagrodzenia*)'] ||
+      1.0;
+    const inflation =
+      parametry?.[
+        'średnioroczny wskaźnik cen towarów i usług konsumpcyjnych ogółem*)'
+      ] || 1.0;
+    // Nominalny wzrost = realny wzrost * inflacja
+    return realGrowth * inflation;
+  }
+  return 1.0; // Domyślnie brak wzrostu
 };
 
-// Źródło: llm/data.pdf (Tabela 8, wariant nr 1) — udział wpływów składkowych w podstawie.
-const CONTRIBUTION_RATE_VARIANT_1: Record<number, number> = {
-  2023: 0.1923,
-  2024: 0.1924,
-  2025: 0.1925,
-  2026: 0.1929,
-  2027: 0.1933,
-  2028: 0.1938,
-  2029: 0.1943,
-  2030: 0.1948,
-  2031: 0.1953,
-  2032: 0.1957,
-  2035: 0.1967,
-  2040: 0.1964,
-  2045: 0.194,
-  2050: 0.1912,
-  2055: 0.1899,
-  2060: 0.1897,
-  2065: 0.1897,
-  2070: 0.1897,
-  2075: 0.1897,
-  2080: 0.1897,
+// Funkcja do pobierania stopy składki z danych
+const getContributionRateFromData = (year: number): number => {
+  const yearIndex = year - 2014;
+  if (
+    yearIndex >= 0 &&
+    yearIndex < parametryData['parametry roczne'].rows.length
+  ) {
+    const parametry = parametryData['parametry roczne'].rows[yearIndex];
+    const employeeRate =
+      parametry?.[
+        'stopa składki na ubezpieczenie emerytalne finansowanej przez pracownika'
+      ] || 0;
+    const employerRate =
+      parametry?.[
+        'stopa składki na ubezpieczenie emerytalne finansowanej przez pracodawcę'
+      ] || 0;
+    return employeeRate + employerRate;
+  }
+  return 0.1952; // Domyślnie 19.52% (9.76% + 9.76%)
 };
 
 // Średnia liczba dni absencji chorobowej na osobę (ZUS „Absencja chorobowa w 2022 r.”).
@@ -81,35 +77,8 @@ const STATUTORY_RETIREMENT_AGE: Record<Gender, number> = {
   male: 65,
 };
 
-const createYearLookup = (table: Record<number, number>) => {
-  const sortedYears = Object.keys(table)
-    .map(Number)
-    .sort((a, b) => a - b);
-
-  return (year: number) => {
-    if (!Number.isFinite(year) || sortedYears.length === 0) {
-      return 0;
-    }
-
-    let currentValue = table[sortedYears[0]];
-
-    for (const y of sortedYears) {
-      if (year < y) {
-        return currentValue;
-      }
-      currentValue = table[y];
-    }
-
-    return currentValue;
-  };
-};
-
-export const getRealWageGrowthFactor = createYearLookup(
-  REAL_WAGE_GROWTH_VARIANT_1
-);
-export const getContributionRate = createYearLookup(
-  CONTRIBUTION_RATE_VARIANT_1
-);
+export const getRealWageGrowthFactor = getRealWageGrowthFromData;
+export const getContributionRate = getContributionRateFromData;
 
 export const getSickLeavePenalty = (gender: Gender) => {
   const days = SICK_LEAVE_DAYS_BY_GENDER[gender] ?? 0;
@@ -190,14 +159,27 @@ export const projectContributions = (
   inputs: NormalizedInputs,
   calendarYear = new Date().getFullYear()
 ) => {
-  const projectionStartYear = Math.max(calendarYear, inputs.workStartYear);
+  const projectionStartYear = inputs.workStartYear;
   const projectionEndYear = inputs.plannedRetirementYear;
 
   let monthlySalary = inputs.grossMonthlySalary;
 
-  if (projectionStartYear > calendarYear) {
+  // Skoryguj wynagrodzenie do roku rozpoczęcia pracy
+  if (projectionStartYear < calendarYear) {
+    // Osoba już pracuje - skoryguj wynagrodzenie wstecz
+    for (let year = calendarYear - 1; year >= projectionStartYear; year -= 1) {
+      const growthFactor = getRealWageGrowthFactor(year + 1);
+      if (growthFactor > 0) {
+        monthlySalary /= growthFactor;
+      }
+    }
+  } else if (projectionStartYear > calendarYear) {
+    // Osoba zacznie pracować w przyszłości - skoryguj wynagrodzenie do przodu
     for (let year = calendarYear + 1; year <= projectionStartYear; year += 1) {
-      monthlySalary *= getRealWageGrowthFactor(year);
+      const growthFactor = getRealWageGrowthFactor(year);
+      if (growthFactor > 0) {
+        monthlySalary *= growthFactor;
+      }
     }
   }
 

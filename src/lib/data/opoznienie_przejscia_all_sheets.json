@@ -1,0 +1,54 @@
+{
+  "Dane": {
+    "file": "pkt 1_opóźnienie przejscia na emeryturę.xlsx",
+    "header_row_used": 7,
+    "columns": [
+      "Dokładnie w wieku emerytalnym",
+      "77.7",
+      "64.5",
+      "77.3",
+      "62.8",
+      "73.8",
+      "62.1"
+    ],
+    "row_count": 4,
+    "rows": [
+      {
+        "Dokładnie w wieku emerytalnym": "Wiek wyższy od emerytalnego o 1-11 m-cy",
+        "77.7": 15.6,
+        "64.5": 20.9,
+        "77.3": 16.0,
+        "62.8": 21.8,
+        "73.8": 20.1,
+        "62.1": 24.7
+      },
+      {
+        "Dokładnie w wieku emerytalnym": "Wiek wyższy od emerytalnego o 12-23 miesiące",
+        "77.7": 3.0,
+        "64.5": 5.7,
+        "77.3": 2.8,
+        "62.8": 5.7,
+        "73.8": 2.4,
+        "62.1": 4.7
+      },
+      {
+        "Dokładnie w wieku emerytalnym": "Wiek wyższy od emerytalnego o 2 lata i więcej",
+        "77.7": 3.6,
+        "64.5": 8.8,
+        "77.3": 3.9,
+        "62.8": 9.6,
+        "73.8": 3.7,
+        "62.1": 8.5
+      },
+      {
+        "Dokładnie w wieku emerytalnym": "*)Ze względu na zaokrąglenia danych w niektórych przypadkach sumy składników mogą się nieznacznie różnić od 100,0",
+        "77.7": null,
+        "64.5": null,
+        "77.3": null,
+        "62.8": null,
+        "73.8": null,
+        "62.1": null
+      }
+    ]
+  }
+}
