@@ -13,7 +13,7 @@ const AppContent = () => {
   const location = useLocation();
 
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full mt-32">
       {location.pathname.includes('onboarding') && <OnboardingProgressBar />}
 
       {!location.pathname.includes('onboarding') && <PageNavigationBar />}
