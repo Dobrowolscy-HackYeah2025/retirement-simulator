@@ -3,7 +3,7 @@
 `./llm/requirements.pdf` — odczytaj cele, ograniczenia, wymagania, wejścia, wyjścia, wzory, linki, odwołania do danych. Czytaj pierwsze.
 `./llm/data.pdf` — dataset/schema referenced by the project
 
-Te pliki zostały też skonwertowane do `.txt` ale preferuj `pdfgrep` jeżeli dostępne w środowisku.
+Te pliki zostały też skonwertowane do `.txt` ale preferuj `pdfgrep` na oryginalnych plikach `.pdf` jeżeli jest zainstalowany w środowisku.
 
 # Agent Instructions
 
