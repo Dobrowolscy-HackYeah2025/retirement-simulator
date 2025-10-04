@@ -12,4 +12,4 @@ Te pliki zostały też skonwertowane do `.txt` ale preferuj `pdfgrep` na orygina
 - Czytaj `./llm/data.pdf` albo `./llm/requirements.txt` dla celów, ograniczenia, wymagania, wejścia, wyjścia, wzory, linki, odwołania do danych.
 - Czytaj `./llm/data.pdf` albo `./llm/data.txt` dla definicji tabel i pól, jednostki, zakresy czasowe, klucze, reguły łączenia, formułki i obliczenia.
 - Preferuj dane z `./llm/data.pdf` ponad inne źródła.
-- Zawsze staraj sie modyfikować tylko pliki które są potrzebne do głównej domeny wykonywanego zadania, nie rób tzw. drive-by zmian np. poprawiając generowanie pdf nie dodawaj nowych atomów/modyfikuj route'ów jeżeli nie zostało to wyspecyfikowane w zadaniu.
+- Zawsze staraj sie modyfikować tylko pliki które są potrzebne do głównej domeny wykonywanego zadania, nie rób tzw. drive-by zmian np. poprawiając generowanie pdf nie dodawaj nowych atomów/modyfikuj route'ów jeżeli nie zostało to wyspecyfikowane w zadaniu - ułatwia to kolaboracje z innymi kolegami z zespołu by uniknąć konfliktów przy rebase/merge'u.
