@@ -45,7 +45,7 @@ export function ZUSReportGenerator({
       <Loader
         loadingStates={zusLoadingStates}
         loading={loading}
-        duration={2000}
+        duration={import.meta.env.PROD ? 1000 : 50}
         loop={false}
         onComplete={onComplete}
       />
