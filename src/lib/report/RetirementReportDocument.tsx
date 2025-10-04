@@ -41,11 +41,31 @@ const ZUS_COLORS = {
 
 const styles = StyleSheet.create({
   page: {
-    padding: 36,
+    paddingTop: 90,
+    paddingHorizontal: 36,
+    paddingBottom: 36,
     fontFamily: 'ZUS Sans',
     color: ZUS_COLORS.navy,
     fontSize: 11,
     lineHeight: 1.4,
+  },
+  metaHeader: {
+    position: 'absolute',
+    top: 24,
+    left: 36,
+    right: 36,
+    paddingBottom: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  metaText: {
+    fontSize: 9,
+    color: '#4B5563',
+    textAlign: 'right',
+  },
+  metaValue: {
+    fontWeight: 'bold',
+    color: ZUS_COLORS.navy,
   },
   header: {
     backgroundColor: ZUS_COLORS.green,
@@ -160,11 +180,6 @@ const styles = StyleSheet.create({
     marginBottom: 2,
     color: ZUS_COLORS.navy,
   },
-  footer: {
-    marginTop: 16,
-    fontSize: 9,
-    color: '#4B5563',
-  },
 });
 
 function Highlights({ items }: { items: RetirementReportHighlight[] }) {
@@ -214,6 +229,13 @@ export function RetirementReportDocument({
   return (
     <Document>
       <Page size="A4" style={styles.page}>
+        <View style={styles.metaHeader} fixed>
+          <Text style={styles.metaText}>
+            Raport wygenerowano:{' '}
+            <Text style={styles.metaValue}>{generatedAt}</Text>
+          </Text>
+        </View>
+
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Raport prognozowanej emerytury</Text>
           <Text style={styles.headerSubtitle}>
@@ -227,7 +249,7 @@ export function RetirementReportDocument({
         <ReportGroup {...dataset.derived} />
 
         {dataset.notes.length > 0 ? (
-          <View style={styles.notesBox}>
+          <View style={styles.notesBox} wrap={false}>
             <Text style={styles.notesTitle}>Uwagi do odczytu</Text>
             {dataset.notes.map((note, index) => (
               <Text
@@ -239,8 +261,6 @@ export function RetirementReportDocument({
             ))}
           </View>
         ) : null}
-
-        <Text style={styles.footer}>Raport wygenerowano: {generatedAt}</Text>
       </Page>
     </Document>
   );
