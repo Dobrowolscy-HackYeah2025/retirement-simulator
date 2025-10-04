@@ -1,13 +1,20 @@
 import { AboutPage } from '@/routes/about';
 import Dashboard from '@/routes/dashboard';
-import { HomePage } from '@/routes/index';
 import { OnboardingPage } from '@/routes/onboarding';
 import { Onboarding2SalaryPage } from '@/routes/onboarding-2-salary';
 
-import { HashRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { useAtomValue } from 'jotai';
+import {
+  HashRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+} from 'react-router-dom';
 
 import { OnboardingProgressBar } from './components/OnboardingProgressBar';
 import { PageNavigationBar } from './components/PageNavigationBar';
+import { retirementInputsAtom } from './lib/atoms';
 
 const AppContent = () => {
   const location = useLocation();

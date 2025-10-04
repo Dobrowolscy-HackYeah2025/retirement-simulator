@@ -106,7 +106,7 @@ export function Onboarding2SalaryPage() {
   const handleReportComplete = () => {
     setShowReportGenerator(false);
     // Navigate to main page after report generation
-    navigate('/');
+    navigate('/dashboard');
   };
 
   const handleGoBack = () => {
