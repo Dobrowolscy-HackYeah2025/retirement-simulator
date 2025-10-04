@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { JotaiQueryExample } from '@/components/JotaiQueryExample';
 
 // Sample data fetching function
 const fetchWelcomeMessage = async (): Promise<string> => {
@@ -53,6 +54,9 @@ function Index() {
           )}
         </CardContent>
       </Card>
+
+      {/* Jotai + TanStack Query Integration Example */}
+      <JotaiQueryExample />
     </div>
   );
 }

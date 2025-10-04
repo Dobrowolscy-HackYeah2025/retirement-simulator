@@ -36,6 +36,7 @@
     "clsx": "^2.1.1",
     "embla-carousel-react": "^8.6.0",
     "jotai": "^2.15.0",
+    "jotai-tanstack-query": "^0.11.0",
     "lucide-react": "^0.544.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
