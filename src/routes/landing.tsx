@@ -15,19 +15,19 @@ const cards = [
     title: 'Dokładne prognozy',
     description:
       'Obliczenia oparte na oficjalnych danych ZUS i parametrach demograficznych GUS',
-    icon: <CheckCircleIcon className="size-8 text-primary" />,
+    icon: <CheckCircleIcon className="size-6 text-primary" />,
   },
   {
     title: 'Różne scenariusze',
     description:
       'Zobacz jak zmieni się Twoja emerytura w zależności od wieku przejścia i stażu pracy',
-    icon: <TrendingUpIcon className="size-8 text-primary" />,
+    icon: <TrendingUpIcon className="size-6 text-primary" />,
   },
   {
     title: 'Bezpieczeństwo danych',
     description:
       'Wszystkie obliczenia wykonywane są lokalnie w Twojej przeglądarce',
-    icon: <ShieldCheckIcon className="size-8 text-primary" />,
+    icon: <ShieldCheckIcon className="size-6 text-primary" />,
   },
 ];
 
@@ -69,13 +69,13 @@ export function LandingPage() {
           />
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 row max-w-9xl gap-2 md:gap-8 mt-12 md:mt-20">
+        <div className="grid grid-cols-2 md:grid-cols-3 row max-w-9xl gap-2 md:gap-8 mt-12 md:mt-32">
           {cards.map((card) => (
             <div key={card.title}>
-              <div className="text-left p-2 md:p-6">
+              <div className="text-left">
                 <div className="flex justify-start mb-4">
                   <div className="p-2 md:p-3 bg-primary/10 rounded-full">
-                    <CheckCircleIcon className="size-6 md:size-8 text-primary" />
+                    {card.icon}
                   </div>
                 </div>
                 <h3 className="text-base md:text-lg font-semibold text-foreground mb-2">
