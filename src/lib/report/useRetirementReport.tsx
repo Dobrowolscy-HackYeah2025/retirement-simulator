@@ -1,15 +1,21 @@
 import {
+  contributionHistoryAtom,
   inputAgeAtom,
   inputGenderAtom,
   inputGrossMonthlySalaryAtom,
   inputPlannedRetirementYearAtom,
   inputWorkStartYearAtom,
   inputZusAccountBalanceAtom,
+  pensionForecastDataAtom,
+  regionalBenchmarkAtom,
+  replacementRateAtom,
   retirementAccumulatedCapitalAtom,
   retirementMonthlyPensionAtom,
   retirementMonthlyPensionWithSickLeaveAtom,
   retirementPensionReplacementRatioAtom,
   retirementPensionReplacementRatioWithSickLeaveAtom,
+  scenariosDataAtom,
+  sickLeaveImpactAtom,
 } from '@/lib/atoms';
 
 import { useCallback } from 'react';
@@ -18,6 +24,20 @@ import { pdf } from '@react-pdf/renderer';
 import { useAtomValue } from 'jotai';
 
 import { RetirementReportDocument } from './RetirementReportDocument';
+import type {
+  RetirementReportChart,
+  RetirementReportHandle,
+} from './types';
+
+const REPORT_COLORS = {
+  primary: '#00993F',
+  primaryDark: '#084F25',
+  primaryLight: '#BAD4C4',
+  amber: '#FFB34F',
+  blue: '#3F84D2',
+  coral: '#F05E5E',
+  gray: '#BEC3CE',
+};
 
 function normalizeStrings<T>(value: T): T {
   if (typeof value === 'string') {
@@ -39,10 +59,6 @@ function normalizeStrings<T>(value: T): T {
   return value;
 }
 
-type RetirementReportHandle = {
-  open: () => void;
-};
-
 export function useRetirementReport(): () => Promise<RetirementReportHandle> {
   const age = useAtomValue(inputAgeAtom);
   const gender = useAtomValue(inputGenderAtom);
@@ -59,6 +75,12 @@ export function useRetirementReport(): () => Promise<RetirementReportHandle> {
   const replacementRatioWithSickLeave = useAtomValue(
     retirementPensionReplacementRatioWithSickLeaveAtom
   );
+  const pensionForecastData = useAtomValue(pensionForecastDataAtom);
+  const replacementRateValue = useAtomValue(replacementRateAtom);
+  const sickLeaveImpact = useAtomValue(sickLeaveImpactAtom);
+  const contributionHistory = useAtomValue(contributionHistoryAtom);
+  const scenariosData = useAtomValue(scenariosDataAtom);
+  const regionalBenchmark = useAtomValue(regionalBenchmarkAtom);
 
   return useCallback(async (): Promise<RetirementReportHandle> => {
     const generatedAt = new Date().toLocaleString('pl-PL');
@@ -210,6 +232,190 @@ export function useRetirementReport(): () => Promise<RetirementReportHandle> {
       },
     ];
 
+    const charts: RetirementReportChart[] = [];
+
+    if (pensionForecastData.length > 0) {
+      charts.push({
+        id: 'chart-pension-forecast',
+        title: 'Prognoza emerytury w zależności od wieku',
+        description:
+          'Porównanie nominalnej i realnej wartości świadczenia przy różnych wariantach wieku przejścia na emeryturę.',
+        type: 'line',
+        xLabel: 'Wiek przejścia na emeryturę',
+        yLabel: 'Kwota świadczenia (zł)',
+        series: [
+          {
+            id: 'series-nominal',
+            label: 'Kwota emerytury',
+            color: REPORT_COLORS.primary,
+            points: pensionForecastData.map((item) => ({
+              x: item.age,
+              y: item.amount,
+            })),
+          },
+          {
+            id: 'series-real',
+            label: 'Emerytura realna',
+            color: REPORT_COLORS.primaryDark,
+            points: pensionForecastData.map((item) => ({
+              x: item.age,
+              y: item.realAmount,
+            })),
+          },
+        ],
+      });
+    }
+
+    if (replacementRateValue > 0) {
+      charts.push({
+        id: 'chart-replacement',
+        title: 'Stopa zastąpienia pensji',
+        description:
+          'Jaki procent ostatniej pensji brutto pokryje prognozowane świadczenie emerytalne.',
+        type: 'column',
+        yLabel: 'Udział w pensji (%)',
+        series: [
+          {
+            id: 'series-replacement',
+            label: 'Stopa zastąpienia',
+            color: REPORT_COLORS.primary,
+            points: [
+              { x: 'Zastąpienie', y: replacementRateValue },
+            ],
+          },
+          {
+            id: 'series-remaining',
+            label: 'Pozostała część pensji',
+            color: REPORT_COLORS.primaryLight,
+            points: [
+              { x: 'Pozostałe', y: Math.max(0, 100 - replacementRateValue) },
+            ],
+          },
+        ],
+      });
+    }
+
+    if (sickLeaveImpact.withSickLeave || sickLeaveImpact.withoutSickLeave) {
+      charts.push({
+        id: 'chart-sick-leave',
+        title: 'Wpływ absencji chorobowej',
+        description:
+          'Zestawienie prognozowanej wysokości emerytury w wariancie z i bez uwzględnienia typowych zwolnień lekarskich.',
+        type: 'column',
+        yLabel: 'Kwota świadczenia (zł)',
+        series: [
+          {
+            id: 'series-sick-leave',
+            label: 'Uwzględnienie L4',
+            color: REPORT_COLORS.coral,
+            points: [
+              { x: 'Z L4', y: sickLeaveImpact.withSickLeave },
+            ],
+          },
+          {
+            id: 'series-no-sick',
+            label: 'Bez L4',
+            color: REPORT_COLORS.primary,
+            points: [
+              { x: 'Bez L4', y: sickLeaveImpact.withoutSickLeave },
+            ],
+          },
+        ],
+      });
+    }
+
+    if (contributionHistory.length > 0) {
+      charts.push({
+        id: 'chart-contribution-history',
+        title: 'Historia składek i kapitału',
+        description:
+          'Ostatnie pięć lat opłaconych składek oraz narastający kapitał emerytalny.',
+        type: 'column',
+        xLabel: 'Rok rozliczeniowy',
+        yLabel: 'Kwota (zł)',
+        series: [
+          {
+            id: 'series-contributions',
+            label: 'Składki roczne',
+            color: REPORT_COLORS.primaryLight,
+            points: contributionHistory.map((item) => ({
+              x: item.year,
+              y: item.contributions,
+            })),
+          },
+          {
+            id: 'series-capital',
+            label: 'Kapitał narastający',
+            color: REPORT_COLORS.primary,
+            type: 'line',
+            points: contributionHistory.map((item) => ({
+              x: item.year,
+              y: item.capital,
+            })),
+          },
+        ],
+      });
+    }
+
+    if (
+      scenariosData &&
+      (scenariosData.pessimistic ||
+        scenariosData.realistic ||
+        scenariosData.optimistic)
+    ) {
+      charts.push({
+        id: 'chart-scenarios',
+        title: 'Scenariusze "co-jeśli"',
+        description:
+          'Prognozowane świadczenie przy wariantach pesymistycznym, realistycznym i optymistycznym.',
+        type: 'column',
+        yLabel: 'Kwota świadczenia (zł)',
+        series: [
+          {
+            id: 'series-scenarios',
+            label: 'Prognozowana emerytura',
+            color: REPORT_COLORS.primary,
+            points: [
+              { x: 'Pesymistyczny', y: scenariosData.pessimistic || 0 },
+              { x: 'Realistyczny', y: scenariosData.realistic || 0 },
+              { x: 'Optymistyczny', y: scenariosData.optimistic || 0 },
+            ],
+          },
+        ],
+      });
+    }
+
+    if (regionalBenchmark.length > 0) {
+      charts.push({
+        id: 'chart-regional-benchmark',
+        title: 'Porównanie regionalne',
+        description:
+          'Zestawienie średniej emerytury w wybranych województwach z prognozą użytkownika.',
+        type: 'column',
+        yLabel: 'Kwota świadczenia (zł)',
+        series: [
+          {
+            id: 'series-region-average',
+            label: 'Średnia w regionie',
+            color: REPORT_COLORS.primaryLight,
+            points: regionalBenchmark.map((item) => ({
+              x: item.region,
+              y: item.average,
+            })),
+          },
+          {
+            id: 'series-user-region',
+            label: 'Prognoza użytkownika',
+            color: REPORT_COLORS.primary,
+            points: regionalBenchmark.map((item) => ({
+              x: item.region,
+              y: item.user,
+            })),
+          },
+        ],
+      });
+    }
+
     const dataset = normalizeStrings({
       highlights,
       derived: {
@@ -219,6 +425,7 @@ export function useRetirementReport(): () => Promise<RetirementReportHandle> {
         items: derivedItems,
       },
       notes,
+      charts,
     });
 
     const report = (
@@ -300,5 +507,11 @@ export function useRetirementReport(): () => Promise<RetirementReportHandle> {
     monthlyPensionWithSickLeave,
     replacementRatio,
     replacementRatioWithSickLeave,
+    pensionForecastData,
+    replacementRateValue,
+    sickLeaveImpact,
+    contributionHistory,
+    scenariosData,
+    regionalBenchmark,
   ]);
 }
