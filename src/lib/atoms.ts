@@ -345,6 +345,7 @@ export interface RegionalBenchmarkData {
   region: string;
   average: number;
   user: number;
+  isSelected?: boolean;
 }
 
 export interface ContributionHistoryData {
@@ -911,6 +912,7 @@ export const regionalBenchmarkAtom = atom<RegionalBenchmarkData[]>((get) => {
   const userPension = includeSickLeave
     ? get(retirementMonthlyPensionWithSickLeaveAtom) || 0
     : get(retirementMonthlyPensionAtom) || 0;
+  const selectedCity = get(inputCityAtom);
 
   // Wybierz 5 największych regionów (na podstawie danych)
   const topRegions = [
@@ -921,10 +923,27 @@ export const regionalBenchmarkAtom = atom<RegionalBenchmarkData[]>((get) => {
     { name: 'Dolnośląskie', avgPension: 2900 },
   ];
 
+  // Mapuj miasta na regiony
+  const cityToRegion: Record<string, string> = {
+    'Warszawa': 'Mazowieckie',
+    'Kraków': 'Małopolskie',
+    'Wrocław': 'Dolnośląskie',
+    'Poznań': 'Wielkopolskie',
+    'Katowice': 'Śląskie',
+    'Gdańsk': 'Pomorskie',
+    'Szczecin': 'Zachodniopomorskie',
+    'Białystok': 'Podlaskie',
+    'Lublin': 'Lubelskie',
+    'Rzeszów': 'Podkarpackie',
+  };
+
+  const userRegion = selectedCity ? cityToRegion[selectedCity] || 'Mazowieckie' : 'Mazowieckie';
+
   return topRegions.map((region) => ({
     region: region.name,
     average: region.avgPension,
     user: roundCurrency(userPension),
+    isSelected: region.name === userRegion,
   }));
 });
 

@@ -12,6 +12,7 @@ import {
   expectedPensionComparisonAtom,
   includeSickLeaveAtom,
   inputAgeAtom,
+  inputCityAtom,
   inputGrossMonthlySalaryAtom,
   inputPlannedRetirementYearAtom,
   lifeExpectancyInfoAtom,
@@ -49,7 +50,7 @@ export default function Dashboard() {
   const [retirementAge, setRetirementAge] = useState(60);
   const [salary, setSalary] = useState(5000);
   const [includeSickLeave, setIncludeSickLeave] = useAtom(includeSickLeaveAtom);
-  const [selectedRegion, setSelectedRegion] = useState('Mazowieckie');
+  const [selectedCity, setSelectedCity] = useAtom(inputCityAtom);
   const [selectedScenario, setSelectedScenario] = useAtom(selectedScenarioAtom);
 
   // Aktualizacja pojedynczych atomów wejściowych
@@ -167,12 +168,7 @@ export default function Dashboard() {
           },
         },
         title: {
-          text: 'Prognoza emerytury vs wiek przejścia',
-          style: {
-            color: zusColors.darkBlue,
-            fontSize: '16px',
-            fontWeight: 'bold',
-          },
+          text: '',
         },
         xAxis: {
           type: 'linear',
@@ -234,13 +230,35 @@ export default function Dashboard() {
         chart: {
           type: 'pie',
           backgroundColor: 'transparent',
+          plotBackgroundColor: null,
+          plotBorderWidth: null,
+          plotShadow: false,
         },
         title: {
-          text: 'Stopa zastąpienia',
-          style: {
-            color: zusColors.darkBlue,
-            fontSize: '16px',
-            fontWeight: 'bold',
+          text: '',
+        },
+        tooltip: {
+          enabled: false, // Wyłączamy tooltips jak prosiłeś
+        },
+        plotOptions: {
+          pie: {
+            allowPointSelect: false,
+            cursor: 'default',
+            dataLabels: {
+              enabled: true,
+              format: '{point.name}<br/><b>{point.y}%</b>',
+              style: { 
+                color: zusColors.darkBlue, 
+                fontWeight: 'bold',
+                fontSize: '14px',
+                textOutline: 'none',
+              },
+              distance: 20,
+            },
+            showInLegend: false,
+            borderWidth: 0,
+            innerSize: '40%',
+            size: '80%',
           },
         },
         series: [
@@ -249,24 +267,21 @@ export default function Dashboard() {
             type: 'pie',
             data: [
               {
-                name: 'Zastąpienie',
+                name: 'Emerytura',
                 y: replacementRate,
                 color: zusColors.primary,
               },
               {
-                name: 'Pozostałe',
+                name: 'Różnica',
                 y: 100 - replacementRate,
                 color: zusColors.greenLight,
               },
             ],
-            dataLabels: {
-              enabled: true,
-              format: '{point.name}: {point.y}%',
-              style: { color: zusColors.darkBlue, fontWeight: 'bold' },
-            },
-            borderWidth: 0,
           },
         ],
+        credits: {
+          enabled: false,
+        },
       });
       setReplacementRateChart(chart);
     }
@@ -278,12 +293,7 @@ export default function Dashboard() {
           backgroundColor: 'transparent',
         },
         title: {
-          text: 'Wpływ absencji chorobowych',
-          style: {
-            color: zusColors.darkBlue,
-            fontSize: '16px',
-            fontWeight: 'bold',
-          },
+          text: '',
         },
         xAxis: {
           categories: ['Z L4', 'Bez L4'],
@@ -325,12 +335,7 @@ export default function Dashboard() {
           backgroundColor: 'transparent',
         },
         title: {
-          text: 'Historia składek + kapitał początkowy',
-          style: {
-            color: zusColors.darkBlue,
-            fontSize: '16px',
-            fontWeight: 'bold',
-          },
+          text: '',
         },
         xAxis: {
           categories: contributionHistory.map((item) => item.year.toString()),
@@ -389,12 +394,7 @@ export default function Dashboard() {
           backgroundColor: 'transparent',
         },
         title: {
-          text: 'Scenariusze "co-jeśli"',
-          style: {
-            color: zusColors.darkBlue,
-            fontSize: '16px',
-            fontWeight: 'bold',
-          },
+          text: '',
         },
         xAxis: {
           categories: ['Pesymistyczny', 'Realistyczny', 'Optymistyczny'],
@@ -452,15 +452,20 @@ export default function Dashboard() {
           {
             name: 'Średnia w regionie',
             type: 'column',
-            data: regionalBenchmark.map((item) => item.average),
-            color: zusColors.greenLight,
+            data: regionalBenchmark.map((item) => ({
+              y: item.average,
+              color: item.isSelected ? zusColors.primary : zusColors.greenLight,
+            })),
             borderWidth: 0,
             borderRadius: 4,
           },
           {
             name: 'Twoja prognoza',
             type: 'column',
-            data: regionalBenchmark.map((item) => item.user),
+            data: regionalBenchmark.map((item) => ({
+              y: item.user,
+              color: item.isSelected ? zusColors.greenDark : zusColors.gray,
+            })),
             color: zusColors.primary,
             borderWidth: 0,
             borderRadius: 4,
@@ -487,6 +492,24 @@ export default function Dashboard() {
     }
   }, [pensionForecastData, pensionForecastChart]);
 
+  // Update replacement rate chart when data changes
+  useEffect(() => {
+    if (replacementRateChart) {
+      replacementRateChart.series[0].setData([
+        {
+          name: 'Emerytura',
+          y: replacementRate,
+          color: zusColors.primary,
+        },
+        {
+          name: 'Różnica',
+          y: 100 - replacementRate,
+          color: zusColors.greenLight,
+        },
+      ]);
+    }
+  }, [replacementRate, replacementRateChart]);
+
   useEffect(() => {
     if (sickLeaveChart && sickLeaveImpact) {
       const withSickLeave = includeSickLeave
@@ -495,11 +518,52 @@ export default function Dashboard() {
       const withoutSickLeave = sickLeaveImpact.withoutSickLeave;
 
       sickLeaveChart.series[0].setData([
-        { y: withSickLeave, color: zusColors.red },
-        { y: withoutSickLeave, color: zusColors.green },
+        { y: withSickLeave, color: zusColors.greenDark },
+        { y: withoutSickLeave, color: zusColors.primary },
       ]);
     }
   }, [includeSickLeave, sickLeaveChart, sickLeaveImpact]);
+
+  // Update contribution history chart when data changes
+  useEffect(() => {
+    if (contributionHistoryChart && contributionHistory.length > 0) {
+      contributionHistoryChart.series[0].setData(
+        contributionHistory.map((item) => item.contributions)
+      );
+      contributionHistoryChart.series[1].setData(
+        contributionHistory.map((item) => item.cumulativeCapital)
+      );
+    }
+  }, [contributionHistory, contributionHistoryChart]);
+
+  // Update scenarios chart when data changes
+  useEffect(() => {
+    if (scenariosChart && scenariosData) {
+      scenariosChart.series[0].setData([
+        { y: scenariosData.pessimistic, color: zusColors.greenDark },
+        { y: scenariosData.realistic, color: zusColors.primary },
+        { y: scenariosData.optimistic, color: zusColors.green },
+      ]);
+    }
+  }, [scenariosData, scenariosChart]);
+
+  // Update regional benchmark chart when data changes
+  useEffect(() => {
+    if (regionalBenchmarkChart && regionalBenchmark.length > 0) {
+      regionalBenchmarkChart.series[0].setData(
+        regionalBenchmark.map((item) => ({
+          y: item.average,
+          color: item.isSelected ? zusColors.primary : zusColors.greenLight,
+        }))
+      );
+      regionalBenchmarkChart.series[1].setData(
+        regionalBenchmark.map((item) => ({
+          y: item.user,
+          color: item.isSelected ? zusColors.greenDark : zusColors.gray,
+        }))
+      );
+    }
+  }, [regionalBenchmark, regionalBenchmarkChart]);
 
   // Cleanup charts on unmount
   useEffect(() => {
@@ -721,13 +785,18 @@ export default function Dashboard() {
             {/* Pension Forecast Chart */}
             <div className="bg-white p-6 rounded-lg shadow">
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
+                <div className="mb-4">
                   <h3
-                    className="text-lg font-semibold"
+                    className="text-lg font-semibold mb-1"
                     style={{ color: zusColors.darkBlue }}
                   >
                     Prognoza emerytury vs wiek przejścia
                   </h3>
+                  <p className="text-sm text-gray-600">
+                    Wpływ wieku przejścia na emeryturę na wysokość świadczenia
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
                   <div className="group relative">
                     <Info className="w-4 h-4 text-gray-600 hover:text-[var(--zus-green)] cursor-help transition-colors" />
                     <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-white text-gray-800 border border-gray-200 shadow-lg text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-96">
@@ -1257,8 +1326,8 @@ export default function Dashboard() {
                   </label>
                   <select
                     id="region"
-                    value={selectedRegion}
-                    onChange={(e) => setSelectedRegion(e.target.value)}
+                    value={selectedCity || 'Warszawa'}
+                    onChange={(e) => setSelectedCity(e.target.value)}
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
                   >
                     {regionalBenchmark.map((region) => (
@@ -1273,11 +1342,27 @@ export default function Dashboard() {
 
             {/* Replacement Rate Gauge */}
             <div className="bg-white p-6 rounded-lg shadow">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold mb-1" style={{ color: zusColors.darkBlue }}>
+                  Stopa zastąpienia
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Stosunek emerytury do ostatniego wynagrodzenia
+                </p>
+              </div>
               <div ref={replacementRateRef} style={{ height: '300px' }}></div>
             </div>
 
             {/* Sick Leave Impact */}
             <div className="bg-white p-6 rounded-lg shadow">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold mb-1" style={{ color: zusColors.darkBlue }}>
+                  Wpływ absencji chorobowych
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Porównanie emerytury z uwzględnieniem L4 i bez
+                </p>
+              </div>
               <div ref={sickLeaveRef} style={{ height: '300px' }}></div>
             </div>
 
