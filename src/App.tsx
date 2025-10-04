@@ -3,10 +3,11 @@ import { useRetirementReport } from '@/lib/report';
 import { AboutPage } from '@/routes/about';
 import { HomePage } from '@/routes/index';
 import { OnboardingPage } from '@/routes/onboarding';
+import { Onboarding2SalaryPage } from '@/routes/onboarding-2-salary';
 
 import { useCallback } from 'react';
 
-import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
+import { HashRouter, Link, Route, Routes } from 'react-router-dom';
 
 export function App() {
   const generateRetirementReport = useRetirementReport();
@@ -16,9 +17,9 @@ export function App() {
   }, [generateRetirementReport]);
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <div className="h-full w-full">
-        {!window.location.pathname.includes('onboarding') && (
+        {!window.location.hash.includes('onboarding') && (
           <nav className="p-2 flex gap-2 text-lg border-b">
             <Link to="/">
               <Button variant="ghost">Home</Button>
@@ -37,8 +38,12 @@ export function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/onboarding" element={<OnboardingPage />} />
+          <Route
+            path="/onboarding/2-zarobki"
+            element={<Onboarding2SalaryPage />}
+          />
         </Routes>
       </div>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
