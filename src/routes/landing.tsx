@@ -14,19 +14,19 @@ const cards = [
   {
     title: 'Dokładne prognozy',
     description:
-      'Obliczenia oparte na oficjalnych danych ZUS i parametrach demograficznych GUS',
+      'Obliczenia oparte na oficjalnych danych ZUS i parametrach demograficznych GUS.',
     icon: <CheckCircleIcon className="size-6 text-primary" />,
   },
   {
     title: 'Różne scenariusze',
     description:
-      'Zobacz jak zmieni się Twoja emerytura w zależności od wieku przejścia i stażu pracy',
+      'Zobacz jak zmieni się Twoja emerytura w zależności od wieku przejścia i stażu pracy.',
     icon: <TrendingUpIcon className="size-6 text-primary" />,
   },
   {
     title: 'Bezpieczeństwo danych',
     description:
-      'Wszystkie obliczenia wykonywane są lokalnie w Twojej przeglądarce',
+      'Wszystkie obliczenia wykonywane są lokalnie w Twojej przeglądarce.',
     icon: <ShieldCheckIcon className="size-6 text-primary" />,
   },
 ];
@@ -34,7 +34,7 @@ const cards = [
 export function LandingPage() {
   return (
     <div className="min-h-screen overflow-x-hidden">
-      <div className="relative max-w-7xl mx-auto px-6 py-20 pt-24 md:pt-36">
+      <div className="relative max-w-7xl mx-auto px-6 py-20 pt-24 md:pt-36 lg:pt-40">
         <div className="text-left">
           <div className="flex justify-start mb-4">
             <img
@@ -65,7 +65,7 @@ export function LandingPage() {
           <img
             src={HeroImage}
             alt="App Screenshot"
-            className="hidden md:block absolute top-28 -right-[10%] -z-10 w-[60%]"
+            className="hidden lg:block absolute top-28 -right-[10%] -z-10 w-[60%]"
           />
         </div>
 
@@ -81,7 +81,7 @@ export function LandingPage() {
                 <h3 className="text-base md:text-lg font-semibold text-foreground mb-2">
                   {card.title}
                 </h3>
-                <p className="text-xs md:text-base text-muted-foreground">
+                <p className="text-xs md:text-base text-muted-foreground mix-blend-plus-lighter">
                   {card.description}
                 </p>
               </div>
@@ -89,10 +89,22 @@ export function LandingPage() {
           ))}
         </div>
 
-        <p className="text-sm text-muted-foreground/80 fixed left-0 bottom-2 w-full p-4 bg-white/20 rounded-lg backdrop-blur-2xl text-left md:text-center px-6">
-          Kalkulator ma charakter informacyjny i nie stanowi oficjalnej prognozy
-          ZUS.
-        </p>
+        <div className="fixed -bottom-0 lg:-bottom-16 left-0 right-0 -z-10 overflow-hidden">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+            <path
+              fill="#35a454"
+              fill-opacity="1"
+              d="M0,64L80,96C160,128,320,192,480,208C640,224,800,192,960,192C1120,192,1280,224,1360,240L1440,256L1440,320L1360,320C1280,320,1120,320,960,320C800,320,640,320,480,320C320,320,160,320,80,320L0,320Z"
+            ></path>
+          </svg>
+        </div>
+
+        <div className="flex w-full justify-center fixed bottom-0 left-0">
+          <p className="max-w-7xl mx-auto text-xs text-white/80 left-0 w-full py-2 text-left px-4">
+            Kalkulator ma charakter informacyjny i nie stanowi oficjalnej
+            prognozy ZUS.
+          </p>
+        </div>
       </div>
     </div>
   );
