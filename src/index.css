@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');
 
 @import 'tailwindcss';
 
@@ -35,7 +35,7 @@
   --sidebar-accent-foreground: #92400e;
   --sidebar-border: #e5e7eb;
   --sidebar-ring: #f59e0b;
-  --font-sans: Inter;
+  --font-sans: Geist;
   --font-serif: Playfair Display, serif;
   --font-mono: JetBrains Mono, monospace;
   --radius: 0.555rem;
@@ -146,7 +146,7 @@
 }
 
 /* ZUS Slider Styles */
-input[type="range"] {
+input[type='range'] {
   -webkit-appearance: none;
   appearance: none;
   background: #e5e7eb;
@@ -157,7 +157,7 @@ input[type="range"] {
   width: 100%;
 }
 
-input[type="range"]::-webkit-slider-track {
+input[type='range']::-webkit-slider-track {
   background: #e5e7eb;
   height: 6px;
   border-radius: 3px;
@@ -165,7 +165,7 @@ input[type="range"]::-webkit-slider-track {
   border: none;
 }
 
-input[type="range"]::-webkit-slider-thumb {
+input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   background: var(--zus-green);
@@ -178,12 +178,12 @@ input[type="range"]::-webkit-slider-thumb {
   margin-top: -1px;
 }
 
-input[type="range"]::-webkit-slider-thumb:hover {
+input[type='range']::-webkit-slider-thumb:hover {
   background: var(--primary);
   transform: scale(1.1);
 }
 
-input[type="range"]::-moz-range-track {
+input[type='range']::-moz-range-track {
   background: #e5e7eb;
   height: 6px;
   border-radius: 3px;
@@ -191,7 +191,7 @@ input[type="range"]::-moz-range-track {
   width: 100%;
 }
 
-input[type="range"]::-moz-range-thumb {
+input[type='range']::-moz-range-thumb {
   background: var(--zus-green);
   height: 20px;
   width: 20px;
@@ -202,13 +202,13 @@ input[type="range"]::-moz-range-thumb {
   margin-top: -1px;
 }
 
-input[type="range"]::-moz-range-thumb:hover {
+input[type='range']::-moz-range-thumb:hover {
   background: var(--primary);
   transform: scale(1.1);
 }
 
 /* ZUS Checkbox Styles */
-input[type="checkbox"] {
+input[type='checkbox'] {
   -webkit-appearance: none;
   appearance: none;
   background-color: white;
@@ -222,17 +222,17 @@ input[type="checkbox"] {
   transition: all 0.2s ease;
 }
 
-input[type="checkbox"]:hover {
+input[type='checkbox']:hover {
   border-color: var(--zus-green);
 }
 
-input[type="checkbox"]:checked {
+input[type='checkbox']:checked {
   background-color: var(--zus-green);
   border-color: var(--zus-green);
 }
 
-input[type="checkbox"]:checked::after {
-  content: "✓";
+input[type='checkbox']:checked::after {
+  content: '✓';
   position: absolute;
   top: 50%;
   left: 50%;
@@ -242,7 +242,7 @@ input[type="checkbox"]:checked::after {
   font-weight: bold;
 }
 
-input[type="checkbox"]:checked:hover {
+input[type='checkbox']:checked:hover {
   background-color: var(--primary);
   border-color: var(--primary);
 }

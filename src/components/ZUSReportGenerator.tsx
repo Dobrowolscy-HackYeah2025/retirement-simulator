@@ -7,25 +7,13 @@ import { MultiStepLoader as Loader } from './ui/multi-step-loader';
 
 const zusLoadingStates = [
   {
-    text: 'Weryfikacja danych osobowych',
+    text: 'Gromadzenie danych',
   },
   {
-    text: 'Sprawdzanie historii składek ZUS',
+    text: 'Prognozowanie emerytury',
   },
   {
-    text: 'Obliczanie stażu pracy',
-  },
-  {
-    text: 'Analiza zarobków brutto',
-  },
-  {
-    text: 'Kalkulacja przyszłych składek',
-  },
-  {
-    text: 'Prognoza emerytury',
-  },
-  {
-    text: 'Generowanie raportu ZUS',
+    text: 'Generowanie wykresów',
   },
   {
     text: 'Raport gotowy!',
@@ -47,7 +35,7 @@ export function ZUSReportGenerator({
         loadingStates={zusLoadingStates}
         loading={loading}
         duration={
-          import.meta.env.PROD || environment.TEST_MULTI_LOADER ? 1000 : 50
+          import.meta.env.PROD || environment.TEST_MULTI_LOADER ? 2000 : 50
         }
         loop={false}
         onComplete={onComplete}
