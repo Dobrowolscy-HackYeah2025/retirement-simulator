@@ -18,4 +18,17 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  // SPA configuration
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
+    },
+  },
+  // Ensure all routes fallback to index.html for SPA routing
+  preview: {
+    port: 4173,
+    strictPort: true,
+  },
 });
