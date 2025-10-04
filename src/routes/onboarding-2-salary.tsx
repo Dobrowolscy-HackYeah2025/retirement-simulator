@@ -1,21 +1,28 @@
 import { OnboardingPageWrapper } from '@/components/OnboardingPageWrapper';
 import { Input } from '@/components/ui/input';
-import { ZUSReportGenerator } from '@/components/ZUSReportGenerator';
 import {
   inputAgeAtom,
   inputCityAtom,
   inputGenderAtom,
   inputGrossMonthlySalaryAtom,
-  onboardingCompletedAtom,
   inputPlannedRetirementYearAtom,
   inputWorkStartYearAtom,
   inputZusAccountBalanceAtom,
+  onboardingCompletedAtom,
   showReportGeneratorAtom,
 } from '@/lib/atoms';
 
-import { useEffect, useMemo } from 'react';
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from 'react';
 
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { InfoIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -35,66 +42,105 @@ import {
 } from '../components/ui/tooltip';
 import { trackEvent } from '../lib/analytics';
 
+const LazyZUSReportGenerator = lazy(async () => {
+  const module = await import('@/components/ZUSReportGenerator');
+  return { default: module.ZUSReportGenerator };
+});
+
 export function Onboarding2SalaryPage() {
   const age = useAtomValue(inputAgeAtom);
   const gender = useAtomValue(inputGenderAtom);
   const city = useAtomValue(inputCityAtom);
+  const grossMonthlySalary = useAtomValue(inputGrossMonthlySalaryAtom);
+  const workStartYear = useAtomValue(inputWorkStartYearAtom);
+  const plannedRetirementYear = useAtomValue(inputPlannedRetirementYearAtom);
+  const zusAccountBalance = useAtomValue(inputZusAccountBalanceAtom);
   const onboardingCompleted = useAtomValue(onboardingCompletedAtom);
-  const [grossMonthlySalary, setGrossMonthlySalary] = useAtom(
-    inputGrossMonthlySalaryAtom
-  );
-  const [workStartYear, setWorkStartYear] = useAtom(inputWorkStartYearAtom);
-  const [plannedRetirementYear, setPlannedRetirementYear] = useAtom(
-    inputPlannedRetirementYearAtom
-  );
-  const [zusAccountBalance, setZusAccountBalance] = useAtom(
-    inputZusAccountBalanceAtom
-  );
-  const [showReportGenerator, setShowReportGenerator] = useAtom(
-    showReportGeneratorAtom
-  );
+  const showReportGenerator = useAtomValue(showReportGeneratorAtom);
+
+  const setGrossMonthlySalary = useSetAtom(inputGrossMonthlySalaryAtom);
+  const setWorkStartYear = useSetAtom(inputWorkStartYearAtom);
+  const setPlannedRetirementYear = useSetAtom(inputPlannedRetirementYearAtom);
+  const setZusAccountBalance = useSetAtom(inputZusAccountBalanceAtom);
   const setOnboardingCompleted = useSetAtom(onboardingCompletedAtom);
+  const setShowReportGenerator = useSetAtom(showReportGeneratorAtom);
   const navigate = useNavigate();
 
-  const currentSalaryGross = grossMonthlySalary ?? 0;
+  const [salaryInputValue, setSalaryInputValue] = useState(
+    () => grossMonthlySalary?.toString() ?? ''
+  );
+  const [zusBalanceInputValue, setZusBalanceInputValue] = useState(
+    () => zusAccountBalance?.toString() ?? ''
+  );
+
+  useEffect(() => {
+    setSalaryInputValue(grossMonthlySalary?.toString() ?? '');
+  }, [grossMonthlySalary]);
+
+  useEffect(() => {
+    setZusBalanceInputValue(zusAccountBalance?.toString() ?? '');
+  }, [zusAccountBalance]);
+
+  const [, startTransition] = useTransition();
+
+  const parsedSalaryValue = Number(salaryInputValue);
+  const currentSalaryGross = Number.isNaN(parsedSalaryValue)
+    ? 0
+    : parsedSalaryValue;
   const workStartYearValue = workStartYear ?? null;
   const retirementYearValue = plannedRetirementYear ?? null;
 
-  const handleCurrentSalaryChange = (value: string) => {
-    if (value === '') {
-      setGrossMonthlySalary(null);
-      return;
-    }
+  const handleCurrentSalaryChange = useCallback(
+    (value: string) => {
+      setSalaryInputValue(value);
 
-    const parsedValue = Number(value);
-    if (Number.isNaN(parsedValue)) {
-      return;
-    }
+      if (value === '') {
+        startTransition(() => setGrossMonthlySalary(null));
+        return;
+      }
 
-    setGrossMonthlySalary(parsedValue);
-  };
+      const parsedValue = Number(value);
+      if (Number.isNaN(parsedValue)) {
+        return;
+      }
 
-  const handleZusBalanceChange = (value: string) => {
-    if (value === '') {
-      setZusAccountBalance(null);
-      return;
-    }
+      startTransition(() => setGrossMonthlySalary(parsedValue));
+    },
+    [setGrossMonthlySalary, setSalaryInputValue, startTransition]
+  );
 
-    const parsedValue = Number(value);
-    if (Number.isNaN(parsedValue)) {
-      return;
-    }
+  const handleZusBalanceChange = useCallback(
+    (value: string) => {
+      setZusBalanceInputValue(value);
 
-    setZusAccountBalance(parsedValue);
-  };
+      if (value === '') {
+        startTransition(() => setZusAccountBalance(null));
+        return;
+      }
 
-  const handleWorkStartYearChange = (year: number) => {
-    setWorkStartYear(year);
-  };
+      const parsedValue = Number(value);
+      if (Number.isNaN(parsedValue)) {
+        return;
+      }
 
-  const handleRetirementYearChange = (year: number) => {
-    setPlannedRetirementYear(year);
-  };
+      startTransition(() => setZusAccountBalance(parsedValue));
+    },
+    [setZusAccountBalance, setZusBalanceInputValue, startTransition]
+  );
+
+  const handleWorkStartYearChange = useCallback(
+    (year: number) => {
+      setWorkStartYear(year);
+    },
+    [setWorkStartYear]
+  );
+
+  const handleRetirementYearChange = useCallback(
+    (year: number) => {
+      setPlannedRetirementYear(year);
+    },
+    [setPlannedRetirementYear]
+  );
 
   const workStartYears = useMemo(() => {
     return Array.from({ length: 76 }, (_, index) => 1950 + index);
@@ -122,53 +168,19 @@ export function Onboarding2SalaryPage() {
     );
   }, [workStartYear]);
 
-  const handleGenerateReport = () => {
+  const handleLoaderState = useCallback(
+    (next: boolean) => {
+      setShowReportGenerator(next);
+    },
+    [setShowReportGenerator]
+  );
+
+  const handleGenerateReport = useCallback(() => {
     setOnboardingCompleted(true);
-    setShowReportGenerator(true);
-  };
+    handleLoaderState(true);
+  }, [handleLoaderState, setOnboardingCompleted]);
 
-  const handleReportComplete = () => {
-    setShowReportGenerator(false);
-    // Navigate to main page after report generation
-    navigate('/dashboard');
-  };
-
-  const handleGoBack = () => {
-    navigate('/onboarding');
-  };
-
-  // Get missing fields for tooltip
-  const getMissingFields = () => {
-    const missing: string[] = [];
-    if (currentSalaryGross <= 0) {
-      missing.push('zarobki brutto');
-    }
-    if (workStartYearValue == null || workStartYearValue < 1950 || workStartYearValue > 2025) {
-      missing.push('rok rozpoczęcia pracy');
-    }
-    if (
-      retirementYearValue == null ||
-      workStartYearValue == null ||
-      retirementYearValue <= workStartYearValue
-    ) {
-      missing.push('rok zakończenia aktywności zawodowej');
-    }
-    return missing;
-  };
-
-  const missingFields = getMissingFields();
-  const isDisabled = missingFields.length > 0;
-
-  useEffect(() => {
-    if (onboardingCompleted && !showReportGenerator) {
-      navigate('/dashboard', { replace: true });
-      return;
-    }
-
-    if (!showReportGenerator) {
-      return;
-    }
-
+  const handleReportComplete = useCallback(() => {
     trackEvent('show-dashboard', {
       age,
       gender,
@@ -178,9 +190,12 @@ export function Onboarding2SalaryPage() {
       plannedRetirementYear,
       zusAccountBalance,
     });
+
+    handleLoaderState(false);
+    navigate('/dashboard', { replace: true });
   }, [
-    onboardingCompleted,
-    showReportGenerator,
+    handleLoaderState,
+    navigate,
     age,
     gender,
     city,
@@ -188,8 +203,36 @@ export function Onboarding2SalaryPage() {
     workStartYear,
     plannedRetirementYear,
     zusAccountBalance,
-    navigate,
   ]);
+
+  const handleGoBack = useCallback(() => {
+    navigate('/onboarding');
+  }, [navigate]);
+
+  const missingFields = useMemo(() => {
+    const missing: string[] = [];
+
+    if (currentSalaryGross <= 0) {
+      missing.push('zarobki brutto');
+    }
+    if (
+      workStartYearValue == null ||
+      workStartYearValue < 1950 ||
+      workStartYearValue > 2025
+    ) {
+      missing.push('rok rozpoczęcia pracy');
+    }
+    if (
+      retirementYearValue == null ||
+      workStartYearValue == null ||
+      retirementYearValue <= workStartYearValue
+    ) {
+      missing.push('rok zakończenia aktywności zawodowej');
+    }
+
+    return missing;
+  }, [currentSalaryGross, retirementYearValue, workStartYearValue]);
+  const isDisabled = missingFields.length > 0;
 
   return (
     <OnboardingPageWrapper>
@@ -211,7 +254,7 @@ export function Onboarding2SalaryPage() {
             <Input
               type="number"
               placeholder="0"
-              value={grossMonthlySalary?.toString() ?? ''}
+              value={salaryInputValue}
               onChange={(e) => handleCurrentSalaryChange(e.target.value)}
               className="w-full pr-11"
             />
@@ -289,7 +332,7 @@ export function Onboarding2SalaryPage() {
             <Input
               type="number"
               placeholder="0"
-              value={zusAccountBalance?.toString() ?? ''}
+              value={zusBalanceInputValue}
               onChange={(e) => handleZusBalanceChange(e.target.value)}
               className="w-full pr-11"
             />
@@ -337,11 +380,19 @@ export function Onboarding2SalaryPage() {
       </div>
 
       {showReportGenerator && (
-        <ZUSReportGenerator
-          loading={showReportGenerator}
-          setLoading={setShowReportGenerator}
-          onComplete={handleReportComplete}
-        />
+        <Suspense
+          fallback={
+            <div className="w-full h-[60vh] flex items-center justify-center text-muted-foreground">
+              Ładowanie generatora raportu…
+            </div>
+          }
+        >
+          <LazyZUSReportGenerator
+            loading={showReportGenerator}
+            setLoading={handleLoaderState}
+            onComplete={handleReportComplete}
+          />
+        </Suspense>
       )}
     </OnboardingPageWrapper>
   );
