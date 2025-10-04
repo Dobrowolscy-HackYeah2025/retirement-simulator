@@ -7,6 +7,7 @@ import { createRoot } from 'react-dom/client';
 
 import { App } from './App';
 import './index.css';
+import { environment } from './lib/environment';
 
 const queryClient = new QueryClient();
 
@@ -14,9 +15,9 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <PostHogProvider
-        apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_KEY}
+        apiKey={environment.POSTHOG_KEY}
         options={{
-          api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
+          api_host: environment.POSTHOG_HOST,
           defaults: '2025-05-24',
           capture_exceptions: true,
           debug: import.meta.env.MODE === 'development',
