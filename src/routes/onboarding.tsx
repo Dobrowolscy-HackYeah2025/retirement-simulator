@@ -4,9 +4,8 @@ import { useState } from 'react';
 
 import { useAtom } from 'jotai';
 import { CalendarIcon, CheckIcon, MapPinIcon, UserIcon } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
-import { Button } from '../components/ui/button';
+import { OnboardingButtons } from '../components/onboarding/OnboardingButtons';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import {
@@ -17,20 +16,17 @@ import {
   SelectValue,
 } from '../components/ui/select';
 import { Slider } from '../components/ui/slider';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '../components/ui/tooltip';
 import { inputAgeAtom, inputCityAtom, inputGenderAtom } from '../lib/atoms';
 import { filterCities } from '../lib/polish-cities';
 import { cn } from '../lib/utils';
+
+const MIN_USER_AGE = 18;
+const MAX_USER_AGE = 70;
 
 export function OnboardingPage() {
   const [gender, setGender] = useAtom(inputGenderAtom);
   const [age, setAge] = useAtom(inputAgeAtom);
   const [city, setCity] = useAtom(inputCityAtom);
-  const navigate = useNavigate();
   const [cityInput, setCityInput] = useState(city);
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
 
@@ -51,31 +47,29 @@ export function OnboardingPage() {
     setCity(val);
   };
 
-  const handleContinue = () => {
-    navigate('/onboarding/2-zarobki');
-  };
-
-  const handleGoBack = () => {
-    navigate('/');
-  };
-
-  // Get missing fields for tooltip
   const getMissingFields = () => {
     const missing: string[] = [];
+
     if (!userGender) {
       missing.push('płeć');
     }
+
     if (!userCity) {
       missing.push('miasto');
     }
-    if (!userAge || userAge < 18 || userAge > 120) {
+
+    if (!userAge || userAge < MIN_USER_AGE || userAge > MAX_USER_AGE) {
       missing.push('wiek');
     }
+
     return missing;
   };
 
   const missingFields = getMissingFields();
-  const isDisabled = missingFields.length > 0;
+  const disabledTooltipText =
+    missingFields.length > 0
+      ? `Uzupełnij brakujące pola: ${missingFields.join(', ')}`
+      : undefined;
 
   return (
     <OnboardingPageWrapper waveIndex={0}>
@@ -122,8 +116,8 @@ export function OnboardingPage() {
             <Input
               type="text"
               placeholder="Miasto zamieszkania"
-              defaultValue={userCity}
-              value={cityInput}
+              defaultValue={userCity || ''}
+              value={cityInput || ''}
               onChange={(e) => {
                 setCityInput(e.target.value);
                 setShowCitySuggestions(true);
@@ -175,7 +169,7 @@ export function OnboardingPage() {
           <span className="text-sm font-medium text-foreground">
             {userAge ? `Wiek: ${userAge} lat` : 'Wybierz wiek'}
           </span>
-          {userAge && userAge >= 18 && userAge <= 120 && (
+          {userAge && userAge >= MIN_USER_AGE && userAge <= MAX_USER_AGE && (
             <CheckIcon className="size-4 text-primary ml-auto" />
           )}
         </div>
@@ -186,47 +180,24 @@ export function OnboardingPage() {
             <Slider
               value={[userAge || 30]}
               onValueChange={(value) => setUserAge(value[0])}
-              min={18}
-              max={120}
+              min={MIN_USER_AGE}
+              max={MAX_USER_AGE}
               step={1}
               className="w-full"
             />
             <div className="flex w-full justify-between text-xs text-muted-foreground mt-1">
-              <span className="flex-1">18</span>
-              <span className="flex-1 text-right">120</span>
+              <span className="flex-1">{MIN_USER_AGE}</span>
+              <span className="flex-1 text-right">{MAX_USER_AGE}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="w-full">
-              <Button
-                className="w-full"
-                disabled={isDisabled}
-                onClick={handleContinue}
-              >
-                Kontynuuj
-              </Button>
-            </div>
-          </TooltipTrigger>
-          {isDisabled && (
-            <TooltipContent side="top">
-              <p>
-                Uzupełnij brakujące pola:{' '}
-                {missingFields.map((field, index) => (
-                  <span key={field}>
-                    <strong>{field}</strong>
-                    {index < missingFields.length - 1 ? ', ' : ''}
-                  </span>
-                ))}
-              </p>
-            </TooltipContent>
-          )}
-        </Tooltip>
-      </div>
+      <OnboardingButtons
+        previousUrl="/"
+        nextUrl="/onboarding/2-zarobki"
+        disabledTooltipText={disabledTooltipText}
+      />
     </OnboardingPageWrapper>
   );
 }

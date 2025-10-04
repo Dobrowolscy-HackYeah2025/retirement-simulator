@@ -25,7 +25,7 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { InfoIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-import { Button } from '../components/ui/button';
+import { OnboardingButtons } from '../components/onboarding/OnboardingButtons';
 import { Label } from '../components/ui/label';
 import {
   Select,
@@ -230,7 +230,10 @@ export function Onboarding2SalaryPage() {
 
     return missing;
   }, [currentSalaryGross, retirementYearValue, workStartYearValue]);
-  const isDisabled = missingFields.length > 0;
+  const disabledTooltipText =
+    missingFields.length > 0
+      ? `Uzupełnij brakujące pola: ${missingFields.join(', ')}`
+      : undefined;
 
   return (
     <OnboardingPageWrapper waveIndex={1}>
@@ -340,41 +343,11 @@ export function Onboarding2SalaryPage() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="w-full">
-                <Button
-                  className="w-full"
-                  disabled={isDisabled}
-                  onClick={handleGenerateReport}
-                >
-                  Generuj raport ZUS
-                </Button>
-              </div>
-            </TooltipTrigger>
-            {isDisabled && (
-              <TooltipContent side="top">
-                <p>
-                  Uzupełnij brakujące pola:{' '}
-                  {missingFields.map((field, index) => (
-                    <span key={field}>
-                      <strong>{field}</strong>
-                      {index < missingFields.length - 1 ? ', ' : ''}
-                    </span>
-                  ))}
-                </p>
-              </TooltipContent>
-            )}
-          </Tooltip>
-          <Button
-            variant="ghost"
-            className="text-muted-foreground font-medium"
-            onClick={handleGoBack}
-          >
-            Wróć
-          </Button>
-        </div>
+        <OnboardingButtons
+          previousUrl="/onboarding"
+          onNextClick={handleGenerateReport}
+          disabledTooltipText={disabledTooltipText}
+        />
       </div>
 
       {showReportGenerator && (
