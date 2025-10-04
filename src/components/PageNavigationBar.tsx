@@ -3,17 +3,22 @@ import { useRetirementReport } from '@/lib/report';
 
 import { useCallback } from 'react';
 
+import { useAtomValue } from 'jotai';
 import { FileTextIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { trackEvent } from '../lib/analytics';
+import { retirementInputsAtom } from '../lib/atoms';
 import { Button } from './ui/button';
 
 export const PageNavigationBar = () => {
+  const retirementsInput = useAtomValue(retirementInputsAtom);
   const generateRetirementReport = useRetirementReport();
 
   const handleGenerateReport = useCallback(() => {
+    trackEvent('generate-report', retirementsInput);
     void generateRetirementReport();
-  }, [generateRetirementReport]);
+  }, [generateRetirementReport, retirementsInput]);
 
   return (
     <nav
@@ -36,6 +41,7 @@ export const PageNavigationBar = () => {
             <span className="group-hover:translate-x-40 transition duration-500 flex items-center gap-2">
               Generuj raport <FileTextIcon className="size-4" />
             </span>
+
             <div className="-translate-x-40 group-hover:translate-x-0 flex items-center justify-center absolute inset-0 transition duration-500 z-20">
               <FileTextIcon className="size-4" />
             </div>

@@ -11,21 +11,9 @@
 // 	- Emerytura urealniona • Kod pocztowy
 import { posthog } from 'posthog-js';
 
-export type AnalyticsEventPayload = {
-  age: number;
-  gender: string;
-  salaryBrutto: number;
-  harPeriodsOfIllness: boolean;
-  currentSavingsOnAccount: number;
-  currentSavingsOnSubaccount: number;
-  realRetirement: number;
-  realRetirementRealized: number;
-  retirementExpected: number;
-  postalCode: string;
-};
-
 // you can easily change posthog to any other analytics tool
 // such as mixpanel or custom backend
-export const trackEvent = (event: string, payload: AnalyticsEventPayload) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const trackEvent = (event: string, payload: any) => {
   posthog.capture(event, payload);
 };

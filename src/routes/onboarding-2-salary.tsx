@@ -23,6 +23,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '../components/ui/tooltip';
+import { trackEvent } from '../lib/analytics';
 
 export function Onboarding2SalaryPage() {
   const [retirementInputs, setRetirementInputs] = useAtom(retirementInputsAtom);
@@ -130,6 +131,14 @@ export function Onboarding2SalaryPage() {
 
   const missingFields = getMissingFields();
   const isDisabled = missingFields.length > 0;
+
+  useEffect(() => {
+    if (!showReportGenerator) {
+      return;
+    }
+
+    trackEvent('show-dashboard', retirementInputs);
+  }, [showReportGenerator, retirementInputs]);
 
   return (
     <OnboardingPageWrapper>
