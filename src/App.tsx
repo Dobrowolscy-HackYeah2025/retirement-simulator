@@ -5,7 +5,6 @@ import { Onboarding2SalaryPage } from '@/routes/onboarding-2-salary';
 import { useAtomValue } from 'jotai';
 import {
   HashRouter,
-  Link,
   Navigate,
   Route,
   Routes,
@@ -16,8 +15,8 @@ import { OnboardingProgressBar } from './components/OnboardingProgressBar';
 import { PageNavigationBar } from './components/PageNavigationBar';
 import { inputAgeAtom, onboardingCompletedAtom } from './lib/atoms';
 import { cn } from './lib/utils';
-import { HomePage } from './routes';
 import { NotFoundPage } from './routes/404';
+import { LandingPage } from './routes/landing';
 
 function RequireOnboarding({ children }: { children: React.ReactNode }) {
   const onboardingCompleted = useAtomValue(onboardingCompletedAtom);
@@ -50,20 +49,21 @@ const AppContent = () => {
   const location = useLocation();
   const isOnboarding = location.pathname.includes('onboarding');
   const isDashboard = location.pathname.includes('dashboard');
-  const isAnyRouteMatch = isOnboarding || isDashboard;
+  const isLanding = location.pathname === '/';
+  const isAnyRouteMatch = isOnboarding || isDashboard || isLanding;
 
   return (
     <div
       className={cn(
         'h-full w-full',
-        !isOnboarding && isAnyRouteMatch && 'mt-32'
+        !isOnboarding && !isLanding && isAnyRouteMatch && 'mt-32'
       )}
     >
       {isOnboarding && <OnboardingProgressBar />}
-      {!isOnboarding && isAnyRouteMatch && <PageNavigationBar />}
+      {!isOnboarding && !isLanding && isAnyRouteMatch && <PageNavigationBar />}
 
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/onboarding" element={<OnboardingPage />} />
         <Route
           path="/onboarding/2-zarobki"

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');
 
 @import 'tailwindcss';
 
@@ -36,7 +36,7 @@
   --sidebar-border: #e5e7eb;
   --sidebar-ring: #f59e0b;
   --font-sans: Inter;
-  --font-serif: Source Serif 4, serif;
+  --font-serif: Playfair Display, serif;
   --font-mono: JetBrains Mono, monospace;
   --radius: 0.555rem;
   --shadow-x: 0px;
