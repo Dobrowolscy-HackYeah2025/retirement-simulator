@@ -15,25 +15,26 @@ import {
 import { OnboardingProgressBar } from './components/OnboardingProgressBar';
 import { PageNavigationBar } from './components/PageNavigationBar';
 import { retirementInputsAtom } from './lib/atoms';
+import { cn } from './lib/utils';
+
+function RequireOnboarding({ children }: { children: React.ReactNode }) {
+  const inputs = useAtomValue(retirementInputsAtom);
+
+  if (inputs.age == null) {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  return children;
+}
 
 const AppContent = () => {
   const location = useLocation();
-
-  function RequireOnboarding({ children }: { children: JSX.Element }) {
-    const inputs = useAtomValue(retirementInputsAtom);
-
-    if (inputs.age == null) {
-      return <Navigate to="/onboarding" replace />;
-    }
-
-    return children;
-  }
+  const isOnboarding = location.pathname.includes('onboarding');
 
   return (
-    <div className="h-full w-full mt-32">
-      {location.pathname.includes('onboarding') && <OnboardingProgressBar />}
-
-      {!location.pathname.includes('onboarding') && <PageNavigationBar />}
+    <div className={cn('h-full w-full', !isOnboarding && 'mt-32')}>
+      {isOnboarding && <OnboardingProgressBar />}
+      {!isOnboarding && <PageNavigationBar />}
 
       <Routes>
         <Route path="/" element={<OnboardingPage />} />
