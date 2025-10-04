@@ -55,17 +55,17 @@ const styles = StyleSheet.create({
     left: 36,
     right: 36,
     paddingBottom: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomWidth: 1.5,
+    borderBottomColor: 'rgba(63, 132, 210, 0.45)',
   },
   metaText: {
     fontSize: 9,
-    color: '#4B5563',
+    color: '#1F2937',
     textAlign: 'right',
   },
   metaValue: {
     fontWeight: 'bold',
-    color: ZUS_COLORS.navy,
+    color: ZUS_COLORS.blue,
   },
   header: {
     backgroundColor: ZUS_COLORS.green,
@@ -208,7 +208,7 @@ function ReportGroup({ title, summary, items }: RetirementReportGroup) {
       </View>
       {summary ? <Text style={styles.sectionSummary}>{summary}</Text> : null}
       {items.map((item) => (
-        <View key={item.id} style={styles.itemRow}>
+        <View key={item.id} style={styles.itemRow} wrap={false}>
           <View style={styles.itemMeta}>
             <Text style={styles.itemLabel}>{item.label}</Text>
             {item.description ? (
