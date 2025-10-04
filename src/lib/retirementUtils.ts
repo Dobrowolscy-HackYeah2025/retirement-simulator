@@ -156,59 +156,6 @@ export type NormalizedInputs = {
   retirementAge: number;
 };
 
-export const projectContributions = (
-  inputs: NormalizedInputs,
-  calendarYear = new Date().getFullYear()
-) => {
-  const projectionStartYear = inputs.workStartYear;
-  const projectionEndYear = inputs.plannedRetirementYear;
-
-  let monthlySalary = inputs.grossMonthlySalary;
-
-  // Skoryguj wynagrodzenie do roku rozpoczęcia pracy
-  if (projectionStartYear < calendarYear) {
-    // Osoba już pracuje - skoryguj wynagrodzenie wstecz
-    for (let year = calendarYear - 1; year >= projectionStartYear; year -= 1) {
-      const growthFactor = getRealWageGrowthFactor(year + 1);
-      if (growthFactor > 0) {
-        monthlySalary /= growthFactor;
-      }
-    }
-  } else if (projectionStartYear > calendarYear) {
-    // Osoba zacznie pracować w przyszłości - skoryguj wynagrodzenie do przodu
-    for (let year = calendarYear + 1; year <= projectionStartYear; year += 1) {
-      const growthFactor = getRealWageGrowthFactor(year);
-      if (growthFactor > 0) {
-        monthlySalary *= growthFactor;
-      }
-    }
-  }
-
-  let contributionsSum = 0;
-  let monthlySalaryInFinalYear = monthlySalary;
-
-  if (projectionEndYear > projectionStartYear) {
-    for (let year = projectionStartYear; year < projectionEndYear; year += 1) {
-      if (year > projectionStartYear) {
-        monthlySalary *= getRealWageGrowthFactor(year);
-      }
-
-      if (year === projectionEndYear - 1) {
-        monthlySalaryInFinalYear = monthlySalary;
-      }
-
-      const annualSalary = monthlySalary * 12;
-      const contributionRate = getContributionRate(year);
-      contributionsSum += annualSalary * contributionRate;
-    }
-  }
-
-  return {
-    contributionsSum,
-    monthlySalaryInFinalYear,
-  } satisfies ContributionProjection;
-};
-
 export type ContributionProjection = {
   contributionsSum: number;
   monthlySalaryInFinalYear: number;
