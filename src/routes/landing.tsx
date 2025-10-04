@@ -65,7 +65,7 @@ export function LandingPage() {
           <img
             src={HeroImage}
             alt="App Screenshot"
-            className="hidden md:block absolute top-28 -right-[10%] -z-10 w-[60%]"
+            className="hidden lg:block absolute top-28 -right-[10%] -z-10 w-[60%]"
           />
         </div>
 
@@ -89,7 +89,7 @@ export function LandingPage() {
           ))}
         </div>
 
-        <div className="fixed -bottom-16 left-0 right-0 -z-10 overflow-hidden">
+        <div className="fixed -bottom-0 lg:-bottom-16 left-0 right-0 -z-10 overflow-hidden">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
             <path
               fill="#35a454"
