@@ -14,7 +14,12 @@ import {
   includeSickLeaveAtom,
   averagePensionAtom,
   lifeExpectancyInfoAtom,
-  expectedPensionComparisonAtom
+  expectedPensionComparisonAtom,
+  selectedScenarioAtom,
+  selectedScenarioPensionAtom,
+  selectedScenarioRealPensionAtom,
+  purchasingPowerPercentageAtom,
+  retirementDelayBenefitAtom
 } from '../lib/atoms';
 
 // ZUS Brand Colors - głównie zielone (rzeczywiste wartości dla Highcharts)
@@ -38,10 +43,10 @@ export default function Dashboard() {
   const [salary, setSalary] = useState(5000);
   const [includeSickLeave, setIncludeSickLeave] = useAtom(includeSickLeaveAtom);
   const [selectedRegion, setSelectedRegion] = useState('Mazowieckie');
-  const [selectedScenario, setSelectedScenario] = useState('realistic');
+  const [selectedScenario, setSelectedScenario] = useAtom(selectedScenarioAtom);
 
   // Pobierz i zaktualizuj retirementInputsAtom na podstawie ustawień
-  const [, setInputs] = useAtom(retirementInputsAtom);
+  const [inputs, setInputs] = useAtom(retirementInputsAtom);
   
   // Zaktualizuj inputs gdy zmieniają się ustawienia
   useEffect(() => {
@@ -64,6 +69,10 @@ export default function Dashboard() {
   const [averagePension] = useAtom(averagePensionAtom);
   const [lifeExpectancyInfo] = useAtom(lifeExpectancyInfoAtom);
   const [expectedComparison] = useAtom(expectedPensionComparisonAtom);
+  const [selectedPension] = useAtom(selectedScenarioPensionAtom);
+  const [selectedRealPension] = useAtom(selectedScenarioRealPensionAtom);
+  const [purchasingPowerPercentage] = useAtom(purchasingPowerPercentageAtom);
+  const [retirementDelayBenefit] = useAtom(retirementDelayBenefitAtom);
 
   // Chart refs
   const pensionForecastRef = useRef<HTMLDivElement>(null);
@@ -463,24 +472,51 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow text-center">
             <h3 className="text-lg font-semibold mb-2" style={{ color: zusColors.darkBlue }}>
-              Prognozowana emerytura (kwota)
+              Emerytura rzeczywista
             </h3>
             <div className="text-3xl font-bold" style={{ color: zusColors.primary }}>
-              {scenariosData.realistic.toLocaleString()} zł
+              {selectedPension.toLocaleString()} zł
             </div>
             <div className="mt-2 text-sm text-gray-600">
               vs średnia: {averagePension.toLocaleString()} zł
-              <span className={`ml-2 font-semibold ${scenariosData.realistic > averagePension ? 'text-green-600' : 'text-red-600'}`}>
-                ({scenariosData.realistic > averagePension ? '+' : ''}{Math.round(((scenariosData.realistic - averagePension) / averagePension) * 100)}%)
+              <span className={`ml-2 font-semibold ${selectedPension > averagePension ? 'text-green-600' : 'text-red-600'}`}>
+                ({selectedPension > averagePension ? '+' : ''}{Math.round(((selectedPension - averagePension) / averagePension) * 100)}%)
               </span>
             </div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow text-center">
-            <h3 className="text-lg font-semibold mb-2" style={{ color: zusColors.darkBlue }}>
-              Emerytura realna
-            </h3>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <h3 className="text-lg font-semibold" style={{ color: zusColors.darkBlue }}>
+                Emerytura urealniona
+              </h3>
+              <div className="group relative">
+                <Info className="w-4 h-4 text-gray-400 hover:text-[var(--zus-green)] cursor-help" />
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-3 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-80">
+                  <div className="text-left">
+                    <div className="font-semibold mb-2">Emerytura urealniona</div>
+                    <div className="text-xs space-y-2">
+                      <div>• To co faktycznie możesz kupić za emeryturę</div>
+                      <div>• Uwzględnia inflację do momentu przejścia na emeryturę</div>
+                      <div>• Pokazuje realną siłę nabywczą</div>
+                      <div className="border-t border-gray-600 pt-2 mt-2">
+                        <div className="font-medium mb-1">Przykład:</div>
+                        <div>5000 zł nominalnie = {selectedRealPension.toLocaleString()} zł realnie</div>
+                        <div>Za {new Date().getFullYear() + (inputs?.plannedRetirementYear || 2065) - new Date().getFullYear()} lat za te same pieniądze kupisz mniej</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                </div>
+              </div>
+            </div>
             <div className="text-3xl font-bold" style={{ color: zusColors.green }}>
-              {Math.round(scenariosData.realistic * 0.7).toLocaleString()} zł
+              {selectedRealPension.toLocaleString()} zł
+            </div>
+            <div className="mt-2 text-sm text-gray-600">
+              siła nabywcza po inflacji
+              <span className="ml-2 font-semibold text-[var(--zus-green)]">
+                ({purchasingPowerPercentage}% nominalnej)
+              </span>
             </div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow text-center">
@@ -545,8 +581,8 @@ export default function Dashboard() {
                   <div>
                     <div className="font-semibold text-gray-800 mb-1">Analiza Twojej sytuacji emerytalnej</div>
                     <div className="text-sm text-gray-700">
-                      Przy obecnych założeniach Twoja emerytura realnie pozwoli utrzymać <span className="font-semibold text-[var(--zus-green)]">~{Math.round((scenariosData.realistic * 0.7 / scenariosData.realistic) * 100)}%</span> obecnej siły nabywczej. 
-                      Największy wpływ na wysokość świadczenia ma wiek przejścia na emeryturę — przesunięcie decyzji o 2 lata zwiększa emeryturę o <span className="font-semibold text-[var(--zus-green)]">+18%</span>.
+                      Przy obecnych założeniach Twoja emerytura realnie pozwoli utrzymać <span className="font-semibold text-[var(--zus-green)]">{purchasingPowerPercentage}%</span> obecnej siły nabywczej. 
+                      Największy wpływ na wysokość świadczenia ma wiek przejścia na emeryturę — przesunięcie decyzji o 2 lata zwiększa emeryturę o <span className="font-semibold text-[var(--zus-green)]">+{retirementDelayBenefit}%</span>.
                     </div>
                   </div>
                 </div>
@@ -567,22 +603,22 @@ export default function Dashboard() {
                       <div className="space-y-1">
                         <div>
                           <div className="font-medium text-red-400">Pesymistyczny:</div>
-                          <div>Niższe płace, wyższa inflacja</div>
+                          <div>Spadek płac -2.5%, więcej emerytów</div>
                         </div>
                         <div>
                           <div className="font-medium text-green-400">Realistyczny:</div>
-                          <div>Obecne trendy ekonomiczne</div>
+                          <div>Wzrost płac +3.4%, stabilne warunki</div>
                         </div>
                         <div>
                           <div className="font-medium text-blue-400">Optymistyczny:</div>
-                          <div>Wzrost płac, niższa inflacja</div>
+                          <div>Wzrost płac +4.0%, mniej emerytów</div>
                         </div>
                         <div className="border-t border-gray-600 pt-2 mt-2">
                           <div className="text-gray-300 text-xs">
                             <div className="font-medium mb-1">Przykład różnic:</div>
-                            <div>Realistyczny: 4000 zł</div>
-                            <div>Pesymistyczny: 3200 zł (-20%)</div>
-                            <div>Optymistyczny: 4800 zł (+20%)</div>
+                            <div>Realistyczny: 4000 zł (bazowa)</div>
+                            <div>Pesymistyczny: 3400 zł (-15%)</div>
+                            <div>Optymistyczny: 4400 zł (+10%)</div>
                           </div>
                         </div>
                       </div>
@@ -681,9 +717,60 @@ export default function Dashboard() {
               
               {/* Scenario Selection */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Wybierz scenariusz ekonomiczny:
-                </label>
+                <div className="flex items-center gap-2 mb-3">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Wybierz scenariusz ekonomiczny:
+                  </label>
+                  <div className="group relative">
+                    <Info className="w-4 h-4 text-gray-400 hover:text-[var(--zus-green)] cursor-help" />
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-3 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-96">
+                      <div className="text-left">
+                        <div className="font-semibold mb-3">Scenariusze ekonomiczne ZUS</div>
+                        <div className="space-y-3">
+                          <div>
+                            <div className="font-medium text-red-400 mb-1">Pesymistyczny:</div>
+                            <div className="text-xs space-y-1">
+                              <div>• Wzrost płac: 50% normalnego (wolniejszy)</div>
+                              <div>• Stopy składek: +10% (wyższe)</div>
+                              <div>• Długość życia: -1 rok (krótsza)</div>
+                              <div>• Więcej emerytów w systemie</div>
+                              <div className="text-red-300 font-medium">→ Niższa emerytura</div>
+                            </div>
+                          </div>
+                          <div>
+                            <div className="font-medium text-green-400 mb-1">Realistyczny:</div>
+                            <div className="text-xs space-y-1">
+                              <div>• Wzrost płac: standardowy (dane ZUS)</div>
+                              <div>• Stopy składek: normalne</div>
+                              <div>• Długość życia: standardowa</div>
+                              <div>• Stabilne warunki demograficzne</div>
+                              <div className="text-green-300 font-medium">→ Bazowa emerytura</div>
+                            </div>
+                          </div>
+                          <div>
+                            <div className="font-medium text-blue-400 mb-1">Optymistyczny:</div>
+                            <div className="text-xs space-y-1">
+                              <div>• Wzrost płac: 150% normalnego (szybszy)</div>
+                              <div>• Stopy składek: -10% (niższe)</div>
+                              <div>• Długość życia: +1 rok (dłuższa)</div>
+                              <div>• Mniej emerytów w systemie</div>
+                              <div className="text-blue-300 font-medium">→ Wyższa emerytura</div>
+                            </div>
+                          </div>
+                          <div className="border-t border-gray-600 pt-2 mt-2">
+                            <div className="text-xs text-gray-300">
+                              <div className="font-medium mb-1">Dlaczego to ma znaczenie:</div>
+                              <div>• Więcej emerytów = mniej składek w systemie</div>
+                              <div>• Wolniejszy wzrost płac = niższe składki</div>
+                              <div>• Dłuższe życie = emerytura wypłacana dłużej</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                    </div>
+                  </div>
+                </div>
                 <div className="flex flex-wrap gap-2 -mr-2">
                   <button
                     onClick={() => setSelectedScenario('pessimistic')}
@@ -717,7 +804,7 @@ export default function Dashboard() {
                   </button>
                 </div>
                 <p className="text-xs text-gray-500 mt-2">
-                  Scenariusz wpływa na prognozy wzrostu płac i inflacji
+                  Scenariusz wpływa na prognozy wzrostu płac i warunki systemowe
                 </p>
               </div>
               

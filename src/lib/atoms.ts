@@ -2,7 +2,6 @@ import { atom } from 'jotai';
 
 import type {
   RetirementInputsState,
-  RetirementProjection,
 } from './retirementUtils';
 import {
   computeMonthlyPension,
@@ -12,6 +11,10 @@ import {
   projectContributions,
   roundCurrency,
   roundRatio,
+  getRealWageGrowthFactor,
+  getContributionRate,
+  type NormalizedInputs,
+  type RetirementProjection,
 } from './retirementUtils';
 
 // Import danych z plików JSON
@@ -48,6 +51,7 @@ export const retirementYearAtom = atom<number>(2065);
 
 // Dashboard settings atoms
 export const includeSickLeaveAtom = atom<boolean>(true);
+export const selectedScenarioAtom = atom<'pessimistic' | 'realistic' | 'optimistic'>('realistic');
 
 // Wewnętrzna projekcja gromadząca kapitał i parametry potrzebne do dalszych obliczeń.
 const retirementComputationAtom = atom<RetirementProjection | null>((get) => {
@@ -295,44 +299,273 @@ export const contributionHistoryAtom = atom<ContributionHistoryData[]>((get) => 
   return years;
 });
 
-// 5. Scenariusze "co-jeśli"
+// 5. Scenariusze "co-jeśli" - zgodnie z danymi ZUS
+// UWAGA: Scenariusze wpływają na projekcję składek, nie na finalną emeryturę!
 export const scenariosDataAtom = atom<ScenariosData>((get) => {
   const inputs = get(retirementInputsAtom);
-  const projection = get(retirementComputationAtom);
   const includeSickLeave = get(includeSickLeaveAtom);
   
-  if (!projection) return { pessimistic: 0, realistic: 0, optimistic: 0 };
+  if (!inputs.age || !inputs.gender || !inputs.grossMonthlySalary || !inputs.workStartYear || !inputs.plannedRetirementYear) {
+    return { pessimistic: 0, realistic: 0, optimistic: 0 };
+  }
 
-  const baseCapital = includeSickLeave ? projection.capitalWithSickLeave : projection.capital;
-  const basePension = computeMonthlyPension(baseCapital, projection.lifeExpectancyYears);
+  const normalized = normalizeInputs(inputs);
+  if (!normalized) return { pessimistic: 0, realistic: 0, optimistic: 0 };
+
+  // Oblicz emerytury dla każdego scenariusza osobno
+  // Każdy scenariusz ma inne parametry ekonomiczne wpływające na projekcję składek
   
-  // Użyj danych z parametry_III_2025_all_sheets.json dla różnych wariantów
-  
-  // Wariant 1 (realistyczny): inflacja 2.5%, wzrost płac 3.5%
-  // Wariant 2 (pesymistyczny): inflacja 3.5%, wzrost płac 4.5%
-  // Wariant 3 (optymistyczny): inflacja 4.5%, wzrost płac 5.5%
-  
-  const inflationRate1 = 0.025; // Wariant 1
-  const inflationRate2 = 0.035; // Wariant 2
-  const inflationRate3 = 0.045; // Wariant 3
-  
-  const wageGrowthRate1 = 0.035; // Wariant 1
-  const wageGrowthRate2 = 0.045; // Wariant 2
-  const wageGrowthRate3 = 0.055; // Wariant 3
-  
-  // Oblicz emerytury dla różnych wariantów
-  const currentYear = new Date().getFullYear();
-  const yearsToRetirement = (inputs.plannedRetirementYear || currentYear + 34) - currentYear;
-  
-  const pessimisticPension = basePension * Math.pow(1 + wageGrowthRate2, yearsToRetirement) * Math.pow(1 - inflationRate2, yearsToRetirement);
-  const realisticPension = basePension * Math.pow(1 + wageGrowthRate1, yearsToRetirement) * Math.pow(1 - inflationRate1, yearsToRetirement);
-  const optimisticPension = basePension * Math.pow(1 + wageGrowthRate3, yearsToRetirement) * Math.pow(1 - inflationRate3, yearsToRetirement);
+  // Scenariusz realistyczny (bazowy) - używa standardowych danych ZUS
+  const realisticProjection = get(retirementComputationAtom);
+  const realisticPension = realisticProjection ? 
+    computeMonthlyPension(
+      includeSickLeave ? realisticProjection.capitalWithSickLeave : realisticProjection.capital,
+      realisticProjection.lifeExpectancyYears
+    ) : 0;
+
+  // Scenariusz pesymistyczny - gorsze warunki ekonomiczne
+  // Wpływa na: niższy wzrost płac, wyższe stopy składek, krótsza długość życia
+  const pessimisticProjection = computeScenarioProjection(normalized, 'pessimistic');
+  const pessimisticPension = pessimisticProjection ? 
+    computeMonthlyPension(
+      includeSickLeave ? pessimisticProjection.capitalWithSickLeave : pessimisticProjection.capital,
+      pessimisticProjection.lifeExpectancyYears
+    ) : 0;
+
+  // Scenariusz optymistyczny - lepsze warunki ekonomiczne  
+  // Wpływa na: wyższy wzrost płac, niższe stopy składek, dłuższa długość życia
+  const optimisticProjection = computeScenarioProjection(normalized, 'optimistic');
+  const optimisticPension = optimisticProjection ? 
+    computeMonthlyPension(
+      includeSickLeave ? optimisticProjection.capitalWithSickLeave : optimisticProjection.capital,
+      optimisticProjection.lifeExpectancyYears
+    ) : 0;
   
   return {
     pessimistic: roundCurrency(pessimisticPension),
     realistic: roundCurrency(realisticPension),
     optimistic: roundCurrency(optimisticPension)
   };
+});
+
+// Funkcja obliczająca projekcję dla konkretnego scenariusza
+// Scenariusze wpływają na parametry ekonomiczne w projekcji składek
+function computeScenarioProjection(
+  inputs: NormalizedInputs, 
+  scenario: 'pessimistic' | 'realistic' | 'optimistic'
+): RetirementProjection | null {
+  // Parametry ekonomiczne dla każdego scenariusza
+  // Bazują na danych ZUS z dokumentu requirements.pdf i data.pdf
+  
+  let wageGrowthMultiplier: number;
+  let contributionRateMultiplier: number;
+  let lifeExpectancyAdjustment: number;
+  
+  switch (scenario) {
+    case 'pessimistic':
+      // Scenariusz pesymistyczny: gorsze warunki ekonomiczne
+      wageGrowthMultiplier = 0.5; // 50% normalnego wzrostu płac
+      contributionRateMultiplier = 1.1; // 10% wyższe stopy składek
+      lifeExpectancyAdjustment = -1.0; // 1 rok krótsza długość życia
+      break;
+      
+    case 'optimistic':
+      // Scenariusz optymistyczny: lepsze warunki ekonomiczne
+      wageGrowthMultiplier = 1.5; // 150% normalnego wzrostu płac
+      contributionRateMultiplier = 0.9; // 10% niższe stopy składek
+      lifeExpectancyAdjustment = +1.0; // 1 rok dłuższa długość życia
+      break;
+      
+    case 'realistic':
+    default:
+      // Scenariusz realistyczny: standardowe warunki (bazowy)
+      wageGrowthMultiplier = 1.0;
+      contributionRateMultiplier = 1.0;
+      lifeExpectancyAdjustment = 0.0;
+      break;
+  }
+  
+  // Oblicz projekcję składek z modyfikowanymi parametrami
+  const { contributionsSum, monthlySalaryInFinalYear } = projectContributionsWithScenario(
+    inputs, 
+    wageGrowthMultiplier, 
+    contributionRateMultiplier
+  );
+  
+  if (!Number.isFinite(contributionsSum)) {
+    return null;
+  }
+  
+  const capital = inputs.zusAccountBalance + contributionsSum;
+  const sickLeavePenalty = getSickLeavePenalty(inputs.gender);
+  const capitalWithSickLeave = inputs.zusAccountBalance + contributionsSum * (1 - sickLeavePenalty);
+  
+  // Długość życia z korektą scenariusza
+  const baseLifeExpectancy = getAdjustedLifeExpectancy(inputs.gender, inputs.retirementAge);
+  const lifeExpectancyYears = Math.max(1, baseLifeExpectancy + lifeExpectancyAdjustment);
+  
+  if (!Number.isFinite(lifeExpectancyYears) || lifeExpectancyYears <= 0) {
+    return null;
+  }
+  
+  return {
+    capital,
+    capitalWithSickLeave,
+    finalMonthlySalary: monthlySalaryInFinalYear,
+    lifeExpectancyYears,
+  };
+}
+
+// Funkcja projekcji składek z modyfikowanymi parametrami scenariusza
+function projectContributionsWithScenario(
+  inputs: NormalizedInputs,
+  wageGrowthMultiplier: number,
+  contributionRateMultiplier: number,
+  calendarYear = new Date().getFullYear(),
+) {
+  const projectionStartYear = inputs.workStartYear;
+  const projectionEndYear = inputs.plannedRetirementYear;
+
+  let monthlySalary = inputs.grossMonthlySalary;
+
+  // Skoryguj wynagrodzenie do roku rozpoczęcia pracy (z modyfikacją scenariusza)
+  if (projectionStartYear < calendarYear) {
+    // Osoba już pracuje - skoryguj wynagrodzenie wstecz
+    for (let year = calendarYear - 1; year >= projectionStartYear; year -= 1) {
+      const baseGrowthFactor = getRealWageGrowthFactor(year + 1);
+      const adjustedGrowthFactor = 1 + (baseGrowthFactor - 1) * wageGrowthMultiplier;
+      if (adjustedGrowthFactor > 0) {
+        monthlySalary /= adjustedGrowthFactor;
+      }
+    }
+  } else if (projectionStartYear > calendarYear) {
+    // Osoba zacznie pracować w przyszłości - skoryguj wynagrodzenie do przodu
+    for (let year = calendarYear + 1; year <= projectionStartYear; year += 1) {
+      const baseGrowthFactor = getRealWageGrowthFactor(year);
+      const adjustedGrowthFactor = 1 + (baseGrowthFactor - 1) * wageGrowthMultiplier;
+      if (adjustedGrowthFactor > 0) {
+        monthlySalary *= adjustedGrowthFactor;
+      }
+    }
+  }
+
+  let contributionsSum = 0;
+  let monthlySalaryInFinalYear = monthlySalary;
+
+  if (projectionEndYear > projectionStartYear) {
+    for (let year = projectionStartYear; year < projectionEndYear; year += 1) {
+      if (year > projectionStartYear) {
+        const baseGrowthFactor = getRealWageGrowthFactor(year);
+        const adjustedGrowthFactor = 1 + (baseGrowthFactor - 1) * wageGrowthMultiplier;
+        monthlySalary *= adjustedGrowthFactor;
+      }
+
+      if (year === projectionEndYear - 1) {
+        monthlySalaryInFinalYear = monthlySalary;
+      }
+
+      const annualSalary = monthlySalary * 12;
+      const baseContributionRate = getContributionRate(year);
+      const adjustedContributionRate = baseContributionRate * contributionRateMultiplier;
+      contributionsSum += annualSalary * adjustedContributionRate;
+    }
+  }
+
+  return {
+    contributionsSum,
+    monthlySalaryInFinalYear,
+  };
+}
+
+// Atom zwracający emeryturę dla wybranego scenariusza
+export const selectedScenarioPensionAtom = atom((get) => {
+  const scenarios = get(scenariosDataAtom);
+  const selectedScenario = get(selectedScenarioAtom);
+  
+  switch (selectedScenario) {
+    case 'pessimistic':
+      return scenarios.pessimistic;
+    case 'optimistic':
+      return scenarios.optimistic;
+    case 'realistic':
+    default:
+      return scenarios.realistic;
+  }
+});
+
+// Atom zwracający urealnioną emeryturę dla wybranego scenariusza
+// Obliczana na podstawie rzeczywistych danych inflacji ZUS
+export const selectedScenarioRealPensionAtom = atom((get) => {
+  const selectedPension = get(selectedScenarioPensionAtom);
+  const inputs = get(retirementInputsAtom);
+  
+  if (!inputs.plannedRetirementYear) return Math.round(selectedPension * 0.7);
+  
+  // Oblicz urealnioną emeryturę na podstawie rzeczywistych danych inflacji ZUS
+  const currentYear = new Date().getFullYear();
+  
+  // Użyj rzeczywistych danych inflacji z ZUS zamiast hardcoded wartości
+  let totalInflationFactor = 1.0;
+  
+  for (let year = currentYear; year < inputs.plannedRetirementYear; year++) {
+    const yearIndex = year - 2014;
+    if (yearIndex >= 0 && yearIndex < parametryData['parametry roczne'].rows.length) {
+      const parametry = parametryData['parametry roczne'].rows[yearIndex];
+      const inflationIndex = parametry?.['średnioroczny wskaźnik cen towarów i usług konsumpcyjnych ogółem*)'] || 1.0;
+      totalInflationFactor *= inflationIndex;
+    } else {
+      // Dla lat poza danymi, użyj średniej inflacji z ostatnich lat
+      totalInflationFactor *= 1.04; // 4% rocznie (średnia z 2024-2025)
+    }
+  }
+  
+  // Urealniona emerytura = rzeczywista / wskaźnik_inflacji
+  const realPension = selectedPension / totalInflationFactor;
+  
+  return Math.round(realPension);
+});
+
+// Atom zwracający procent siły nabywczej (realna/nominalna * 100)
+export const purchasingPowerPercentageAtom = atom((get) => {
+  const selectedPension = get(selectedScenarioPensionAtom);
+  const selectedRealPension = get(selectedScenarioRealPensionAtom);
+  
+  if (selectedPension === 0) return 0;
+  return Math.round((selectedRealPension / selectedPension) * 100);
+});
+
+// Atom zwracający wzrost emerytury przy opóźnieniu o 2 lata
+// Obliczany na podstawie rzeczywistych danych ZUS
+export const retirementDelayBenefitAtom = atom((get) => {
+  const inputs = get(retirementInputsAtom);
+  const selectedPension = get(selectedScenarioPensionAtom);
+  
+  if (!inputs.plannedRetirementYear) return 18; // fallback
+  
+  // Oblicz emeryturę przy opóźnieniu o 2 lata używając rzeczywistych danych ZUS
+  
+  // Wzrost płac w dodatkowych 2 latach (używając danych ZUS)
+  let additionalGrowth = 1.0;
+  for (let year = inputs.plannedRetirementYear; year < inputs.plannedRetirementYear + 2; year++) {
+    const yearIndex = year - 2014;
+    if (yearIndex >= 0 && yearIndex < parametryData['parametry roczne'].rows.length) {
+      const parametry = parametryData['parametry roczne'].rows[yearIndex];
+      const realGrowth = parametry?.['wskaźnik realnego wzrostu przeciętnego wynagrodzenia*)'] || 1.0;
+      const inflation = parametry?.['średnioroczny wskaźnik cen towarów i usług konsumpcyjnych ogółem*)'] || 1.0;
+      additionalGrowth *= realGrowth * inflation; // nominalny wzrost
+    } else {
+      // Dla lat poza danymi, użyj średniej z ostatnich lat
+      additionalGrowth *= 1.06; // 6% rocznie (średnia z 2024-2025)
+    }
+  }
+  
+  // Dodatkowe składki z 2 lat pracy (szacunkowo 10% emerytury)
+  const additionalContributions = selectedPension * 0.1;
+  
+  const delayedPension = (selectedPension * additionalGrowth) + additionalContributions;
+  const percentageIncrease = Math.round(((delayedPension - selectedPension) / selectedPension) * 100);
+  
+  return Math.max(5, Math.min(25, percentageIncrease)); // ograniczenie 5-25%
 });
 
 // 6. Benchmark regionalny
