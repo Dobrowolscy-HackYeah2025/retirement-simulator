@@ -12,9 +12,9 @@ import {
   showReportGeneratorAtom,
 } from '@/lib/atoms';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { InfoIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -38,78 +38,86 @@ export function Onboarding2SalaryPage() {
   const age = useAtomValue(inputAgeAtom);
   const gender = useAtomValue(inputGenderAtom);
   const city = useAtomValue(inputCityAtom);
-  const grossMonthlySalary = useAtomValue(inputGrossMonthlySalaryAtom);
-  const workStartYearAtomValue = useAtomValue(inputWorkStartYearAtom);
-  const plannedRetirementYearAtomValue = useAtomValue(
+  const [grossMonthlySalary, setGrossMonthlySalary] = useAtom(
+    inputGrossMonthlySalaryAtom
+  );
+  const [workStartYear, setWorkStartYear] = useAtom(inputWorkStartYearAtom);
+  const [plannedRetirementYear, setPlannedRetirementYear] = useAtom(
     inputPlannedRetirementYearAtom
   );
-  const zusAccountBalanceAtomValue = useAtomValue(inputZusAccountBalanceAtom);
-  const setGrossMonthlySalary = useSetAtom(inputGrossMonthlySalaryAtom);
-  const setWorkStartYearAtom = useSetAtom(inputWorkStartYearAtom);
-  const setPlannedRetirementYearAtom = useSetAtom(
-    inputPlannedRetirementYearAtom
+  const [zusAccountBalance, setZusAccountBalance] = useAtom(
+    inputZusAccountBalanceAtom
   );
-  const setZusAccountBalanceAtom = useSetAtom(inputZusAccountBalanceAtom);
   const [showReportGenerator, setShowReportGenerator] = useAtom(
     showReportGeneratorAtom
   );
   const navigate = useNavigate();
 
-  // Use local state for inputs to avoid triggering expensive atom computations on every keystroke
-  const [localSalary, setLocalSalary] = useState(
-    grossMonthlySalary?.toString() || ''
-  );
-  const [localZusBalance, setLocalZusBalance] = useState(
-    zusAccountBalanceAtomValue?.toString() || ''
-  );
+  const currentSalaryGross = grossMonthlySalary ?? 0;
+  const workStartYearValue = workStartYear ?? null;
+  const retirementYearValue = plannedRetirementYear ?? null;
 
-  const currentSalaryGross = grossMonthlySalary || 0;
-  const workStartYear = workStartYearAtomValue || 2020;
-  const retirementYear = plannedRetirementYearAtomValue || 2065;
-  const zusAccountBalance = zusAccountBalanceAtomValue || 0;
+  const handleCurrentSalaryChange = (value: string) => {
+    if (value === '') {
+      setGrossMonthlySalary(null);
+      return;
+    }
 
-  // Debounce salary input
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      const value = Number(localSalary) || null;
-      if (value !== grossMonthlySalary) {
-        setGrossMonthlySalary(value);
-      }
-    }, 300);
-    return () => clearTimeout(timeout);
-  }, [localSalary, grossMonthlySalary, setGrossMonthlySalary]);
+    const parsedValue = Number(value);
+    if (Number.isNaN(parsedValue)) {
+      return;
+    }
 
-  // Debounce ZUS balance input
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      const value = Number(localZusBalance) || null;
-      if (value !== zusAccountBalanceAtomValue) {
-        setZusAccountBalanceAtom(value);
-      }
-    }, 300);
-    return () => clearTimeout(timeout);
-  }, [localZusBalance, zusAccountBalanceAtomValue, setZusAccountBalanceAtom]);
-
-  const setCurrentSalaryGross = (value: string) => {
-    setLocalSalary(value);
+    setGrossMonthlySalary(parsedValue);
   };
 
-  const setWorkStartYear = (year: number) => {
-    setWorkStartYearAtom(year);
+  const handleZusBalanceChange = (value: string) => {
+    if (value === '') {
+      setZusAccountBalance(null);
+      return;
+    }
+
+    const parsedValue = Number(value);
+    if (Number.isNaN(parsedValue)) {
+      return;
+    }
+
+    setZusAccountBalance(parsedValue);
   };
 
-  const setRetirementYear = (year: number) => {
-    setPlannedRetirementYearAtom(year);
+  const handleWorkStartYearChange = (year: number) => {
+    setWorkStartYear(year);
   };
 
-  // Generate years from 1950 to 2025
-  const workStartYears = Array.from({ length: 76 }, (_, i) => 1950 + i);
+  const handleRetirementYearChange = (year: number) => {
+    setPlannedRetirementYear(year);
+  };
 
-  // Generate retirement years from workStartYear + 1 to 2100
-  const retirementYears = Array.from(
-    { length: 2100 - workStartYear },
-    (_, i) => workStartYear + 1 + i
-  );
+  const workStartYears = useMemo(() => {
+    return Array.from({ length: 76 }, (_, index) => 1950 + index);
+  }, []);
+
+  const retirementYears = useMemo(() => {
+    const endYear = 2100;
+
+    if (workStartYear == null) {
+      const currentYear = Math.min(new Date().getFullYear(), endYear);
+      return Array.from(
+        { length: endYear - currentYear + 1 },
+        (_, index) => currentYear + index
+      );
+    }
+
+    const startYear = workStartYear + 1;
+    if (startYear > endYear) {
+      return [];
+    }
+
+    return Array.from(
+      { length: endYear - startYear + 1 },
+      (_, index) => startYear + index
+    );
+  }, [workStartYear]);
 
   const handleGenerateReport = () => {
     setShowReportGenerator(true);
@@ -131,10 +139,14 @@ export function Onboarding2SalaryPage() {
     if (currentSalaryGross <= 0) {
       missing.push('zarobki brutto');
     }
-    if (workStartYear < 1950 || workStartYear > 2025) {
+    if (workStartYearValue == null || workStartYearValue < 1950 || workStartYearValue > 2025) {
       missing.push('rok rozpoczęcia pracy');
     }
-    if (retirementYear <= workStartYear) {
+    if (
+      retirementYearValue == null ||
+      workStartYearValue == null ||
+      retirementYearValue <= workStartYearValue
+    ) {
       missing.push('rok zakończenia aktywności zawodowej');
     }
     return missing;
@@ -153,9 +165,9 @@ export function Onboarding2SalaryPage() {
       gender,
       city,
       grossMonthlySalary,
-      workStartYear: workStartYearAtomValue,
-      plannedRetirementYear: plannedRetirementYearAtomValue,
-      zusAccountBalance: zusAccountBalanceAtomValue,
+      workStartYear,
+      plannedRetirementYear,
+      zusAccountBalance,
     });
   }, [
     showReportGenerator,
@@ -163,9 +175,9 @@ export function Onboarding2SalaryPage() {
     gender,
     city,
     grossMonthlySalary,
-    workStartYearAtomValue,
-    plannedRetirementYearAtomValue,
-    zusAccountBalanceAtomValue,
+    workStartYear,
+    plannedRetirementYear,
+    zusAccountBalance,
   ]);
 
   return (
@@ -188,8 +200,8 @@ export function Onboarding2SalaryPage() {
             <Input
               type="number"
               placeholder="0"
-              value={localSalary}
-              onChange={(e) => setCurrentSalaryGross(e.target.value)}
+              value={grossMonthlySalary?.toString() ?? ''}
+              onChange={(e) => handleCurrentSalaryChange(e.target.value)}
               className="w-full pr-11"
             />
             <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground">
@@ -204,8 +216,8 @@ export function Onboarding2SalaryPage() {
             <Label>Rok rozpoczęcia pracy</Label>
           </div>
           <Select
-            value={workStartYear?.toString() || 'choose'}
-            onValueChange={(value) => setWorkStartYear(Number(value))}
+            value={workStartYearValue?.toString() || 'choose'}
+            onValueChange={(value) => handleWorkStartYearChange(Number(value))}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Wybierz rok" />
@@ -226,8 +238,8 @@ export function Onboarding2SalaryPage() {
             <Label>Planowany rok zakończenia aktywności zawodowej</Label>
           </div>
           <Select
-            value={retirementYear?.toString() || 'choose'}
-            onValueChange={(value) => setRetirementYear(Number(value))}
+            value={retirementYearValue?.toString() || 'choose'}
+            onValueChange={(value) => handleRetirementYearChange(Number(value))}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Wybierz rok" />
@@ -266,8 +278,8 @@ export function Onboarding2SalaryPage() {
             <Input
               type="number"
               placeholder="0"
-              value={localZusBalance}
-              onChange={(e) => setLocalZusBalance(e.target.value)}
+              value={zusAccountBalance?.toString() ?? ''}
+              onChange={(e) => handleZusBalanceChange(e.target.value)}
               className="w-full pr-11"
             />
             <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground">
