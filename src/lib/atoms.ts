@@ -11,6 +11,12 @@ export const userPreferencesAtom = atom({
   retirementAge: 65 as number,
 });
 
+// User gender atom for onboarding
+export const userGenderAtom = atom<'man' | 'woman' | null>(null);
+
+// User age atom for onboarding
+export const userAgeAtom = atom<number>(30);
+
 // Example: Jotai + TanStack Query integration
 // This creates an atom that automatically manages query state
 export const retirementDataAtom = atomWithQuery(() => ({
