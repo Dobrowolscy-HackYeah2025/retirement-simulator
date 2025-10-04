@@ -34,19 +34,23 @@ const cards = [
 export function LandingPage() {
   return (
     <div className="min-h-screen overflow-x-hidden">
-      <div className="relative max-w-7xl mx-auto px-6 py-20 pt-36">
+      <div className="relative max-w-7xl mx-auto px-6 py-20 pt-24 md:pt-36">
         <div className="text-left">
           <div className="flex justify-start mb-4">
-            <img src={ZusLogo} className="h-20 w-20" alt="ZUS Logo" />
+            <img
+              src={ZusLogo}
+              className="h-16 w-16 md:h-20 md:w-20"
+              alt="ZUS Logo"
+            />
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-6">
+          <h1 className="text-4xl md:text-7xl font-bold text-foreground mb-6">
             Kalkulator
             <br />
             Emerytalny ZUS
           </h1>
 
-          <p className="text-xl text-muted-foreground mb-8 max-w-xl text-left">
+          <p className="text-base md:text-xl text-muted-foreground mb-8 max-w-xl text-left">
             Sprawdź ile będzie wynosić Twoja przyszła emerytura. Prosty
             kalkulator oparty na danych ZUS i GUS.
           </p>
@@ -61,23 +65,23 @@ export function LandingPage() {
           <img
             src={HeroImage}
             alt="App Screenshot"
-            className="absolute top-28 -right-[10%] -z-10 w-[60%]"
+            className="hidden md:block absolute top-28 -right-[10%] -z-10 w-[60%]"
           />
         </div>
 
-        <div className="flex flex-row max-w-9xl gap-8 mt-20 ">
+        <div className="grid grid-cols-2 md:grid-cols-3 row max-w-9xl gap-2 md:gap-8 mt-12 md:mt-20">
           {cards.map((card) => (
             <div key={card.title}>
-              <div className="text-left p-6">
+              <div className="text-left p-2 md:p-6">
                 <div className="flex justify-start mb-4">
-                  <div className="p-3 bg-primary/10 rounded-full">
-                    <CheckCircleIcon className="size-8 text-primary" />
+                  <div className="p-2 md:p-3 bg-primary/10 rounded-full">
+                    <CheckCircleIcon className="size-6 md:size-8 text-primary" />
                   </div>
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">
+                <h3 className="text-base md:text-lg font-semibold text-foreground mb-2">
                   {card.title}
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs md:text-base text-muted-foreground">
                   {card.description}
                 </p>
               </div>
@@ -85,10 +89,7 @@ export function LandingPage() {
           ))}
         </div>
 
-        {/* Features */}
-
-        {/* Footer Info */}
-        <p className="text-sm text-muted-foreground/80 fixed left-0 bottom-2 w-full p-2 bg-white/20 rounded-lg backdrop-blur-2xl text-center">
+        <p className="text-sm text-muted-foreground/80 fixed left-0 bottom-2 w-full p-4 bg-white/20 rounded-lg backdrop-blur-2xl text-left md:text-center px-6">
           Kalkulator ma charakter informacyjny i nie stanowi oficjalnej prognozy
           ZUS.
         </p>
