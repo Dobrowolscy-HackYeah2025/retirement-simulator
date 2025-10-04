@@ -8,7 +8,7 @@ import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
 export function App() {
   return (
     <BrowserRouter>
-      <div>
+      <div className="h-full w-full">
         {!window.location.pathname.includes('onboarding') && (
           <nav className="p-2 flex gap-2 text-lg border-b">
             <Link to="/">
