@@ -26,7 +26,7 @@ export function OnboardingPage() {
   const [userAge, setUserAge] = useAtom(userAgeAtom);
   const [userCity, setUserCity] = useAtom(userCityAtom);
   const navigate = useNavigate();
-  const [cityInput, setCityInput] = useState('');
+  const [cityInput, setCityInput] = useState(userCity);
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
 
   const handleContinue = () => {
@@ -39,7 +39,7 @@ export function OnboardingPage() {
 
   return (
     <OnboardingPageWrapper>
-      <h1 className="text-2xl font-bold mb-2 text-foreground">
+      <h1 className="text-3xl font-bold mb-2 text-foreground">
         Uzupełnij swoje dane
       </h1>
       <p className="text-sm mb-6 text-muted-foreground">
@@ -61,9 +61,7 @@ export function OnboardingPage() {
                   <SelectValue placeholder="Wybierz płeć" />
                 </div>
                 {userGender && (
-                  <div className="bg-primary text-primary-foreground stroke-primary-foreground flex size-4 items-center justify-center rounded-full ml-auto">
-                    <CheckIcon className="size-3 color-primary-foreground stroke-primary-foreground" />
-                  </div>
+                  <CheckIcon className="size-4 text-primary ml-auto" />
                 )}
               </SelectTrigger>
               <SelectContent className="border-none">
@@ -77,7 +75,7 @@ export function OnboardingPage() {
 
       <div className="flex flex-col gap-2 mb-6">
         <Label>Miasto zamieszkania</Label>
-        {/* City Field */}
+
         <div className="relative">
           <div className="relative">
             <Input
@@ -101,9 +99,7 @@ export function OnboardingPage() {
             />
             <MapPinIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
             {userCity && (
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-primary text-primary-foreground flex size-4 items-center justify-center rounded-full">
-                <CheckIcon className="size-3" />
-              </div>
+              <CheckIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 size-4 text-primary" />
             )}
             {showCitySuggestions && cityInput && (
               <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
@@ -139,9 +135,7 @@ export function OnboardingPage() {
             {userAge ? `Wiek: ${userAge} lat` : 'Wybierz wiek'}
           </span>
           {userAge && userAge >= 18 && userAge <= 120 && (
-            <div className="bg-primary text-primary-foreground flex size-4 items-center justify-center rounded-full ml-auto">
-              <CheckIcon className="size-3" />
-            </div>
+            <CheckIcon className="size-4 text-primary ml-auto" />
           )}
         </div>
 
