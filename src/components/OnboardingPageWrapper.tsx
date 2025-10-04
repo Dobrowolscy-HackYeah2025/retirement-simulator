@@ -6,7 +6,7 @@ import { Button } from './ui/button';
 
 const OnboardingNavigation = () => {
   return (
-    <div className="flex justify-between mx-4">
+    <div className="flex justify-between mx-2 mt-2">
       <div className="flex gap-2 justify-start items-center">
         <Button variant="ghost" size="icon-lg">
           <ChevronLeft />
