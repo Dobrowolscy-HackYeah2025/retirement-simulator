@@ -1,4 +1,3 @@
-import { JotaiQueryExample } from '@/components/JotaiQueryExample';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -54,9 +53,6 @@ export function HomePage() {
           )}
         </CardContent>
       </Card>
-
-      {/* Jotai + TanStack Query Integration Example */}
-      <JotaiQueryExample />
     </div>
   );
 }
