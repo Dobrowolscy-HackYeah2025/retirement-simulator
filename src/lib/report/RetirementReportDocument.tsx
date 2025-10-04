@@ -541,24 +541,37 @@ function ColumnChartSvg({ chart }: { chart: RetirementReportChart }) {
     );
   }
 
-  const allValues = chart.series.flatMap((series) =>
-    series.points.map((point) => point.y)
+  const columnValues = columnSeries.flatMap((series) =>
+    series.points.map((point) => Math.max(0, point.y))
   );
-  const maxValue = Math.max(...allValues, 0);
-  const adjustedMax = maxValue === 0 ? 1 : maxValue;
+  const columnMax = columnValues.length > 0 ? Math.max(...columnValues) : 0;
+  const effectiveColumnMax = columnMax === 0 ? 1 : columnMax;
+
+  const lineValues = lineSeries.flatMap((series) =>
+    series.points.map((point) => Math.max(0, point.y))
+  );
+  const lineMax = lineValues.length > 0 ? Math.max(...lineValues) : 0;
+  const effectiveLineMax = lineMax === 0 ? effectiveColumnMax : lineMax;
+
+  const yScaleColumn = (value: number) =>
+    height - bottom - (Math.max(0, value) / effectiveColumnMax) * innerHeight;
+  const yScaleLine = (value: number) =>
+    height - bottom - (Math.max(0, value) / effectiveLineMax) * innerHeight;
 
   const step = innerWidth / categoryOrder.length;
   const categoryCenters = categoryOrder.map(
     (_, index) => left + index * step + step / 2
   );
 
-  const yScale = (value: number) =>
-    height - bottom - (value / adjustedMax) * innerHeight;
-
   const yTickCount = 4;
-  const yTicks = Array.from({ length: yTickCount + 1 }, (_, index) =>
-    (adjustedMax / yTickCount) * index
+  const columnTicks = Array.from({ length: yTickCount + 1 }, (_, index) =>
+    (effectiveColumnMax / yTickCount) * index
   );
+  const lineTicks = lineSeries.length
+    ? Array.from({ length: yTickCount + 1 }, (_, index) =>
+        (effectiveLineMax / yTickCount) * index
+      )
+    : [];
 
   const barSpacing = 6;
 
@@ -592,8 +605,8 @@ function ColumnChartSvg({ chart }: { chart: RetirementReportChart }) {
     let currentX = categoryCenter - totalWidth / 2;
 
     entries.forEach((entry, entryIndex) => {
-      const heightValue = Math.max(0, yScale(0) - yScale(entry.point.y));
-      const barTop = yScale(entry.point.y);
+      const barTop = yScaleColumn(entry.point.y);
+      const heightValue = Math.max(0, yScaleColumn(0) - barTop);
       const fill = entry.series.color ?? ZUS_COLORS.green;
 
       bars.push(
@@ -614,8 +627,8 @@ function ColumnChartSvg({ chart }: { chart: RetirementReportChart }) {
 
   const overlays: ReactElement[] = [];
 
-  yTicks.forEach((tickValue, index) => {
-    const y = yScale(tickValue);
+  columnTicks.forEach((tickValue, index) => {
+    const y = yScaleColumn(tickValue);
     overlays.push(
       <PdfText
         key={`column-y-label-${index}`}
@@ -626,6 +639,26 @@ function ColumnChartSvg({ chart }: { chart: RetirementReportChart }) {
             top: y - 6,
             width: 40,
             textAlign: 'right',
+          },
+        ]}
+      >
+        {formatAxisValue(tickValue)}
+      </PdfText>
+    );
+  });
+
+  lineTicks.forEach((tickValue, index) => {
+    const y = yScaleLine(tickValue);
+    overlays.push(
+      <PdfText
+        key={`line-y-label-${index}`}
+        style={[
+          styles.chartOverlayText,
+          {
+            left: width - right + 12,
+            top: y - 6,
+            width: 40,
+            textAlign: 'left',
           },
         ]}
       >
@@ -668,8 +701,8 @@ function ColumnChartSvg({ chart }: { chart: RetirementReportChart }) {
           strokeWidth={1}
         />
 
-        {yTicks.map((tickValue, index) => {
-          const y = yScale(tickValue);
+        {columnTicks.map((tickValue, index) => {
+          const y = yScaleColumn(tickValue);
           return (
             <Path
               key={`column-grid-${index}`}
@@ -695,22 +728,22 @@ function ColumnChartSvg({ chart }: { chart: RetirementReportChart }) {
         {bars}
 
         {lineSeries.map((series) => {
-          const coordinates = categoryOrder
-            .map((categoryKey, idx) => {
-              const point = series.points.find(
-                (point) => String(point.x) === categoryKey
-              );
-              if (!point) {
-                return null;
-              }
-              return {
-                x: categoryCenters[idx],
-                y: yScale(point.y),
-              };
-            })
-            .filter(
-              (coordinate): coordinate is { x: number; y: number } =>
-                coordinate !== null
+        const coordinates = categoryOrder
+          .map((categoryKey, idx) => {
+            const point = series.points.find(
+              (point) => String(point.x) === categoryKey
+            );
+            if (!point) {
+              return null;
+            }
+            return {
+              x: categoryCenters[idx],
+              y: yScaleLine(point.y),
+            };
+          })
+          .filter(
+            (coordinate): coordinate is { x: number; y: number } =>
+              coordinate !== null
             );
 
           if (coordinates.length === 0) {
