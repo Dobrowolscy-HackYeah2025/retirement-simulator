@@ -1,5 +1,7 @@
 import ZusLogo from '@/assets/zus_logo.svg';
 
+import { useEffect } from 'react';
+
 import { AnimatePresence, motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 
@@ -31,12 +33,19 @@ export const OnboardingPageWrapper = ({
   children: React.ReactNode;
   waveIndex?: number;
 }) => {
+  useEffect(() => {
+    document.body.style.backgroundColor = '#10331e05';
+
+    return () => {
+      document.body.style.backgroundColor = '#ffffff';
+    };
+  }, []);
   return (
-    <div className="h-full w-full flex flex-col grow bg-foreground/5 justify-center items-center">
-      <div className="m-0 md:m-8 rounded shadow-md outline outline-gray-200 h-full bg-white w-2xl max-w-[100%] z-50">
+    <div className="w-full flex flex-col justify-center items-center">
+      <div className="m-0 md:m-8 rounded-lg shadow-md border-b border-l border-r border-foreground/15 h-full bg-white w-2xl max-w-[100%] z-50">
         <OnboardingNavigation />
-        <div className="flex justify-center pt-24">
-          <div className="w-lg max-w-[100%] px-8 md:px-0">
+        <div className="flex justify-center pt-8">
+          <div className="w-xl max-w-[100%] px-4 md:px-0 pb-16">
             <AnimatePresence mode="wait">
               <motion.div
                 key={waveIndex}

@@ -12,21 +12,31 @@ export const OnboardingProgressBar = () => {
     if (location.pathname === '/onboarding') {
       return 33;
     }
+
     if (location.pathname === '/onboarding/2-zarobki') {
       return 66;
     }
+
     if (location.pathname === '/onboarding/3-final' || showReportGenerator) {
       return 90;
     }
+
     return 0;
   };
 
   const progress = getProgress();
 
+  if (showReportGenerator) {
+    return null;
+  }
+
   return (
-    <div className="w-2xl h-2 absolute top-0 md:top-8 z-50 -translate-x-1/2 left-1/2">
+    <div
+      className="w-2xl h-2 absolute top-0 md:top-8 -translate-x-1/2 left-1/2 z-70"
+      id="progress-bar"
+    >
       <div
-        className="h-full bg-zus-green shadow-sm rounded-tl outline-t outline-green-500 transition-all duration-500 ease-out"
+        className="h-full bg-zus-green shadow-sm rounded-tl-xl transition-all duration-500 ease-out"
         style={{ width: `${progress}%` }}
       />
     </div>

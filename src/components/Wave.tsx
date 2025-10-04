@@ -1,3 +1,4 @@
+// @todo to think: think whether to use green or orange
 export function Wave({ waveIndex }: { waveIndex: 0 | 1 }) {
   const A =
     'M0,128L80,160C160,192,320,256,480,240C640,224,800,128,960,117.3C1120,107,1280,181,1360,218.7L1440,256L1440,320L1360,320C1280,320,1120,320,960,320C800,320,640,320,480,320C320,320,160,320,80,320L0,320Z';
@@ -9,14 +10,17 @@ export function Wave({ waveIndex }: { waveIndex: 0 | 1 }) {
   const to = waveIndex === 0 ? A : B;
 
   return (
-    <div className="fixed bottom-0 left-0 z-30 w-full" id="wave-onboarding">
+    <div
+      className="fixed top-0 left-0 z-30 w-full rotate-180"
+      id="wave-onboarding"
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 1440 320"
         className="block"
       >
         <path
-          fill="#35a454"
+          fill="#FFB34F"
           fillOpacity="1"
           d={from}
           key={to /* restart trick */}

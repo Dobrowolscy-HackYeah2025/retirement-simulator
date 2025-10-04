@@ -2,6 +2,7 @@
 
 import { XIcon } from 'lucide-react';
 
+import { environment } from '../lib/environment';
 import { MultiStepLoader as Loader } from './ui/multi-step-loader';
 
 const zusLoadingStates = [
@@ -45,7 +46,9 @@ export function ZUSReportGenerator({
       <Loader
         loadingStates={zusLoadingStates}
         loading={loading}
-        duration={import.meta.env.PROD ? 1000 : 50}
+        duration={
+          import.meta.env.PROD || environment.TEST_MULTI_LOADER ? 1000 : 50
+        }
         loop={false}
         onComplete={onComplete}
       />

@@ -14,7 +14,6 @@ import {
 
 import {
   lazy,
-  Suspense,
   useCallback,
   useEffect,
   useMemo,
@@ -379,19 +378,11 @@ export function Onboarding2SalaryPage() {
       </div>
 
       {showReportGenerator && (
-        <Suspense
-          fallback={
-            <div className="w-full h-[60vh] flex items-center justify-center text-muted-foreground">
-              Ładowanie generatora raportu…
-            </div>
-          }
-        >
-          <LazyZUSReportGenerator
-            loading={showReportGenerator}
-            setLoading={handleLoaderState}
-            onComplete={handleReportComplete}
-          />
-        </Suspense>
+        <LazyZUSReportGenerator
+          loading={showReportGenerator}
+          setLoading={handleLoaderState}
+          onComplete={handleReportComplete}
+        />
       )}
     </OnboardingPageWrapper>
   );
