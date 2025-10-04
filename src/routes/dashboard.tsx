@@ -13,7 +13,8 @@ import {
   retirementInputsAtom,
   includeSickLeaveAtom,
   averagePensionAtom,
-  lifeExpectancyInfoAtom
+  lifeExpectancyInfoAtom,
+  expectedPensionComparisonAtom
 } from '../lib/atoms';
 
 // ZUS Brand Colors - głównie zielone (rzeczywiste wartości dla Highcharts)
@@ -62,6 +63,7 @@ export default function Dashboard() {
   const [realPensionIndex] = useAtom(realPensionIndexAtom);
   const [averagePension] = useAtom(averagePensionAtom);
   const [lifeExpectancyInfo] = useAtom(lifeExpectancyInfoAtom);
+  const [expectedComparison] = useAtom(expectedPensionComparisonAtom);
 
   // Chart refs
   const pensionForecastRef = useRef<HTMLDivElement>(null);
@@ -99,8 +101,8 @@ export default function Dashboard() {
         pensionForecastChart.xAxis[0].addPlotLine({
           id: 'retirement-age-line',
           value: retirementAge,
-          color: zusColors.orange,
-          width: 3,
+          color: zusColors.darkBlue,
+          width: 2,
           dashStyle: 'Solid',
           label: {
             text: `Wybrany wiek: ${retirementAge} lat`,
@@ -112,8 +114,8 @@ export default function Dashboard() {
         pensionForecastChart.xAxis[0].addPlotLine({
           id: 'retirement-age-line',
           value: retirementAge,
-          color: zusColors.orange,
-          width: 3,
+          color: zusColors.darkBlue,
+          width: 2,
           dashStyle: 'Solid',
           label: {
             text: `Wybrany wiek: ${retirementAge} lat`,
@@ -155,7 +157,7 @@ export default function Dashboard() {
         },
         series: [
           {
-            name: 'Emerytura nominalna',
+            name: 'Kwota emerytury',
             type: 'line',
             data: pensionForecastData.map(item => [item.age, item.amount]),
             color: zusColors.primary,
@@ -457,7 +459,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow text-center">
             <h3 className="text-lg font-semibold mb-2" style={{ color: zusColors.darkBlue }}>
-              Prognoza emerytury nominalna
+              Prognozowana emerytura (kwota)
             </h3>
             <div className="text-3xl font-bold" style={{ color: zusColors.primary }}>
               {scenariosData.realistic.toLocaleString()} zł
@@ -471,7 +473,7 @@ export default function Dashboard() {
           </div>
           <div className="bg-white p-6 rounded-lg shadow text-center">
             <h3 className="text-lg font-semibold mb-2" style={{ color: zusColors.darkBlue }}>
-              Prognoza emerytury realna
+              Emerytura realna
             </h3>
             <div className="text-3xl font-bold" style={{ color: zusColors.green }}>
               {Math.round(scenariosData.realistic * 0.7).toLocaleString()} zł
@@ -484,6 +486,9 @@ export default function Dashboard() {
             <div className="text-3xl font-bold" style={{ color: zusColors.greenDark }}>
               {replacementRate}%
             </div>
+            <div className="mt-3 text-xs text-gray-500">
+              Średni czas pobierania świadczenia: <span className="font-semibold text-[var(--zus-green)]">{lifeExpectancyInfo.years},{lifeExpectancyInfo.months} roku</span>
+            </div>
           </div>
         </div>
 
@@ -493,39 +498,66 @@ export default function Dashboard() {
           <div className="lg:col-span-2 space-y-6">
             {/* Pension Forecast Chart */}
             <div className="bg-white p-6 rounded-lg shadow">
-              <div className="flex items-center gap-2 mb-4">
-                <h3 className="text-lg font-semibold" style={{ color: zusColors.darkBlue }}>
-                  Prognoza emerytury vs wiek przejścia
-                </h3>
-                <div className="group relative">
-                  <Info className="w-4 h-4 text-gray-400 hover:text-[var(--zus-green)] cursor-help" />
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-96">
-                    <div className="text-left">
-                      <div className="font-semibold mb-2">Emerytura nominalna vs realna</div>
-                      <div className="space-y-1">
-                        <div>
-                          <div className="font-medium text-green-400">Nominalna:</div>
-                          <div>Kwota w złotych na koncie</div>
-                        </div>
-                        <div>
-                          <div className="font-medium text-blue-400">Realna:</div>
-                          <div>Siła nabywcza po inflacji</div>
-                        </div>
-                        <div className="border-t border-gray-600 pt-2 mt-2">
-                          <div className="text-gray-300 text-xs">
-                            <div className="font-medium mb-1">Przykład:</div>
-                            <div>5000 zł nominalnie = ~4200 zł realnie</div>
-                            <div>Za 5 lat za te same pieniądze kupisz mniej</div>
-                            <div className="mt-1 text-yellow-300">Średnia inflacja: 3.5% rocznie</div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-semibold" style={{ color: zusColors.darkBlue }}>
+                    Prognoza emerytury vs wiek przejścia
+                  </h3>
+                  <div className="group relative">
+                    <Info className="w-4 h-4 text-gray-400 hover:text-[var(--zus-green)] cursor-help" />
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-96">
+                      <div className="text-left">
+                        <div className="font-semibold mb-2">Emerytura nominalna vs realna</div>
+                        <div className="space-y-1">
+                          <div>
+                            <div className="font-medium text-green-400">Nominalna:</div>
+                            <div>Kwota w złotych na koncie</div>
+                          </div>
+                          <div>
+                            <div className="font-medium text-blue-400">Realna:</div>
+                            <div>Siła nabywcza po uwzględnieniu inflacji</div>
+                          </div>
+                          <div className="border-t border-gray-600 pt-2 mt-2">
+                            <div className="text-gray-300 text-xs">
+                              <div className="font-medium mb-1">Przykład:</div>
+                              <div>5000 zł nominalnie = ~4200 zł realnie</div>
+                              <div>Za 5 lat za te same pieniądze kupisz mniej</div>
+                              <div className="mt-1 text-yellow-300">Średnia inflacja: 3.5% rocznie</div>
+                            </div>
                           </div>
                         </div>
                       </div>
+                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
                     </div>
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
                   </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500">Wariant:</span>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    selectedScenario === 'pessimistic' ? 'bg-red-100 text-red-700' :
+                    selectedScenario === 'realistic' ? 'bg-green-100 text-green-700' :
+                    'bg-blue-100 text-blue-700'
+                  }`}>
+                    {selectedScenario === 'pessimistic' ? 'Pesymistyczny' :
+                     selectedScenario === 'realistic' ? 'Realistyczny' : 'Optymistyczny'}
+                  </span>
                 </div>
               </div>
               <div ref={pensionForecastRef} style={{ height: '400px' }}></div>
+              
+              {/* Analiza ekspercka */}
+              <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg border-l-4 border-[var(--zus-green)]">
+                <div className="flex items-start gap-3">
+                  <div className="text-2xl">📊</div>
+                  <div>
+                    <div className="font-semibold text-gray-800 mb-1">Analiza Twojej sytuacji emerytalnej</div>
+                    <div className="text-sm text-gray-700">
+                      Przy obecnych założeniach Twoja emerytura realnie pozwoli utrzymać <span className="font-semibold text-[var(--zus-green)]">~{Math.round((scenariosData.realistic * 0.7 / scenariosData.realistic) * 100)}%</span> obecnej siły nabywczej. 
+                      Największy wpływ na wysokość świadczenia ma wiek przejścia na emeryturę — przesunięcie decyzji o 2 lata zwiększa emeryturę o <span className="font-semibold text-[var(--zus-green)]">+18%</span>.
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Scenarios Chart */}
@@ -684,41 +716,50 @@ export default function Dashboard() {
                   />
                 </div>
 
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="sick-leave"
-                    checked={includeSickLeave}
-                    onChange={(e) => setIncludeSickLeave(e.target.checked)}
-                    className="rounded"
-                  />
-                  <label htmlFor="sick-leave" className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <Stethoscope className="w-4 h-4 text-[var(--zus-green)]" />
-                    Uwzględnij absencję chorobową
-                    <div className="group relative">
-                      <Info className="w-4 h-4 text-gray-400 hover:text-[var(--zus-green)] cursor-help" />
-                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-6 py-4 bg-[var(--background)] border-2 border-[var(--zus-green)] text-[var(--foreground)] text-sm rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-80 shadow-lg">
-                        <div className="text-left">
-                          <div className="font-bold mb-3 text-center text-[var(--zus-green)] text-base">Wpływ L4 na emeryturę</div>
-                          <div className="space-y-2">
-                            <div className="font-semibold text-[var(--foreground)]">Jak to działa:</div>
-                            <div className="pl-2">• Podczas L4 dostajesz 80% wynagrodzenia</div>
-                            <div className="pl-2">• Składki emerytalne naliczane są tylko od 80%</div>
-                            <div className="pl-2">• To oznacza niższy kapitał emerytalny</div>
-                            <div className="border-t border-[var(--border)] pt-3 mt-3">
-                              <div className="font-semibold text-[var(--foreground)]">Średnio w roku:</div>
-                              <div className="pl-2">• Kobiety: 24.2 dni L4</div>
-                              <div className="pl-2">• Mężczyźni: 14.5 dni L4</div>
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <div className="flex items-start space-x-3">
+                    <div className="flex-shrink-0 pt-0.5">
+                      <input
+                        type="checkbox"
+                        id="sick-leave"
+                        checked={includeSickLeave}
+                        onChange={(e) => setIncludeSickLeave(e.target.checked)}
+                        className="rounded"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <label htmlFor="sick-leave" className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
+                        <Stethoscope className="w-4 h-4 text-[var(--zus-green)] flex-shrink-0" />
+                        <span>Uwzględnij absencję chorobową</span>
+                        <div className="group relative flex-shrink-0">
+                          <Info className="w-4 h-4 text-gray-400 hover:text-[var(--zus-green)] cursor-help" />
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-6 py-4 bg-[var(--background)] border-2 border-[var(--zus-green)] text-[var(--foreground)] text-sm rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-80 shadow-lg">
+                            <div className="text-left">
+                              <div className="font-bold mb-3 text-center text-[var(--zus-green)] text-base">Wpływ L4 na emeryturę</div>
+                              <div className="space-y-2">
+                                <div className="font-semibold text-[var(--foreground)]">Jak to działa:</div>
+                                <div className="pl-2">• Podczas L4 dostajesz 80% wynagrodzenia</div>
+                                <div className="pl-2">• Składki emerytalne naliczane są tylko od 80%</div>
+                                <div className="pl-2">• To oznacza niższy kapitał emerytalny</div>
+                                <div className="border-t border-[var(--border)] pt-3 mt-3">
+                                  <div className="font-semibold text-[var(--foreground)]">Średnio w roku:</div>
+                                  <div className="pl-2">• Kobiety: 24.2 dni L4</div>
+                                  <div className="pl-2">• Mężczyźni: 14.5 dni L4</div>
+                                </div>
+                                <div className="bg-[var(--zus-green)] text-[var(--background)] font-bold p-2 rounded-lg mt-3 text-center">
+                                  Rezultat: ~1-2% niższa emerytura
+                                </div>
+                              </div>
                             </div>
-                            <div className="bg-[var(--zus-green)] text-[var(--background)] font-bold p-2 rounded-lg mt-3 text-center">
-                              Rezultat: ~1-2% niższa emerytura
-                            </div>
+                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-8 border-transparent border-t-[var(--zus-green)]"></div>
                           </div>
                         </div>
-                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-8 border-transparent border-t-[var(--zus-green)]"></div>
-                      </div>
+                      </label>
+                      <p className="mt-2 text-xs text-gray-500">
+                        Symulacja uwzględni średnią liczbę dni L4 w ciągu kariery zawodowej
+                      </p>
                     </div>
-                  </label>
+                  </div>
                 </div>
 
                 <div>
@@ -793,10 +834,43 @@ export default function Dashboard() {
               <div ref={sickLeaveRef} style={{ height: '300px' }}></div>
             </div>
 
+
+            {/* Expected Pension Comparison */}
+            {expectedComparison && (
+              <div className="bg-white p-6 rounded-lg shadow">
+                <h3 className="text-lg font-semibold mb-4" style={{ color: zusColors.darkBlue }}>
+                  Porównanie z oczekiwaną emeryturą
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Oczekiwana:</span>
+                    <span className="font-bold">{expectedComparison.expected.toLocaleString()} zł</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Prognozowana:</span>
+                    <span className="font-bold">{expectedComparison.current.toLocaleString()} zł</span>
+                  </div>
+                  <div className="border-t pt-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Różnica:</span>
+                      <span className={`font-bold ${expectedComparison.difference >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {expectedComparison.difference >= 0 ? '+' : ''}{expectedComparison.difference.toLocaleString()} zł
+                      </span>
+                    </div>
+                    {expectedComparison.yearsToWork > 0 && (
+                      <div className="text-xs text-red-600 mt-1">
+                        Musisz pracować {expectedComparison.yearsToWork} lat dłużej
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Real Pension Index */}
             <div className="bg-white p-6 rounded-lg shadow">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2" style={{ color: zusColors.darkBlue }}>
-                Indeks Realnej Emerytury (IRE)
+                Siła nabywcza emerytury (IRE)
                 <div className="group relative">
                   <Info className="w-4 h-4 text-gray-400 hover:text-[var(--zus-green)] cursor-help" />
                   <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-2 bg-[var(--background)] border-2 border-[var(--zus-green)] text-[var(--foreground)] text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-64 shadow-lg">
@@ -824,7 +898,7 @@ export default function Dashboard() {
                   <div className="text-2xl font-bold" style={{ color: zusColors.primary }}>
                     {realPensionIndex.cpiBasket}
                   </div>
-                  <div className="text-sm text-gray-600">koszyków CPI miesięcznie</div>
+                  <div className="text-sm text-gray-600">koszyków zakupów miesięcznie</div>
                 </div>
               </div>
             </div>

@@ -29,6 +29,7 @@ export const retirementInputsAtom = atom<RetirementInputsState>({
   workStartYear: 2014, // Rok rozpoczęcia pracy zawodowej (przyjmujemy styczeń jako miesiąc startowy).
   plannedRetirementYear: 2056, // Rok planowanego zakończenia pracy (domyślne: ustawowy wiek emerytalny).
   zusAccountBalance: 42000, // Aktualny stan środków na koncie i subkoncie w ZUS (wartość fakultatywna).
+  expectedPension: null, // Oczekiwana emerytura użytkownika (fakultatywna).
 });
 
 // User gender atom for onboarding
@@ -183,9 +184,10 @@ export interface ScenariosData {
   optimistic: number;
 }
 
-// 1. Prognoza emerytury vs wiek przejścia - NIEZALEŻNA od slidera retirementAge
+// 1. Prognoza emerytury vs wiek przejścia - REAGUJE na checkbox L4
 export const pensionForecastDataAtom = atom<PensionForecastData[]>((get) => {
   const inputs = get(retirementInputsAtom);
+  const includeSickLeave = get(includeSickLeaveAtom);
   
   if (!inputs.age || !inputs.gender || !inputs.grossMonthlySalary) return [];
 
@@ -204,16 +206,21 @@ export const pensionForecastDataAtom = atom<PensionForecastData[]>((get) => {
   
   const normalized = normalizeInputs(baseInputs);
   if (!normalized) return [];
-  
+
   const { contributionsSum } = projectContributions(normalized);
   const baseCapital = normalized.zusAccountBalance + contributionsSum;
+  
+  // Uwzględnij L4 jeśli checkbox jest zaznaczony
+  const finalCapital = includeSickLeave 
+    ? baseCapital * (1 - getSickLeavePenalty(normalized.gender))
+    : baseCapital;
   
   return ages.map(age => {
     const yearsToRetirement = age - currentAge;
     
     // Skorygowany kapitał - dla wcześniejszego przejścia mniejszy, dla późniejszego większy
     const wageGrowthRate = 0.035; // 3.5% roczny wzrost płac
-    const adjustedCapital = baseCapital * Math.pow(1 + wageGrowthRate, yearsToRetirement);
+    const adjustedCapital = finalCapital * Math.pow(1 + wageGrowthRate, yearsToRetirement);
     
     const adjustedLifeExpectancy = getAdjustedLifeExpectancy(inputs.gender, age);
     const nominalPension = computeMonthlyPension(adjustedCapital, adjustedLifeExpectancy);
@@ -400,6 +407,30 @@ export const lifeExpectancyInfoAtom = atom((get) => {
   const months = Math.round((projection.lifeExpectancyYears - years) * 12);
   
   return { years, months };
+});
+
+
+// 11. Porównanie z oczekiwaną emeryturą
+export const expectedPensionComparisonAtom = atom((get) => {
+  const inputs = get(retirementInputsAtom);
+  const projection = get(retirementComputationAtom);
+  const includeSickLeave = get(includeSickLeaveAtom);
+  
+  if (!projection || !inputs.expectedPension) return null;
+  
+  const currentPension = includeSickLeave 
+    ? get(retirementMonthlyPensionWithSickLeaveAtom) || 0
+    : get(retirementMonthlyPensionAtom) || 0;
+  
+  const difference = currentPension - inputs.expectedPension;
+  const yearsToWork = difference < 0 ? Math.ceil(Math.abs(difference) / (currentPension * 0.05)) : 0; // Zakładamy 5% wzrost rocznie
+  
+  return {
+    expected: inputs.expectedPension,
+    current: currentPension,
+    difference: roundCurrency(difference),
+    yearsToWork: yearsToWork
+  };
 });
 
 // 10. Dane o opóźnieniach przejścia na emeryturę

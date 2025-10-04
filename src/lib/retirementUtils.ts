@@ -9,6 +9,7 @@ export type RetirementInputsState = {
   workStartYear: number | null;
   plannedRetirementYear: number | null;
   zusAccountBalance: number | null;
+  expectedPension: number | null; // Oczekiwana emerytura użytkownika
 };
 
 // Import danych z parametry_III_2025_all_sheets.json
