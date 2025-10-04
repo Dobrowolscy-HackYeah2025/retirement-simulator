@@ -1,4 +1,3 @@
-import { useAtom, useAtomValue } from 'jotai';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -18,11 +17,13 @@ import {
 } from '@/components/ui/select';
 import {
   counterAtom,
-  userPreferencesAtom,
-  retirementDataAtom,
   portfolioAtom,
+  retirementDataAtom,
   retirementProjectionAtom,
+  userPreferencesAtom,
 } from '@/lib/atoms';
+
+import { useAtom, useAtomValue } from 'jotai';
 
 export function JotaiQueryExample() {
   // Simple atom usage
@@ -39,7 +40,7 @@ export function JotaiQueryExample() {
   const projection = useAtomValue(retirementProjectionAtom);
 
   return (
-    <div className='space-y-6 p-4'>
+    <div className="space-y-6 p-4">
       <Card>
         <CardHeader>
           <CardTitle>Jotai + TanStack Query Integration</CardTitle>
@@ -48,21 +49,21 @@ export function JotaiQueryExample() {
             management
           </CardDescription>
         </CardHeader>
-        <CardContent className='space-y-4'>
+        <CardContent className="space-y-4">
           {/* Simple Counter Example */}
-          <div className='flex items-center gap-2'>
+          <div className="flex items-center gap-2">
             <Label>Counter:</Label>
             <Button
-              variant='outline'
-              size='sm'
+              variant="outline"
+              size="sm"
               onClick={() => setCount((c) => c - 1)}
             >
               -
             </Button>
-            <span className='w-8 text-center'>{count}</span>
+            <span className="w-8 text-center">{count}</span>
             <Button
-              variant='outline'
-              size='sm'
+              variant="outline"
+              size="sm"
               onClick={() => setCount((c) => c + 1)}
             >
               +
@@ -70,9 +71,9 @@ export function JotaiQueryExample() {
           </div>
 
           {/* User Preferences */}
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <Label htmlFor='currency'>Currency</Label>
+              <Label htmlFor="currency">Currency</Label>
               <Select
                 value={preferences.currency}
                 onValueChange={(value) =>
@@ -83,18 +84,18 @@ export function JotaiQueryExample() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='USD'>USD</SelectItem>
-                  <SelectItem value='EUR'>EUR</SelectItem>
-                  <SelectItem value='GBP'>GBP</SelectItem>
+                  <SelectItem value="USD">USD</SelectItem>
+                  <SelectItem value="EUR">EUR</SelectItem>
+                  <SelectItem value="GBP">GBP</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div>
-              <Label htmlFor='retirement-age'>Retirement Age</Label>
+              <Label htmlFor="retirement-age">Retirement Age</Label>
               <Input
-                id='retirement-age'
-                type='number'
+                id="retirement-age"
+                type="number"
                 value={preferences.retirementAge}
                 onChange={(e) =>
                   setPreferences((prev) => ({
@@ -106,7 +107,7 @@ export function JotaiQueryExample() {
             </div>
 
             <div>
-              <Label htmlFor='theme'>Theme</Label>
+              <Label htmlFor="theme">Theme</Label>
               <Select
                 value={preferences.theme}
                 onValueChange={(value: 'light' | 'dark') =>
@@ -117,8 +118,8 @@ export function JotaiQueryExample() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='light'>Light</SelectItem>
-                  <SelectItem value='dark'>Dark</SelectItem>
+                  <SelectItem value="light">Light</SelectItem>
+                  <SelectItem value="dark">Dark</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -134,33 +135,33 @@ export function JotaiQueryExample() {
         <CardContent>
           {retirementData.isLoading && <p>Loading retirement data...</p>}
           {retirementData.error && (
-            <p className='text-red-500'>
+            <p className="text-red-500">
               Error: {retirementData.error.message}
             </p>
           )}
           {retirementData.data && (
-            <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
                 <Label>Current Savings</Label>
-                <p className='text-2xl font-bold'>
+                <p className="text-2xl font-bold">
                   ${retirementData.data.currentSavings.toLocaleString()}
                 </p>
               </div>
               <div>
                 <Label>Monthly Contribution</Label>
-                <p className='text-2xl font-bold'>
+                <p className="text-2xl font-bold">
                   ${retirementData.data.monthlyContribution.toLocaleString()}
                 </p>
               </div>
               <div>
                 <Label>Expected Return</Label>
-                <p className='text-2xl font-bold'>
+                <p className="text-2xl font-bold">
                   {(retirementData.data.expectedReturn * 100).toFixed(1)}%
                 </p>
               </div>
               <div>
                 <Label>Projected Value</Label>
-                <p className='text-2xl font-bold'>
+                <p className="text-2xl font-bold">
                   ${retirementData.data.projectedValue.toLocaleString()}
                 </p>
               </div>
@@ -177,19 +178,19 @@ export function JotaiQueryExample() {
         <CardContent>
           {portfolio.isLoading && <p>Loading portfolio data...</p>}
           {portfolio.error && (
-            <p className='text-red-500'>Error: {portfolio.error.message}</p>
+            <p className="text-red-500">Error: {portfolio.error.message}</p>
           )}
           {portfolio.data && (
             <div>
-              <p className='text-2xl font-bold mb-4'>
+              <p className="text-2xl font-bold mb-4">
                 Total: {portfolio.data.currency}{' '}
                 {portfolio.data.totalValue.toLocaleString()}
               </p>
-              <div className='space-y-2'>
+              <div className="space-y-2">
                 {portfolio.data.assets.map((asset) => (
                   <div
                     key={asset.name}
-                    className='flex justify-between items-center'
+                    className="flex justify-between items-center"
                   >
                     <span>{asset.name}</span>
                     <span>
@@ -211,22 +212,22 @@ export function JotaiQueryExample() {
             <CardTitle>Retirement Projection (Derived Atom)</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <Label>Years to Retirement</Label>
-                <p className='text-2xl font-bold'>
+                <p className="text-2xl font-bold">
                   {projection.yearsToRetirement}
                 </p>
               </div>
               <div>
                 <Label>Projected Value</Label>
-                <p className='text-2xl font-bold'>
+                <p className="text-2xl font-bold">
                   ${projection.projectedValue.toLocaleString()}
                 </p>
               </div>
               <div>
                 <Label>Monthly Income (4% rule)</Label>
-                <p className='text-2xl font-bold'>
+                <p className="text-2xl font-bold">
                   ${projection.monthlyIncome.toLocaleString()}
                 </p>
               </div>
