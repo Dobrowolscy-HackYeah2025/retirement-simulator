@@ -20,7 +20,6 @@ export const PageNavigationBar = () => {
           <img src={ZusLogo} className="h-12 w-12" alt="ZUS Logo" />
         </Link>
 
-        {/* Navigation links on the right */}
         <div className="flex items-center gap-2">
           <Button
             onClick={handleGenerateReport}
