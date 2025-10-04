@@ -110,11 +110,8 @@ export const PageNavigationBar = () => {
   return (
     <>
       <nav
-        className="border-b-2 border-primary/20 bg-white/20 shadow-lg z-200 fixed lg:top-4 -translate-x-1/2 left-1/2 w-[100%] max-w-7xl lg:rounded-xl backdrop-blur-xl md:rounded-none md:top-0"
-        style={{
-          boxShadow:
-            '0 1px 3px 0 rgb(0 153 63 / 0.1), 0 1px 2px -1px rgb(0 153 63 / 0.1), inset 0 1px 0 0 rgb(255 255 255 / 0.5), inset 0 -1px 0 0 rgb(0 153 63 / 0.1)',
-        }}
+        className="border border-foreground/20 bg-white/20 shadow-md z-200 fixed lg:top-4 -translate-x-1/2 left-1/2 w-[100%] max-w-8xl lg:rounded-xl backdrop-blur-xl md:rounded-none md:top-0"
+        style={{}}
       >
         <div className="flex items-center justify-between px-6 py-3">
           <Link

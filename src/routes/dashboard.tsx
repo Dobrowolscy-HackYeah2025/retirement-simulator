@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import Highcharts from 'highcharts';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { Info, Stethoscope } from 'lucide-react';
 
-import { KpiRows } from '../components/dashboard/KpiRows';
 import {
   averagePensionAtom,
   contributionHistoryAtom,
@@ -527,7 +526,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-8xl mx-auto px-8">
         {/* Header */}
         <div className="mb-8">
           <h1

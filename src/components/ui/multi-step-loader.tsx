@@ -129,6 +129,21 @@ export const MultiStepLoader = ({
     return () => clearTimeout(timeout);
   }, [currentState, loading, loop, loadingStates.length, duration, onComplete]);
 
+  // Prevent body scroll when loader is visible
+  useEffect(() => {
+    if (loading) {
+      // Save original body overflow style
+      const originalStyle = window.getComputedStyle(document.body).overflow;
+      // Prevent scrolling
+      document.body.style.overflow = 'hidden';
+
+      // Restore original style on cleanup
+      return () => {
+        document.body.style.overflow = originalStyle;
+      };
+    }
+  }, [loading]);
+
   return (
     <AnimatePresence mode="wait">
       {loading && (
