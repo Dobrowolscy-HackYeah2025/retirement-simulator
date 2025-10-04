@@ -1,0 +1,1570 @@
+{
+  "Emerytury_Powiaty": {
+    "file": "pkt 3_kapitał początkowy.xlsx",
+    "header_row_used": 0,
+    "columns": [
+      "Lp.",
+      "Powiat"
+    ],
+    "row_count": 380,
+    "rows": [
+      {
+        "Lp.": 1,
+        "Powiat": "powiat aleksandrowski"
+      },
+      {
+        "Lp.": 2,
+        "Powiat": "powiat augustowski"
+      },
+      {
+        "Lp.": 3,
+        "Powiat": "powiat bartoszycki"
+      },
+      {
+        "Lp.": 4,
+        "Powiat": "powiat bełchatowski"
+      },
+      {
+        "Lp.": 5,
+        "Powiat": "powiat będziński"
+      },
+      {
+        "Lp.": 6,
+        "Powiat": "powiat bialski"
+      },
+      {
+        "Lp.": 7,
+        "Powiat": "Biała Podlaska"
+      },
+      {
+        "Lp.": 8,
+        "Powiat": "powiat białobrzeski"
+      },
+      {
+        "Lp.": 9,
+        "Powiat": "powiat białogardzki"
+      },
+      {
+        "Lp.": 10,
+        "Powiat": "powiat białostocki"
+      },
+      {
+        "Lp.": 11,
+        "Powiat": "Białystok"
+      },
+      {
+        "Lp.": 12,
+        "Powiat": "powiat bielski"
+      },
+      {
+        "Lp.": 13,
+        "Powiat": "powiat bielski"
+      },
+      {
+        "Lp.": 14,
+        "Powiat": "Bielsko-Biała"
+      },
+      {
+        "Lp.": 15,
+        "Powiat": "powiat bieruńsko-lędziński"
+      },
+      {
+        "Lp.": 16,
+        "Powiat": "powiat bieszczadzki"
+      },
+      {
+        "Lp.": 17,
+        "Powiat": "powiat biłgorajski"
+      },
+      {
+        "Lp.": 18,
+        "Powiat": "powiat bocheński"
+      },
+      {
+        "Lp.": 19,
+        "Powiat": "powiat bolesławiecki"
+      },
+      {
+        "Lp.": 20,
+        "Powiat": "powiat braniewski"
+      },
+      {
+        "Lp.": 21,
+        "Powiat": "powiat brodnicki"
+      },
+      {
+        "Lp.": 22,
+        "Powiat": "powiat brzeski"
+      },
+      {
+        "Lp.": 23,
+        "Powiat": "powiat brzeski"
+      },
+      {
+        "Lp.": 24,
+        "Powiat": "powiat brzeziński"
+      },
+      {
+        "Lp.": 25,
+        "Powiat": "powiat brzozowski"
+      },
+      {
+        "Lp.": 26,
+        "Powiat": "powiat buski"
+      },
+      {
+        "Lp.": 27,
+        "Powiat": "powiat bydgoski"
+      },
+      {
+        "Lp.": 28,
+        "Powiat": "Bydgoszcz"
+      },
+      {
+        "Lp.": 29,
+        "Powiat": "Bytom"
+      },
+      {
+        "Lp.": 30,
+        "Powiat": "powiat bytowski"
+      },
+      {
+        "Lp.": 31,
+        "Powiat": "Chełm"
+      },
+      {
+        "Lp.": 32,
+        "Powiat": "powiat chełmiński"
+      },
+      {
+        "Lp.": 33,
+        "Powiat": "powiat chełmski"
+      },
+      {
+        "Lp.": 34,
+        "Powiat": "powiat chodzieski"
+      },
+      {
+        "Lp.": 35,
+        "Powiat": "powiat chojnicki"
+      },
+      {
+        "Lp.": 36,
+        "Powiat": "Chorzów"
+      },
+      {
+        "Lp.": 37,
+        "Powiat": "powiat choszczeński"
+      },
+      {
+        "Lp.": 38,
+        "Powiat": "powiat chrzanowski"
+      },
+      {
+        "Lp.": 39,
+        "Powiat": "powiat ciechanowski"
+      },
+      {
+        "Lp.": 40,
+        "Powiat": "powiat cieszyński"
+      },
+      {
+        "Lp.": 41,
+        "Powiat": "powiat czarnkowsko-trzcianecki"
+      },
+      {
+        "Lp.": 42,
+        "Powiat": "Częstochowa"
+      },
+      {
+        "Lp.": 43,
+        "Powiat": "powiat częstochowski"
+      },
+      {
+        "Lp.": 44,
+        "Powiat": "powiat człuchowski"
+      },
+      {
+        "Lp.": 45,
+        "Powiat": "Dąbrowa Górnicza"
+      },
+      {
+        "Lp.": 46,
+        "Powiat": "powiat dąbrowski"
+      },
+      {
+        "Lp.": 47,
+        "Powiat": "powiat dębicki"
+      },
+      {
+        "Lp.": 48,
+        "Powiat": "powiat drawski"
+      },
+      {
+        "Lp.": 49,
+        "Powiat": "powiat działdowski"
+      },
+      {
+        "Lp.": 50,
+        "Powiat": "powiat dzierżoniowski"
+      },
+      {
+        "Lp.": 51,
+        "Powiat": "Elbląg"
+      },
+      {
+        "Lp.": 52,
+        "Powiat": "powiat elbląski"
+      },
+      {
+        "Lp.": 53,
+        "Powiat": "powiat ełcki"
+      },
+      {
+        "Lp.": 54,
+        "Powiat": "powiat garwoliński"
+      },
+      {
+        "Lp.": 55,
+        "Powiat": "Gdańsk"
+      },
+      {
+        "Lp.": 56,
+        "Powiat": "powiat gdański"
+      },
+      {
+        "Lp.": 57,
+        "Powiat": "Gdynia"
+      },
+      {
+        "Lp.": 58,
+        "Powiat": "powiat giżycki"
+      },
+      {
+        "Lp.": 59,
+        "Powiat": "Gliwice"
+      },
+      {
+        "Lp.": 60,
+        "Powiat": "powiat gliwicki"
+      },
+      {
+        "Lp.": 61,
+        "Powiat": "powiat głogowski"
+      },
+      {
+        "Lp.": 62,
+        "Powiat": "powiat głubczycki"
+      },
+      {
+        "Lp.": 63,
+        "Powiat": "powiat gnieźnieński"
+      },
+      {
+        "Lp.": 64,
+        "Powiat": "powiat goleniowski"
+      },
+      {
+        "Lp.": 65,
+        "Powiat": "powiat golubsko-dobrzyński"
+      },
+      {
+        "Lp.": 66,
+        "Powiat": "powiat gołdapski"
+      },
+      {
+        "Lp.": 67,
+        "Powiat": "powiat gorlicki"
+      },
+      {
+        "Lp.": 68,
+        "Powiat": "powiat gorzowski"
+      },
+      {
+        "Lp.": 69,
+        "Powiat": "Gorzów Wielkopolski"
+      },
+      {
+        "Lp.": 70,
+        "Powiat": "powiat gostyniński"
+      },
+      {
+        "Lp.": 71,
+        "Powiat": "powiat gostyński"
+      },
+      {
+        "Lp.": 72,
+        "Powiat": "powiat górowski"
+      },
+      {
+        "Lp.": 73,
+        "Powiat": "powiat grajewski"
+      },
+      {
+        "Lp.": 74,
+        "Powiat": "powiat grodziski"
+      },
+      {
+        "Lp.": 75,
+        "Powiat": "powiat grodziski"
+      },
+      {
+        "Lp.": 76,
+        "Powiat": "powiat grójecki"
+      },
+      {
+        "Lp.": 77,
+        "Powiat": "Grudziądz"
+      },
+      {
+        "Lp.": 78,
+        "Powiat": "powiat grudziądzki"
+      },
+      {
+        "Lp.": 79,
+        "Powiat": "powiat gryficki"
+      },
+      {
+        "Lp.": 80,
+        "Powiat": "powiat gryfiński"
+      },
+      {
+        "Lp.": 81,
+        "Powiat": "powiat hajnowski"
+      },
+      {
+        "Lp.": 82,
+        "Powiat": "powiat hrubieszowski"
+      },
+      {
+        "Lp.": 83,
+        "Powiat": "powiat iławski"
+      },
+      {
+        "Lp.": 84,
+        "Powiat": "powiat inowrocławski"
+      },
+      {
+        "Lp.": 85,
+        "Powiat": "powiat janowski"
+      },
+      {
+        "Lp.": 86,
+        "Powiat": "powiat jarociński"
+      },
+      {
+        "Lp.": 87,
+        "Powiat": "powiat jarosławski"
+      },
+      {
+        "Lp.": 88,
+        "Powiat": "powiat jasielski"
+      },
+      {
+        "Lp.": 89,
+        "Powiat": "Jastrzębie-Zdrój"
+      },
+      {
+        "Lp.": 90,
+        "Powiat": "powiat jaworski"
+      },
+      {
+        "Lp.": 91,
+        "Powiat": "Jaworzno"
+      },
+      {
+        "Lp.": 92,
+        "Powiat": "Jelenia Góra"
+      },
+      {
+        "Lp.": 93,
+        "Powiat": "powiat jędrzejowski"
+      },
+      {
+        "Lp.": 94,
+        "Powiat": "powiat kaliski"
+      },
+      {
+        "Lp.": 95,
+        "Powiat": "Kalisz"
+      },
+      {
+        "Lp.": 96,
+        "Powiat": "powiat kamiennogórski"
+      },
+      {
+        "Lp.": 97,
+        "Powiat": "powiat kamieński"
+      },
+      {
+        "Lp.": 98,
+        "Powiat": "powiat karkonoski[e]"
+      },
+      {
+        "Lp.": 99,
+        "Powiat": "powiat kartuski"
+      },
+      {
+        "Lp.": 100,
+        "Powiat": "Katowice"
+      },
+      {
+        "Lp.": 101,
+        "Powiat": "powiat kazimierski"
+      },
+      {
+        "Lp.": 102,
+        "Powiat": "powiat kędzierzyńsko-kozielski"
+      },
+      {
+        "Lp.": 103,
+        "Powiat": "powiat kępiński"
+      },
+      {
+        "Lp.": 104,
+        "Powiat": "powiat kętrzyński"
+      },
+      {
+        "Lp.": 105,
+        "Powiat": "Kielce"
+      },
+      {
+        "Lp.": 106,
+        "Powiat": "powiat kielecki"
+      },
+      {
+        "Lp.": 107,
+        "Powiat": "powiat kluczborski"
+      },
+      {
+        "Lp.": 108,
+        "Powiat": "powiat kłobucki"
+      },
+      {
+        "Lp.": 109,
+        "Powiat": "powiat kłodzki"
+      },
+      {
+        "Lp.": 110,
+        "Powiat": "powiat kolbuszowski"
+      },
+      {
+        "Lp.": 111,
+        "Powiat": "powiat kolneński"
+      },
+      {
+        "Lp.": 112,
+        "Powiat": "powiat kolski"
+      },
+      {
+        "Lp.": 113,
+        "Powiat": "powiat kołobrzeski"
+      },
+      {
+        "Lp.": 114,
+        "Powiat": "powiat konecki"
+      },
+      {
+        "Lp.": 115,
+        "Powiat": "Konin"
+      },
+      {
+        "Lp.": 116,
+        "Powiat": "powiat koniński"
+      },
+      {
+        "Lp.": 117,
+        "Powiat": "Koszalin"
+      },
+      {
+        "Lp.": 118,
+        "Powiat": "powiat koszaliński"
+      },
+      {
+        "Lp.": 119,
+        "Powiat": "powiat kościański"
+      },
+      {
+        "Lp.": 120,
+        "Powiat": "powiat kościerski"
+      },
+      {
+        "Lp.": 121,
+        "Powiat": "powiat kozienicki"
+      },
+      {
+        "Lp.": 122,
+        "Powiat": "powiat krakowski"
+      },
+      {
+        "Lp.": 123,
+        "Powiat": "Kraków"
+      },
+      {
+        "Lp.": 124,
+        "Powiat": "powiat krapkowicki"
+      },
+      {
+        "Lp.": 125,
+        "Powiat": "powiat krasnostawski"
+      },
+      {
+        "Lp.": 126,
+        "Powiat": "powiat kraśnicki"
+      },
+      {
+        "Lp.": 127,
+        "Powiat": "Krosno"
+      },
+      {
+        "Lp.": 128,
+        "Powiat": "powiat krośnieński"
+      },
+      {
+        "Lp.": 129,
+        "Powiat": "powiat krośnieński"
+      },
+      {
+        "Lp.": 130,
+        "Powiat": "powiat krotoszyński"
+      },
+      {
+        "Lp.": 131,
+        "Powiat": "powiat kutnowski"
+      },
+      {
+        "Lp.": 132,
+        "Powiat": "powiat kwidzyński"
+      },
+      {
+        "Lp.": 133,
+        "Powiat": "powiat legionowski"
+      },
+      {
+        "Lp.": 134,
+        "Powiat": "Legnica"
+      },
+      {
+        "Lp.": 135,
+        "Powiat": "powiat legnicki"
+      },
+      {
+        "Lp.": 136,
+        "Powiat": "powiat leski"
+      },
+      {
+        "Lp.": 137,
+        "Powiat": "powiat leszczyński"
+      },
+      {
+        "Lp.": 138,
+        "Powiat": "Leszno"
+      },
+      {
+        "Lp.": 139,
+        "Powiat": "powiat leżajski"
+      },
+      {
+        "Lp.": 140,
+        "Powiat": "powiat lęborski"
+      },
+      {
+        "Lp.": 141,
+        "Powiat": "powiat lidzbarski"
+      },
+      {
+        "Lp.": 142,
+        "Powiat": "powiat limanowski"
+      },
+      {
+        "Lp.": 143,
+        "Powiat": "powiat lipnowski"
+      },
+      {
+        "Lp.": 144,
+        "Powiat": "powiat lipski"
+      },
+      {
+        "Lp.": 145,
+        "Powiat": "powiat lubaczowski"
+      },
+      {
+        "Lp.": 146,
+        "Powiat": "powiat lubański"
+      },
+      {
+        "Lp.": 147,
+        "Powiat": "powiat lubartowski"
+      },
+      {
+        "Lp.": 148,
+        "Powiat": "powiat lubelski"
+      },
+      {
+        "Lp.": 149,
+        "Powiat": "powiat lubiński"
+      },
+      {
+        "Lp.": 150,
+        "Powiat": "Lublin"
+      },
+      {
+        "Lp.": 151,
+        "Powiat": "powiat lubliniecki"
+      },
+      {
+        "Lp.": 152,
+        "Powiat": "powiat lwówecki"
+      },
+      {
+        "Lp.": 153,
+        "Powiat": "powiat łańcucki"
+      },
+      {
+        "Lp.": 154,
+        "Powiat": "powiat łaski"
+      },
+      {
+        "Lp.": 155,
+        "Powiat": "powiat łęczycki"
+      },
+      {
+        "Lp.": 156,
+        "Powiat": "powiat łęczyński"
+      },
+      {
+        "Lp.": 157,
+        "Powiat": "powiat łobeski"
+      },
+      {
+        "Lp.": 158,
+        "Powiat": "Łomża"
+      },
+      {
+        "Lp.": 159,
+        "Powiat": "powiat łomżyński"
+      },
+      {
+        "Lp.": 160,
+        "Powiat": "powiat łosicki"
+      },
+      {
+        "Lp.": 161,
+        "Powiat": "powiat łowicki"
+      },
+      {
+        "Lp.": 162,
+        "Powiat": "powiat łódzki wschodni"
+      },
+      {
+        "Lp.": 163,
+        "Powiat": "Łódź"
+      },
+      {
+        "Lp.": 164,
+        "Powiat": "powiat łukowski"
+      },
+      {
+        "Lp.": 165,
+        "Powiat": "powiat makowski"
+      },
+      {
+        "Lp.": 166,
+        "Powiat": "powiat malborski"
+      },
+      {
+        "Lp.": 167,
+        "Powiat": "powiat miechowski"
+      },
+      {
+        "Lp.": 168,
+        "Powiat": "powiat mielecki"
+      },
+      {
+        "Lp.": 169,
+        "Powiat": "powiat międzychodzki"
+      },
+      {
+        "Lp.": 170,
+        "Powiat": "powiat międzyrzecki"
+      },
+      {
+        "Lp.": 171,
+        "Powiat": "powiat mikołowski"
+      },
+      {
+        "Lp.": 172,
+        "Powiat": "powiat milicki"
+      },
+      {
+        "Lp.": 173,
+        "Powiat": "powiat miński"
+      },
+      {
+        "Lp.": 174,
+        "Powiat": "powiat mławski"
+      },
+      {
+        "Lp.": 175,
+        "Powiat": "powiat mogileński"
+      },
+      {
+        "Lp.": 176,
+        "Powiat": "powiat moniecki"
+      },
+      {
+        "Lp.": 177,
+        "Powiat": "powiat mrągowski"
+      },
+      {
+        "Lp.": 178,
+        "Powiat": "Mysłowice"
+      },
+      {
+        "Lp.": 179,
+        "Powiat": "powiat myszkowski"
+      },
+      {
+        "Lp.": 180,
+        "Powiat": "powiat myślenicki"
+      },
+      {
+        "Lp.": 181,
+        "Powiat": "powiat myśliborski"
+      },
+      {
+        "Lp.": 182,
+        "Powiat": "powiat nakielski"
+      },
+      {
+        "Lp.": 183,
+        "Powiat": "powiat namysłowski"
+      },
+      {
+        "Lp.": 184,
+        "Powiat": "powiat nidzicki"
+      },
+      {
+        "Lp.": 185,
+        "Powiat": "powiat niżański"
+      },
+      {
+        "Lp.": 186,
+        "Powiat": "powiat nowodworski"
+      },
+      {
+        "Lp.": 187,
+        "Powiat": "powiat nowodworski"
+      },
+      {
+        "Lp.": 188,
+        "Powiat": "powiat nowomiejski"
+      },
+      {
+        "Lp.": 189,
+        "Powiat": "powiat nowosądecki"
+      },
+      {
+        "Lp.": 190,
+        "Powiat": "powiat nowosolski"
+      },
+      {
+        "Lp.": 191,
+        "Powiat": "powiat nowotarski"
+      },
+      {
+        "Lp.": 192,
+        "Powiat": "powiat nowotomyski"
+      },
+      {
+        "Lp.": 193,
+        "Powiat": "Nowy Sącz"
+      },
+      {
+        "Lp.": 194,
+        "Powiat": "powiat nyski"
+      },
+      {
+        "Lp.": 195,
+        "Powiat": "powiat obornicki"
+      },
+      {
+        "Lp.": 196,
+        "Powiat": "powiat olecki"
+      },
+      {
+        "Lp.": 197,
+        "Powiat": "powiat oleski"
+      },
+      {
+        "Lp.": 198,
+        "Powiat": "powiat oleśnicki"
+      },
+      {
+        "Lp.": 199,
+        "Powiat": "powiat olkuski"
+      },
+      {
+        "Lp.": 200,
+        "Powiat": "Olsztyn"
+      },
+      {
+        "Lp.": 201,
+        "Powiat": "powiat olsztyński"
+      },
+      {
+        "Lp.": 202,
+        "Powiat": "powiat oławski"
+      },
+      {
+        "Lp.": 203,
+        "Powiat": "powiat opatowski"
+      },
+      {
+        "Lp.": 204,
+        "Powiat": "powiat opoczyński"
+      },
+      {
+        "Lp.": 205,
+        "Powiat": "Opole"
+      },
+      {
+        "Lp.": 206,
+        "Powiat": "powiat opolski"
+      },
+      {
+        "Lp.": 207,
+        "Powiat": "powiat opolski"
+      },
+      {
+        "Lp.": 208,
+        "Powiat": "powiat ostrołęcki"
+      },
+      {
+        "Lp.": 209,
+        "Powiat": "Ostrołęka"
+      },
+      {
+        "Lp.": 210,
+        "Powiat": "powiat ostrowiecki"
+      },
+      {
+        "Lp.": 211,
+        "Powiat": "powiat ostrowski"
+      },
+      {
+        "Lp.": 212,
+        "Powiat": "powiat ostrowski"
+      },
+      {
+        "Lp.": 213,
+        "Powiat": "powiat ostródzki"
+      },
+      {
+        "Lp.": 214,
+        "Powiat": "powiat ostrzeszowski"
+      },
+      {
+        "Lp.": 215,
+        "Powiat": "powiat oświęcimski"
+      },
+      {
+        "Lp.": 216,
+        "Powiat": "powiat otwocki"
+      },
+      {
+        "Lp.": 217,
+        "Powiat": "powiat pabianicki"
+      },
+      {
+        "Lp.": 218,
+        "Powiat": "powiat pajęczański"
+      },
+      {
+        "Lp.": 219,
+        "Powiat": "powiat parczewski"
+      },
+      {
+        "Lp.": 220,
+        "Powiat": "powiat piaseczyński"
+      },
+      {
+        "Lp.": 221,
+        "Powiat": "Piekary Śląskie"
+      },
+      {
+        "Lp.": 222,
+        "Powiat": "powiat pilski"
+      },
+      {
+        "Lp.": 223,
+        "Powiat": "powiat pińczowski"
+      },
+      {
+        "Lp.": 224,
+        "Powiat": "powiat piotrkowski"
+      },
+      {
+        "Lp.": 225,
+        "Powiat": "Piotrków Trybunalski"
+      },
+      {
+        "Lp.": 226,
+        "Powiat": "powiat piski"
+      },
+      {
+        "Lp.": 227,
+        "Powiat": "powiat pleszewski"
+      },
+      {
+        "Lp.": 228,
+        "Powiat": "Płock"
+      },
+      {
+        "Lp.": 229,
+        "Powiat": "powiat płocki"
+      },
+      {
+        "Lp.": 230,
+        "Powiat": "powiat płoński"
+      },
+      {
+        "Lp.": 231,
+        "Powiat": "powiat poddębicki"
+      },
+      {
+        "Lp.": 232,
+        "Powiat": "powiat policki"
+      },
+      {
+        "Lp.": 233,
+        "Powiat": "powiat polkowicki"
+      },
+      {
+        "Lp.": 234,
+        "Powiat": "Poznań"
+      },
+      {
+        "Lp.": 235,
+        "Powiat": "powiat poznański"
+      },
+      {
+        "Lp.": 236,
+        "Powiat": "powiat proszowicki"
+      },
+      {
+        "Lp.": 237,
+        "Powiat": "powiat prudnicki"
+      },
+      {
+        "Lp.": 238,
+        "Powiat": "powiat pruszkowski"
+      },
+      {
+        "Lp.": 239,
+        "Powiat": "powiat przasnyski"
+      },
+      {
+        "Lp.": 240,
+        "Powiat": "powiat przemyski"
+      },
+      {
+        "Lp.": 241,
+        "Powiat": "Przemyśl"
+      },
+      {
+        "Lp.": 242,
+        "Powiat": "powiat przeworski"
+      },
+      {
+        "Lp.": 243,
+        "Powiat": "powiat przysuski"
+      },
+      {
+        "Lp.": 244,
+        "Powiat": "powiat pszczyński"
+      },
+      {
+        "Lp.": 245,
+        "Powiat": "powiat pucki"
+      },
+      {
+        "Lp.": 246,
+        "Powiat": "powiat puławski"
+      },
+      {
+        "Lp.": 247,
+        "Powiat": "powiat pułtuski"
+      },
+      {
+        "Lp.": 248,
+        "Powiat": "powiat pyrzycki"
+      },
+      {
+        "Lp.": 249,
+        "Powiat": "powiat raciborski"
+      },
+      {
+        "Lp.": 250,
+        "Powiat": "Radom"
+      },
+      {
+        "Lp.": 251,
+        "Powiat": "powiat radomski"
+      },
+      {
+        "Lp.": 252,
+        "Powiat": "powiat radomszczański"
+      },
+      {
+        "Lp.": 253,
+        "Powiat": "powiat radziejowski"
+      },
+      {
+        "Lp.": 254,
+        "Powiat": "powiat radzyński"
+      },
+      {
+        "Lp.": 255,
+        "Powiat": "powiat rawicki"
+      },
+      {
+        "Lp.": 256,
+        "Powiat": "powiat rawski"
+      },
+      {
+        "Lp.": 257,
+        "Powiat": "powiat ropczycko-sędziszowski"
+      },
+      {
+        "Lp.": 258,
+        "Powiat": "Ruda Śląska"
+      },
+      {
+        "Lp.": 259,
+        "Powiat": "powiat rybnicki"
+      },
+      {
+        "Lp.": 260,
+        "Powiat": "Rybnik"
+      },
+      {
+        "Lp.": 261,
+        "Powiat": "powiat rycki"
+      },
+      {
+        "Lp.": 262,
+        "Powiat": "powiat rypiński"
+      },
+      {
+        "Lp.": 263,
+        "Powiat": "powiat rzeszowski"
+      },
+      {
+        "Lp.": 264,
+        "Powiat": "Rzeszów"
+      },
+      {
+        "Lp.": 265,
+        "Powiat": "powiat sandomierski"
+      },
+      {
+        "Lp.": 266,
+        "Powiat": "powiat sanocki"
+      },
+      {
+        "Lp.": 267,
+        "Powiat": "powiat sejneński"
+      },
+      {
+        "Lp.": 268,
+        "Powiat": "powiat sępoleński"
+      },
+      {
+        "Lp.": 269,
+        "Powiat": "Siedlce"
+      },
+      {
+        "Lp.": 270,
+        "Powiat": "powiat siedlecki"
+      },
+      {
+        "Lp.": 271,
+        "Powiat": "Siemianowice Śląskie"
+      },
+      {
+        "Lp.": 272,
+        "Powiat": "powiat siemiatycki"
+      },
+      {
+        "Lp.": 273,
+        "Powiat": "powiat sieradzki"
+      },
+      {
+        "Lp.": 274,
+        "Powiat": "powiat sierpecki"
+      },
+      {
+        "Lp.": 275,
+        "Powiat": "powiat skarżyski"
+      },
+      {
+        "Lp.": 276,
+        "Powiat": "Skierniewice"
+      },
+      {
+        "Lp.": 277,
+        "Powiat": "powiat skierniewicki"
+      },
+      {
+        "Lp.": 278,
+        "Powiat": "powiat sławieński"
+      },
+      {
+        "Lp.": 279,
+        "Powiat": "powiat słubicki"
+      },
+      {
+        "Lp.": 280,
+        "Powiat": "powiat słupecki"
+      },
+      {
+        "Lp.": 281,
+        "Powiat": "Słupsk"
+      },
+      {
+        "Lp.": 282,
+        "Powiat": "powiat słupski"
+      },
+      {
+        "Lp.": 283,
+        "Powiat": "powiat sochaczewski"
+      },
+      {
+        "Lp.": 284,
+        "Powiat": "powiat sokołowski"
+      },
+      {
+        "Lp.": 285,
+        "Powiat": "powiat sokólski"
+      },
+      {
+        "Lp.": 286,
+        "Powiat": "Sopot"
+      },
+      {
+        "Lp.": 287,
+        "Powiat": "Sosnowiec"
+      },
+      {
+        "Lp.": 288,
+        "Powiat": "powiat stalowowolski"
+      },
+      {
+        "Lp.": 289,
+        "Powiat": "powiat starachowicki"
+      },
+      {
+        "Lp.": 290,
+        "Powiat": "powiat stargardzki"
+      },
+      {
+        "Lp.": 291,
+        "Powiat": "powiat starogardzki"
+      },
+      {
+        "Lp.": 292,
+        "Powiat": "powiat staszowski"
+      },
+      {
+        "Lp.": 293,
+        "Powiat": "powiat strzelecki"
+      },
+      {
+        "Lp.": 294,
+        "Powiat": "powiat strzelecko-drezdenecki"
+      },
+      {
+        "Lp.": 295,
+        "Powiat": "powiat strzeliński"
+      },
+      {
+        "Lp.": 296,
+        "Powiat": "powiat strzyżowski"
+      },
+      {
+        "Lp.": 297,
+        "Powiat": "powiat sulęciński"
+      },
+      {
+        "Lp.": 298,
+        "Powiat": "powiat suski"
+      },
+      {
+        "Lp.": 299,
+        "Powiat": "powiat suwalski"
+      },
+      {
+        "Lp.": 300,
+        "Powiat": "Suwałki"
+      },
+      {
+        "Lp.": 301,
+        "Powiat": "powiat szamotulski"
+      },
+      {
+        "Lp.": 302,
+        "Powiat": "Szczecin"
+      },
+      {
+        "Lp.": 303,
+        "Powiat": "powiat szczecinecki"
+      },
+      {
+        "Lp.": 304,
+        "Powiat": "powiat szczycieński"
+      },
+      {
+        "Lp.": 305,
+        "Powiat": "powiat sztumski"
+      },
+      {
+        "Lp.": 306,
+        "Powiat": "powiat szydłowiecki"
+      },
+      {
+        "Lp.": 307,
+        "Powiat": "powiat średzki"
+      },
+      {
+        "Lp.": 308,
+        "Powiat": "powiat średzki"
+      },
+      {
+        "Lp.": 309,
+        "Powiat": "powiat śremski"
+      },
+      {
+        "Lp.": 310,
+        "Powiat": "powiat świdnicki"
+      },
+      {
+        "Lp.": 311,
+        "Powiat": "powiat świdnicki"
+      },
+      {
+        "Lp.": 312,
+        "Powiat": "powiat świdwiński"
+      },
+      {
+        "Lp.": 313,
+        "Powiat": "powiat świebodziński"
+      },
+      {
+        "Lp.": 314,
+        "Powiat": "powiat świecki"
+      },
+      {
+        "Lp.": 315,
+        "Powiat": "Świętochłowice"
+      },
+      {
+        "Lp.": 316,
+        "Powiat": "Świnoujście"
+      },
+      {
+        "Lp.": 317,
+        "Powiat": "Tarnobrzeg"
+      },
+      {
+        "Lp.": 318,
+        "Powiat": "powiat tarnobrzeski"
+      },
+      {
+        "Lp.": 319,
+        "Powiat": "powiat tarnogórski"
+      },
+      {
+        "Lp.": 320,
+        "Powiat": "powiat tarnowski"
+      },
+      {
+        "Lp.": 321,
+        "Powiat": "Tarnów"
+      },
+      {
+        "Lp.": 322,
+        "Powiat": "powiat tatrzański"
+      },
+      {
+        "Lp.": 323,
+        "Powiat": "powiat tczewski"
+      },
+      {
+        "Lp.": 324,
+        "Powiat": "powiat tomaszowski"
+      },
+      {
+        "Lp.": 325,
+        "Powiat": "powiat tomaszowski"
+      },
+      {
+        "Lp.": 326,
+        "Powiat": "Toruń"
+      },
+      {
+        "Lp.": 327,
+        "Powiat": "powiat toruński"
+      },
+      {
+        "Lp.": 328,
+        "Powiat": "powiat trzebnicki"
+      },
+      {
+        "Lp.": 329,
+        "Powiat": "powiat tucholski"
+      },
+      {
+        "Lp.": 330,
+        "Powiat": "powiat turecki"
+      },
+      {
+        "Lp.": 331,
+        "Powiat": "Tychy"
+      },
+      {
+        "Lp.": 332,
+        "Powiat": "powiat wadowicki"
+      },
+      {
+        "Lp.": 333,
+        "Powiat": "Wałbrzych"
+      },
+      {
+        "Lp.": 334,
+        "Powiat": "powiat wałbrzyski"
+      },
+      {
+        "Lp.": 335,
+        "Powiat": "powiat wałecki"
+      },
+      {
+        "Lp.": 336,
+        "Powiat": "Warszawa"
+      },
+      {
+        "Lp.": 337,
+        "Powiat": "powiat warszawski zachodni"
+      },
+      {
+        "Lp.": 338,
+        "Powiat": "powiat wąbrzeski"
+      },
+      {
+        "Lp.": 339,
+        "Powiat": "powiat wągrowiecki"
+      },
+      {
+        "Lp.": 340,
+        "Powiat": "powiat wejherowski"
+      },
+      {
+        "Lp.": 341,
+        "Powiat": "powiat węgorzewski"
+      },
+      {
+        "Lp.": 342,
+        "Powiat": "powiat węgrowski"
+      },
+      {
+        "Lp.": 343,
+        "Powiat": "powiat wielicki"
+      },
+      {
+        "Lp.": 344,
+        "Powiat": "powiat wieluński"
+      },
+      {
+        "Lp.": 345,
+        "Powiat": "powiat wieruszowski"
+      },
+      {
+        "Lp.": 346,
+        "Powiat": "Włocławek"
+      },
+      {
+        "Lp.": 347,
+        "Powiat": "powiat włocławski"
+      },
+      {
+        "Lp.": 348,
+        "Powiat": "powiat włodawski"
+      },
+      {
+        "Lp.": 349,
+        "Powiat": "powiat włoszczowski"
+      },
+      {
+        "Lp.": 350,
+        "Powiat": "powiat wodzisławski"
+      },
+      {
+        "Lp.": 351,
+        "Powiat": "powiat wolsztyński"
+      },
+      {
+        "Lp.": 352,
+        "Powiat": "powiat wołomiński"
+      },
+      {
+        "Lp.": 353,
+        "Powiat": "powiat wołowski"
+      },
+      {
+        "Lp.": 354,
+        "Powiat": "Wrocław"
+      },
+      {
+        "Lp.": 355,
+        "Powiat": "powiat wrocławski"
+      },
+      {
+        "Lp.": 356,
+        "Powiat": "powiat wrzesiński"
+      },
+      {
+        "Lp.": 357,
+        "Powiat": "powiat wschowski"
+      },
+      {
+        "Lp.": 358,
+        "Powiat": "powiat wysokomazowiecki"
+      },
+      {
+        "Lp.": 359,
+        "Powiat": "powiat wyszkowski"
+      },
+      {
+        "Lp.": 360,
+        "Powiat": "Zabrze"
+      },
+      {
+        "Lp.": 361,
+        "Powiat": "powiat zambrowski"
+      },
+      {
+        "Lp.": 362,
+        "Powiat": "powiat zamojski"
+      },
+      {
+        "Lp.": 363,
+        "Powiat": "Zamość"
+      },
+      {
+        "Lp.": 364,
+        "Powiat": "powiat zawierciański"
+      },
+      {
+        "Lp.": 365,
+        "Powiat": "powiat ząbkowicki"
+      },
+      {
+        "Lp.": 366,
+        "Powiat": "powiat zduńskowolski"
+      },
+      {
+        "Lp.": 367,
+        "Powiat": "powiat zgierski"
+      },
+      {
+        "Lp.": 368,
+        "Powiat": "powiat zgorzelecki"
+      },
+      {
+        "Lp.": 369,
+        "Powiat": "Zielona Góra"
+      },
+      {
+        "Lp.": 370,
+        "Powiat": "powiat zielonogórski"
+      },
+      {
+        "Lp.": 371,
+        "Powiat": "powiat złotoryjski"
+      },
+      {
+        "Lp.": 372,
+        "Powiat": "powiat złotowski"
+      },
+      {
+        "Lp.": 373,
+        "Powiat": "powiat zwoleński"
+      },
+      {
+        "Lp.": 374,
+        "Powiat": "powiat żagański"
+      },
+      {
+        "Lp.": 375,
+        "Powiat": "powiat żarski"
+      },
+      {
+        "Lp.": 376,
+        "Powiat": "powiat żniński"
+      },
+      {
+        "Lp.": 377,
+        "Powiat": "Żory"
+      },
+      {
+        "Lp.": 378,
+        "Powiat": "powiat żuromiński"
+      },
+      {
+        "Lp.": 379,
+        "Powiat": "powiat żyrardowski"
+      },
+      {
+        "Lp.": 380,
+        "Powiat": "powiat żywiecki"
+      }
+    ]
+  },
+  "Kwota_Kapitał": {
+    "file": "pkt 3_kapitał początkowy.xlsx",
+    "header_row_used": 4,
+    "columns": [
+      "Łączny staż składkowy i nieskładkowy na 31 XII 1998 r.",
+      "Przeciętna wysokość kapitału początkowego dla kobiet [w zł]",
+      "Przeciętna wysokość kapitału początkowego dla mężczyzn [w zł]"
+    ],
+    "row_count": 5,
+    "rows": [
+      {
+        "Łączny staż składkowy i nieskładkowy na 31 XII 1998 r.": "20 lat",
+        "Przeciętna wysokość kapitału początkowego dla kobiet [w zł]": 99937,
+        "Przeciętna wysokość kapitału początkowego dla mężczyzn [w zł]": 111358
+      },
+      {
+        "Łączny staż składkowy i nieskładkowy na 31 XII 1998 r.": "15 lat",
+        "Przeciętna wysokość kapitału początkowego dla kobiet [w zł]": 69682,
+        "Przeciętna wysokość kapitału początkowego dla mężczyzn [w zł]": 76052
+      },
+      {
+        "Łączny staż składkowy i nieskładkowy na 31 XII 1998 r.": "10 lat ",
+        "Przeciętna wysokość kapitału początkowego dla kobiet [w zł]": 43734,
+        "Przeciętna wysokość kapitału początkowego dla mężczyzn [w zł]": 45535
+      },
+      {
+        "Łączny staż składkowy i nieskładkowy na 31 XII 1998 r.": "5 lat ",
+        "Przeciętna wysokość kapitału początkowego dla kobiet [w zł]": 23219,
+        "Przeciętna wysokość kapitału początkowego dla mężczyzn [w zł]": 21832
+      },
+      {
+        "Łączny staż składkowy i nieskładkowy na 31 XII 1998 r.": "1 rok",
+        "Przeciętna wysokość kapitału początkowego dla kobiet [w zł]": 7402,
+        "Przeciętna wysokość kapitału początkowego dla mężczyzn [w zł]": 6578
+      }
+    ]
+  }
+}

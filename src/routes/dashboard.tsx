@@ -1,5 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Highcharts from 'highcharts';
+import { useAtom } from 'jotai';
+import {
+  pensionForecastDataAtom,
+  replacementRateAtom,
+  sickLeaveImpactAtom,
+  contributionHistoryAtom,
+  scenariosDataAtom,
+  regionalBenchmarkAtom,
+  realPensionIndexAtom,
+  retirementInputsAtom
+} from '../lib/atoms';
 
 // ZUS Brand Colors as CSS Variables
 const zusColors = {
@@ -12,42 +23,7 @@ const zusColors = {
   black: 'rgb(0, 0, 0)'
 };
 
-// Hardcoded sample data based on ZUS requirements
-const sampleData = {
-  pensionForecast: [
-    { age: 60, amount: 2500, realAmount: 1800 },
-    { age: 65, amount: 3200, realAmount: 2200 },
-    { age: 67, amount: 3800, realAmount: 2500 }
-  ],
-  replacementRate: 65,
-  sickLeaveImpact: {
-    withSickLeave: 2800,
-    withoutSickLeave: 3200
-  },
-  contributionHistory: [
-    { year: 2020, contributions: 12000, capital: 45000 },
-    { year: 2021, contributions: 13000, capital: 58000 },
-    { year: 2022, contributions: 14000, capital: 72000 },
-    { year: 2023, contributions: 15000, capital: 87000 },
-    { year: 2024, contributions: 16000, capital: 103000 }
-  ],
-  scenarios: {
-    pessimistic: 2800,
-    realistic: 3200,
-    optimistic: 3800
-  },
-  regionalBenchmark: [
-    { region: 'Mazowieckie', average: 3500, user: 3200 },
-    { region: 'Śląskie', average: 3200, user: 3200 },
-    { region: 'Wielkopolskie', average: 3000, user: 3200 },
-    { region: 'Małopolskie', average: 3100, user: 3200 },
-    { region: 'Dolnośląskie', average: 2900, user: 3200 }
-  ],
-  realPensionIndex: {
-    breadLoaves: 45,
-    cpiBasket: 0.8
-  }
-};
+// Usunięto sampleData - teraz używamy derived atomów
 
 export default function Dashboard() {
   const [retirementAge, setRetirementAge] = useState(65);
@@ -55,6 +31,28 @@ export default function Dashboard() {
   const [includeSickLeave, setIncludeSickLeave] = useState(true);
   const [selectedRegion, setSelectedRegion] = useState('Mazowieckie');
   const [selectedScenario, setSelectedScenario] = useState('realistic');
+
+  // Pobierz i zaktualizuj retirementInputsAtom na podstawie ustawień
+  const [, setInputs] = useAtom(retirementInputsAtom);
+  
+  // Zaktualizuj inputs gdy zmieniają się ustawienia
+  useEffect(() => {
+    setInputs((prev: any) => ({
+      ...prev,
+      grossMonthlySalary: salary,
+      plannedRetirementYear: new Date().getFullYear() + (retirementAge - prev.age!)
+    }));
+  }, [salary, retirementAge, setInputs]);
+
+
+  // Pobierz dane z derived atomów
+  const [pensionForecastData] = useAtom(pensionForecastDataAtom);
+  const [replacementRate] = useAtom(replacementRateAtom);
+  const [sickLeaveImpact] = useAtom(sickLeaveImpactAtom);
+  const [contributionHistory] = useAtom(contributionHistoryAtom);
+  const [scenariosData] = useAtom(scenariosDataAtom);
+  const [regionalBenchmark] = useAtom(regionalBenchmarkAtom);
+  const [realPensionIndex] = useAtom(realPensionIndexAtom);
 
   // Chart refs
   const pensionForecastRef = useRef<HTMLDivElement>(null);
@@ -71,6 +69,51 @@ export default function Dashboard() {
   const [contributionHistoryChart, setContributionHistoryChart] = useState<Highcharts.Chart | null>(null);
   const [scenariosChart, setScenariosChart] = useState<Highcharts.Chart | null>(null);
   const [regionalBenchmarkChart, setRegionalBenchmarkChart] = useState<Highcharts.Chart | null>(null);
+
+  // Aktualizuj plotline na wykresie prognozy emerytury gdy zmienia się retirementAge
+  useEffect(() => {
+    if (pensionForecastChart) {
+      const xAxis = pensionForecastChart.xAxis[0];
+      const plotLine = (xAxis as any).plotLinesAndBands.find((pl: any) => pl.id === 'retirement-age-line');
+      
+      if (plotLine) {
+        // Debug: sprawdź wartości
+        console.log('Plotline debug:', {
+          retirementAge,
+          currentValue: plotLine.options.value,
+          newX: xAxis.toPixels(retirementAge),
+          currentX: xAxis.toPixels(plotLine.options.value)
+        });
+        
+        // Zamiast animacji translateX, usuń i dodaj nowy plotline
+        pensionForecastChart.xAxis[0].removePlotLine('retirement-age-line');
+        pensionForecastChart.xAxis[0].addPlotLine({
+          id: 'retirement-age-line',
+          value: retirementAge,
+          color: zusColors.orange,
+          width: 3,
+          dashStyle: 'Solid',
+          label: {
+            text: `Wybrany wiek: ${retirementAge} lat`,
+            style: { color: zusColors.darkBlue, fontWeight: 'bold' }
+          }
+        });
+      } else {
+        // Dodaj nowy plotline jeśli nie istnieje
+        pensionForecastChart.xAxis[0].addPlotLine({
+          id: 'retirement-age-line',
+          value: retirementAge,
+          color: zusColors.orange,
+          width: 3,
+          dashStyle: 'Solid',
+          label: {
+            text: `Wybrany wiek: ${retirementAge} lat`,
+            style: { color: zusColors.darkBlue, fontWeight: 'bold' }
+          }
+        });
+      }
+    }
+  }, [retirementAge, pensionForecastChart]);
 
   // Initialize charts
   useEffect(() => {
@@ -92,11 +135,13 @@ export default function Dashboard() {
           }
         },
         xAxis: {
+          type: 'linear',
           title: {
             text: 'Wiek przejścia na emeryturę',
             style: { color: zusColors.darkBlue }
           },
-          categories: sampleData.pensionForecast.map(item => item.age.toString())
+          min: 60,
+          max: 70
         },
         yAxis: {
           title: {
@@ -108,7 +153,7 @@ export default function Dashboard() {
           {
             name: 'Emerytura nominalna',
             type: 'line',
-            data: sampleData.pensionForecast.map(item => item.amount),
+            data: pensionForecastData.map(item => [item.age, item.amount]),
             color: zusColors.blue,
             marker: {
               radius: 6,
@@ -118,7 +163,7 @@ export default function Dashboard() {
           {
             name: 'Emerytura realna',
             type: 'line',
-            data: sampleData.pensionForecast.map(item => item.realAmount),
+            data: pensionForecastData.map(item => [item.age, item.realAmount]),
             color: zusColors.green,
             marker: {
               radius: 6,
@@ -155,8 +200,8 @@ export default function Dashboard() {
           name: 'Stopa zastąpienia',
           type: 'pie',
           data: [
-            { name: 'Zastąpienie', y: sampleData.replacementRate, color: zusColors.green },
-            { name: 'Pozostałe', y: 100 - sampleData.replacementRate, color: zusColors.gray }
+            { name: 'Zastąpienie', y: replacementRate, color: zusColors.green },
+            { name: 'Pozostałe', y: 100 - replacementRate, color: zusColors.gray }
           ],
           dataLabels: {
             enabled: true,
@@ -194,8 +239,8 @@ export default function Dashboard() {
           name: 'Wysokość emerytury',
           type: 'column',
           data: [
-            { y: sampleData.sickLeaveImpact.withSickLeave, color: zusColors.red },
-            { y: sampleData.sickLeaveImpact.withoutSickLeave, color: zusColors.green }
+            { y: sickLeaveImpact.withSickLeave, color: zusColors.red },
+            { y: sickLeaveImpact.withoutSickLeave, color: zusColors.green }
           ],
           dataLabels: {
             enabled: true,
@@ -225,7 +270,7 @@ export default function Dashboard() {
           }
         },
         xAxis: {
-          categories: sampleData.contributionHistory.map(item => item.year.toString())
+          categories: contributionHistory.map(item => item.year.toString())
         },
         yAxis: [{
           title: {
@@ -243,14 +288,14 @@ export default function Dashboard() {
           {
             name: 'Składki roczne',
             type: 'column',
-            data: sampleData.contributionHistory.map(item => item.contributions),
+            data: contributionHistory.map(item => item.contributions),
             color: zusColors.blue,
             yAxis: 0
           },
           {
             name: 'Kapitał narastający',
             type: 'line',
-            data: sampleData.contributionHistory.map(item => item.capital),
+            data: contributionHistory.map(item => item.capital),
             color: zusColors.green,
             yAxis: 1,
             marker: {
@@ -294,9 +339,9 @@ export default function Dashboard() {
           name: 'Prognozowana emerytura',
           type: 'column',
           data: [
-            { y: sampleData.scenarios.pessimistic, color: zusColors.red },
-            { y: sampleData.scenarios.realistic, color: zusColors.orange },
-            { y: sampleData.scenarios.optimistic, color: zusColors.green }
+            { y: scenariosData.pessimistic, color: zusColors.red },
+            { y: scenariosData.realistic, color: zusColors.orange },
+            { y: scenariosData.optimistic, color: zusColors.green }
           ],
           dataLabels: {
             enabled: true,
@@ -326,7 +371,7 @@ export default function Dashboard() {
           }
         },
         xAxis: {
-          categories: sampleData.regionalBenchmark.map(item => item.region)
+          categories: regionalBenchmark.map(item => item.region)
         },
         yAxis: {
           title: {
@@ -338,13 +383,13 @@ export default function Dashboard() {
           {
             name: 'Średnia w regionie',
             type: 'column',
-            data: sampleData.regionalBenchmark.map(item => item.average),
+            data: regionalBenchmark.map(item => item.average),
             color: zusColors.gray
           },
           {
             name: 'Twoja prognoza',
             type: 'column',
-            data: sampleData.regionalBenchmark.map(item => item.user),
+            data: regionalBenchmark.map(item => item.user),
             color: zusColors.blue
           }
         ],
@@ -359,30 +404,23 @@ export default function Dashboard() {
 
   // Update charts when data changes
   useEffect(() => {
-    if (pensionForecastChart) {
-      // Update pension forecast based on retirement age
-      const newData = sampleData.pensionForecast.map(item => ({
-        ...item,
-        amount: item.amount + (retirementAge - 65) * 100,
-        realAmount: item.realAmount + (retirementAge - 65) * 70
-      }));
-      
-      pensionForecastChart.series[0].setData(newData.map(item => item.amount));
-      pensionForecastChart.series[1].setData(newData.map(item => item.realAmount));
+    if (pensionForecastChart && pensionForecastData.length > 0) {
+      pensionForecastChart.series[0].setData(pensionForecastData.map(item => item.amount));
+      pensionForecastChart.series[1].setData(pensionForecastData.map(item => item.realAmount));
     }
-  }, [retirementAge, pensionForecastChart]);
+  }, [pensionForecastData, pensionForecastChart]);
 
   useEffect(() => {
-    if (sickLeaveChart) {
-      const withSickLeave = includeSickLeave ? sampleData.sickLeaveImpact.withSickLeave : sampleData.sickLeaveImpact.withoutSickLeave;
-      const withoutSickLeave = sampleData.sickLeaveImpact.withoutSickLeave;
+    if (sickLeaveChart && sickLeaveImpact) {
+      const withSickLeave = includeSickLeave ? sickLeaveImpact.withSickLeave : sickLeaveImpact.withoutSickLeave;
+      const withoutSickLeave = sickLeaveImpact.withoutSickLeave;
       
       sickLeaveChart.series[0].setData([
         { y: withSickLeave, color: zusColors.red },
         { y: withoutSickLeave, color: zusColors.green }
       ]);
     }
-  }, [includeSickLeave, sickLeaveChart]);
+  }, [includeSickLeave, sickLeaveChart, sickLeaveImpact]);
 
   // Cleanup charts on unmount
   useEffect(() => {
@@ -415,7 +453,7 @@ export default function Dashboard() {
               Prognoza emerytury nominalna
             </h3>
             <div className="text-3xl font-bold" style={{ color: zusColors.blue }}>
-              {sampleData.scenarios.realistic.toLocaleString()} zł
+              {scenariosData.realistic.toLocaleString()} zł
             </div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow text-center">
@@ -423,7 +461,7 @@ export default function Dashboard() {
               Prognoza emerytury realna
             </h3>
             <div className="text-3xl font-bold" style={{ color: zusColors.green }}>
-              {Math.round(sampleData.scenarios.realistic * 0.7).toLocaleString()} zł
+              {Math.round(scenariosData.realistic * 0.7).toLocaleString()} zł
             </div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow text-center">
@@ -431,7 +469,7 @@ export default function Dashboard() {
               Stopa zastąpienia
             </h3>
             <div className="text-3xl font-bold" style={{ color: zusColors.orange }}>
-              {sampleData.replacementRate}%
+              {replacementRate}%
             </div>
           </div>
         </div>
@@ -522,7 +560,7 @@ export default function Dashboard() {
                     onChange={(e) => setSelectedRegion(e.target.value)}
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
                   >
-                    {sampleData.regionalBenchmark.map((region) => (
+                    {regionalBenchmark.map((region) => (
                       <option key={region.region} value={region.region}>
                         {region.region}
                       </option>
@@ -592,13 +630,13 @@ export default function Dashboard() {
               <div className="space-y-4">
                 <div className="text-center">
                   <div className="text-2xl font-bold" style={{ color: zusColors.green }}>
-                    {sampleData.realPensionIndex.breadLoaves}
+                    {realPensionIndex.breadLoaves}
                   </div>
                   <div className="text-sm text-gray-600">bochenków chleba miesięcznie</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold" style={{ color: zusColors.blue }}>
-                    {sampleData.realPensionIndex.cpiBasket}
+                    {realPensionIndex.cpiBasket}
                   </div>
                   <div className="text-sm text-gray-600">koszyków CPI miesięcznie</div>
                 </div>
