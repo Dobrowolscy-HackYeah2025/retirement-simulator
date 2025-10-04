@@ -20,8 +20,16 @@ import { HomePage } from './routes';
 import { NotFoundPage } from './routes/404';
 
 function RequireOnboarding({ children }: { children: React.ReactNode }) {
-  const age = useAtomValue(inputAgeAtom);
+  const onboardingCompleted = useAtomValue(onboardingCompletedAtom);
+  if (!onboardingCompleted) {
+    return <Navigate to="/onboarding" replace />;
+  }
 
+  return children;
+}
+
+function RequireAge({ children }: { children: React.ReactNode }) {
+  const age = useAtomValue(inputAgeAtom);
   if (age == null) {
     return <Navigate to="/onboarding" replace />;
   }
@@ -56,19 +64,15 @@ const AppContent = () => {
 
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route
-          path="/onboarding"
-          element={
-            <NoOnboardingReEntry>
-              <OnboardingPage />
-            </NoOnboardingReEntry>
-          }
-        />
+        <Route path="/onboarding" element={<OnboardingPage />} />
         <Route
           path="/onboarding/2-zarobki"
           element={
             <NoOnboardingReEntry>
-              <Onboarding2SalaryPage />
+              {/* Moze wydawac sie dziwne ale require onboarding wymaga age */}
+              <RequireAge>
+                <Onboarding2SalaryPage />
+              </RequireAge>
             </NoOnboardingReEntry>
           }
         />
