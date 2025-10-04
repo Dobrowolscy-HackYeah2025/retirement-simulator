@@ -16,6 +16,7 @@ import { OnboardingProgressBar } from './components/OnboardingProgressBar';
 import { PageNavigationBar } from './components/PageNavigationBar';
 import { inputAgeAtom, onboardingCompletedAtom } from './lib/atoms';
 import { cn } from './lib/utils';
+import { HomePage } from './routes';
 import { NotFoundPage } from './routes/404';
 
 function RequireOnboarding({ children }: { children: React.ReactNode }) {
@@ -54,16 +55,7 @@ const AppContent = () => {
       {!isOnboarding && isAnyRouteMatch && <PageNavigationBar />}
 
       <Routes>
-        <Route
-          path="/"
-          element={
-            <Link to="/onboarding">
-              <button className="m-4 p-4 bg-primary absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%]">
-                Idź do onboardingu
-              </button>
-            </Link>
-          }
-        />
+        <Route path="/" element={<HomePage />} />
         <Route
           path="/onboarding"
           element={
