@@ -45,6 +45,9 @@ export const currentSalaryGrossAtom = atom<number>(0);
 export const workStartYearAtom = atom<number>(2020);
 export const retirementYearAtom = atom<number>(2065);
 
+// Dashboard settings atoms
+export const includeSickLeaveAtom = atom<boolean>(true);
+
 // Wewnętrzna projekcja gromadząca kapitał i parametry potrzebne do dalszych obliczeń.
 const retirementComputationAtom = atom<RetirementProjection | null>((get) => {
   const inputs = get(retirementInputsAtom);
@@ -234,7 +237,10 @@ export const pensionForecastDataAtom = atom<PensionForecastData[]>((get) => {
 
 // 2. Stopa zastąpienia (już istnieje jako retirementPensionReplacementRatioAtom)
 export const replacementRateAtom = atom((get) => {
-  const ratio = get(retirementPensionReplacementRatioAtom);
+  const includeSickLeave = get(includeSickLeaveAtom);
+  const ratio = includeSickLeave 
+    ? get(retirementPensionReplacementRatioWithSickLeaveAtom)
+    : get(retirementPensionReplacementRatioAtom);
   return ratio ? Math.round(ratio * 100) : 0;
 });
 
@@ -290,10 +296,12 @@ export const contributionHistoryAtom = atom<ContributionHistoryData[]>((get) => 
 export const scenariosDataAtom = atom<ScenariosData>((get) => {
   const inputs = get(retirementInputsAtom);
   const projection = get(retirementComputationAtom);
+  const includeSickLeave = get(includeSickLeaveAtom);
   
   if (!projection) return { pessimistic: 0, realistic: 0, optimistic: 0 };
 
-  const basePension = computeMonthlyPension(projection.capital, projection.lifeExpectancyYears);
+  const baseCapital = includeSickLeave ? projection.capitalWithSickLeave : projection.capital;
+  const basePension = computeMonthlyPension(baseCapital, projection.lifeExpectancyYears);
   
   // Użyj danych z parametry_III_2025_all_sheets.json dla różnych wariantów
   
@@ -326,7 +334,10 @@ export const scenariosDataAtom = atom<ScenariosData>((get) => {
 
 // 6. Benchmark regionalny
 export const regionalBenchmarkAtom = atom<RegionalBenchmarkData[]>((get) => {
-  const userPension = get(retirementMonthlyPensionAtom) || 0;
+  const includeSickLeave = get(includeSickLeaveAtom);
+  const userPension = includeSickLeave 
+    ? get(retirementMonthlyPensionWithSickLeaveAtom) || 0
+    : get(retirementMonthlyPensionAtom) || 0;
   
   // Wybierz 5 największych regionów (na podstawie danych)
   const topRegions = [
@@ -347,10 +358,12 @@ export const regionalBenchmarkAtom = atom<RegionalBenchmarkData[]>((get) => {
 // 7. Indeks Realnej Emerytury (uproszczona implementacja)
 export const realPensionIndexAtom = atom((get) => {
   const projection = get(retirementComputationAtom);
+  const includeSickLeave = get(includeSickLeaveAtom);
   
   if (!projection) return { breadLoaves: 0, cpiBasket: 0 };
 
-  const monthlyPension = computeMonthlyPension(projection.capital, projection.lifeExpectancyYears);
+  const baseCapital = includeSickLeave ? projection.capitalWithSickLeave : projection.capital;
+  const monthlyPension = computeMonthlyPension(baseCapital, projection.lifeExpectancyYears);
   
   // Uproszczone obliczenia na podstawie dostępnych danych
   // Cena chleba: ~3.50 zł (przybliżona cena w 2024)

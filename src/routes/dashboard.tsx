@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Highcharts from 'highcharts';
 import { useAtom } from 'jotai';
+import { Info, Stethoscope } from 'lucide-react';
 import {
   pensionForecastDataAtom,
   replacementRateAtom,
@@ -9,13 +10,17 @@ import {
   scenariosDataAtom,
   regionalBenchmarkAtom,
   realPensionIndexAtom,
-  retirementInputsAtom
+  retirementInputsAtom,
+  includeSickLeaveAtom
 } from '../lib/atoms';
 
-// ZUS Brand Colors as CSS Variables
+// ZUS Brand Colors - głównie zielone (rzeczywiste wartości dla Highcharts)
 const zusColors = {
+  primary: '#00993f', // główny zielony ZUS
+  green: 'rgb(0, 153, 63)', // zielony ZUS
+  greenLight: '#bad4c4', // jasny zielony
+  greenDark: '#084f25', // ciemny zielony
   orange: 'rgb(255, 179, 79)',
-  green: 'rgb(0, 153, 63)',
   gray: 'rgb(190, 195, 206)',
   blue: 'rgb(63, 132, 210)',
   darkBlue: 'rgb(0, 65, 110)',
@@ -28,7 +33,7 @@ const zusColors = {
 export default function Dashboard() {
   const [retirementAge, setRetirementAge] = useState(65);
   const [salary, setSalary] = useState(5000);
-  const [includeSickLeave, setIncludeSickLeave] = useState(true);
+  const [includeSickLeave, setIncludeSickLeave] = useAtom(includeSickLeaveAtom);
   const [selectedRegion, setSelectedRegion] = useState('Mazowieckie');
   const [selectedScenario, setSelectedScenario] = useState('realistic');
 
@@ -154,11 +159,13 @@ export default function Dashboard() {
             name: 'Emerytura nominalna',
             type: 'line',
             data: pensionForecastData.map(item => [item.age, item.amount]),
-            color: zusColors.blue,
+            color: zusColors.primary,
             marker: {
               radius: 6,
-              fillColor: zusColors.blue
-            }
+              fillColor: zusColors.primary,
+              lineColor: zusColors.primary
+            },
+            lineWidth: 3
           },
           {
             name: 'Emerytura realna',
@@ -167,8 +174,10 @@ export default function Dashboard() {
             color: zusColors.green,
             marker: {
               radius: 6,
-              fillColor: zusColors.green
-            }
+              fillColor: zusColors.green,
+              lineColor: zusColors.green
+            },
+            lineWidth: 3
           }
         ],
         legend: {
@@ -200,13 +209,15 @@ export default function Dashboard() {
           name: 'Stopa zastąpienia',
           type: 'pie',
           data: [
-            { name: 'Zastąpienie', y: replacementRate, color: zusColors.green },
-            { name: 'Pozostałe', y: 100 - replacementRate, color: zusColors.gray }
+            { name: 'Zastąpienie', y: replacementRate, color: zusColors.primary },
+            { name: 'Pozostałe', y: 100 - replacementRate, color: zusColors.greenLight }
           ],
           dataLabels: {
             enabled: true,
-            format: '{point.name}: {point.y}%'
-          }
+            format: '{point.name}: {point.y}%',
+            style: { color: zusColors.darkBlue, fontWeight: 'bold' }
+          },
+          borderWidth: 0
         }]
       });
       setReplacementRateChart(chart);
@@ -239,14 +250,16 @@ export default function Dashboard() {
           name: 'Wysokość emerytury',
           type: 'column',
           data: [
-            { y: sickLeaveImpact.withSickLeave, color: zusColors.red },
-            { y: sickLeaveImpact.withoutSickLeave, color: zusColors.green }
+            { y: sickLeaveImpact.withSickLeave, color: zusColors.greenDark },
+            { y: sickLeaveImpact.withoutSickLeave, color: zusColors.primary }
           ],
           dataLabels: {
             enabled: true,
             format: '{y} zł',
             style: { color: zusColors.darkBlue, fontWeight: 'bold' }
-          }
+          },
+          borderWidth: 0,
+          borderRadius: 4
         }],
         legend: {
           enabled: false
@@ -289,19 +302,23 @@ export default function Dashboard() {
             name: 'Składki roczne',
             type: 'column',
             data: contributionHistory.map(item => item.contributions),
-            color: zusColors.blue,
-            yAxis: 0
+            color: zusColors.greenLight,
+            yAxis: 0,
+            borderWidth: 0,
+            borderRadius: 4
           },
           {
             name: 'Kapitał narastający',
             type: 'line',
             data: contributionHistory.map(item => item.capital),
-            color: zusColors.green,
+            color: zusColors.primary,
             yAxis: 1,
             marker: {
               radius: 4,
-              fillColor: zusColors.green
-            }
+              fillColor: zusColors.primary,
+              lineColor: zusColors.primary
+            },
+            lineWidth: 3
           }
         ],
         legend: {
@@ -339,15 +356,17 @@ export default function Dashboard() {
           name: 'Prognozowana emerytura',
           type: 'column',
           data: [
-            { y: scenariosData.pessimistic, color: zusColors.red },
-            { y: scenariosData.realistic, color: zusColors.orange },
+            { y: scenariosData.pessimistic, color: zusColors.greenDark },
+            { y: scenariosData.realistic, color: zusColors.primary },
             { y: scenariosData.optimistic, color: zusColors.green }
           ],
           dataLabels: {
             enabled: true,
             format: '{y} zł',
             style: { color: zusColors.darkBlue, fontWeight: 'bold' }
-          }
+          },
+          borderWidth: 0,
+          borderRadius: 4
         }],
         legend: {
           enabled: false
@@ -384,13 +403,17 @@ export default function Dashboard() {
             name: 'Średnia w regionie',
             type: 'column',
             data: regionalBenchmark.map(item => item.average),
-            color: zusColors.gray
+            color: zusColors.greenLight,
+            borderWidth: 0,
+            borderRadius: 4
           },
           {
             name: 'Twoja prognoza',
             type: 'column',
             data: regionalBenchmark.map(item => item.user),
-            color: zusColors.blue
+            color: zusColors.primary,
+            borderWidth: 0,
+            borderRadius: 4
           }
         ],
         legend: {
@@ -434,7 +457,7 @@ export default function Dashboard() {
   }, [pensionForecastChart, replacementRateChart, sickLeaveChart, contributionHistoryChart, scenariosChart, regionalBenchmarkChart]);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6" style={{ '--zus-orange': zusColors.orange, '--zus-green': zusColors.green, '--zus-gray': zusColors.gray, '--zus-blue': zusColors.blue, '--zus-dark-blue': zusColors.darkBlue, '--zus-red': zusColors.red } as React.CSSProperties}>
+    <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -452,7 +475,7 @@ export default function Dashboard() {
             <h3 className="text-lg font-semibold mb-2" style={{ color: zusColors.darkBlue }}>
               Prognoza emerytury nominalna
             </h3>
-            <div className="text-3xl font-bold" style={{ color: zusColors.blue }}>
+            <div className="text-3xl font-bold" style={{ color: zusColors.primary }}>
               {scenariosData.realistic.toLocaleString()} zł
             </div>
           </div>
@@ -468,7 +491,7 @@ export default function Dashboard() {
             <h3 className="text-lg font-semibold mb-2" style={{ color: zusColors.darkBlue }}>
               Stopa zastąpienia
             </h3>
-            <div className="text-3xl font-bold" style={{ color: zusColors.orange }}>
+            <div className="text-3xl font-bold" style={{ color: zusColors.greenDark }}>
               {replacementRate}%
             </div>
           </div>
@@ -545,8 +568,32 @@ export default function Dashboard() {
                     onChange={(e) => setIncludeSickLeave(e.target.checked)}
                     className="rounded"
                   />
-                  <label htmlFor="sick-leave" className="text-sm font-medium text-gray-700">
+                  <label htmlFor="sick-leave" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <Stethoscope className="w-4 h-4 text-[var(--zus-green)]" />
                     Uwzględnij absencję chorobową
+                    <div className="group relative">
+                      <Info className="w-4 h-4 text-gray-400 hover:text-[var(--zus-green)] cursor-help" />
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-6 py-4 bg-[var(--background)] border-2 border-[var(--zus-green)] text-[var(--foreground)] text-sm rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-80 shadow-lg">
+                        <div className="text-left">
+                          <div className="font-bold mb-3 text-center text-[var(--zus-green)] text-base">Wpływ L4 na emeryturę</div>
+                          <div className="space-y-2">
+                            <div className="font-semibold text-[var(--foreground)]">Jak to działa:</div>
+                            <div className="pl-2">• Podczas L4 dostajesz 80% wynagrodzenia</div>
+                            <div className="pl-2">• Składki emerytalne naliczane są tylko od 80%</div>
+                            <div className="pl-2">• To oznacza niższy kapitał emerytalny</div>
+                            <div className="border-t border-[var(--border)] pt-3 mt-3">
+                              <div className="font-semibold text-[var(--foreground)]">Średnio w roku:</div>
+                              <div className="pl-2">• Kobiety: 24.2 dni L4</div>
+                              <div className="pl-2">• Mężczyźni: 14.5 dni L4</div>
+                            </div>
+                            <div className="bg-[var(--zus-green)] text-[var(--background)] font-bold p-2 rounded-lg mt-3 text-center">
+                              Rezultat: ~1-2% niższa emerytura
+                            </div>
+                          </div>
+                        </div>
+                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-8 border-transparent border-t-[var(--zus-green)]"></div>
+                      </div>
+                    </div>
                   </label>
                 </div>
 
@@ -578,29 +625,29 @@ export default function Dashboard() {
               <div className="space-y-2">
                 <button
                   onClick={() => setSelectedScenario('pessimistic')}
-                  className="w-full text-left px-4 py-2 rounded-md border"
+                  className="w-full text-left px-4 py-2 rounded-md border transition-colors"
                   style={{ 
-                    backgroundColor: selectedScenario === 'pessimistic' ? zusColors.red : 'transparent',
+                    backgroundColor: selectedScenario === 'pessimistic' ? zusColors.greenDark : 'transparent',
                     color: selectedScenario === 'pessimistic' ? 'white' : zusColors.darkBlue,
-                    borderColor: zusColors.red
+                    borderColor: zusColors.greenDark
                   }}
                 >
                   Pesymistyczny
                 </button>
                 <button
                   onClick={() => setSelectedScenario('realistic')}
-                  className="w-full text-left px-4 py-2 rounded-md border"
+                  className="w-full text-left px-4 py-2 rounded-md border transition-colors"
                   style={{ 
-                    backgroundColor: selectedScenario === 'realistic' ? zusColors.orange : 'transparent',
+                    backgroundColor: selectedScenario === 'realistic' ? zusColors.primary : 'transparent',
                     color: selectedScenario === 'realistic' ? 'white' : zusColors.darkBlue,
-                    borderColor: zusColors.orange
+                    borderColor: zusColors.primary
                   }}
                 >
                   Realistyczny
                 </button>
                 <button
                   onClick={() => setSelectedScenario('optimistic')}
-                  className="w-full text-left px-4 py-2 rounded-md border"
+                  className="w-full text-left px-4 py-2 rounded-md border transition-colors"
                   style={{ 
                     backgroundColor: selectedScenario === 'optimistic' ? zusColors.green : 'transparent',
                     color: selectedScenario === 'optimistic' ? 'white' : zusColors.darkBlue,
@@ -635,7 +682,7 @@ export default function Dashboard() {
                   <div className="text-sm text-gray-600">bochenków chleba miesięcznie</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold" style={{ color: zusColors.blue }}>
+                  <div className="text-2xl font-bold" style={{ color: zusColors.primary }}>
                     {realPensionIndex.cpiBasket}
                   </div>
                   <div className="text-sm text-gray-600">koszyków CPI miesięcznie</div>

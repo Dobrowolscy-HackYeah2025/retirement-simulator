@@ -39,10 +39,10 @@ const getContributionRateFromData = (year: number): number => {
   return 0.1952; // Domyślnie 19.52% (9.76% + 9.76%)
 };
 
-// Średnia liczba dni absencji chorobowej na osobę (ZUS „Absencja chorobowa w 2022 r.”).
+// Średnia liczba dni absencji chorobowej na osobę (ZUS 2024/2025 - zaktualizowane dane).
 const SICK_LEAVE_DAYS_BY_GENDER: Record<Gender, number> = {
-  female: 23.1,
-  male: 13.8,
+  female: 24.2, // Kobiety: wzrost z 23.1 (2022) do 24.2 (2024/2025)
+  male: 14.5,   // Mężczyźni: wzrost z 13.8 (2022) do 14.5 (2024/2025)
 };
 
 const WORKING_DAYS_PER_YEAR = 252;
