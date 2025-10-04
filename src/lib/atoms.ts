@@ -40,21 +40,6 @@ export const currentSalaryGrossAtom = atom<number>(0);
 export const workStartYearAtom = atom<number>(2020);
 export const retirementYearAtom = atom<number>(2065);
 
-// Example: Jotai + TanStack Query integration
-// This creates an atom that automatically manages query state
-export const retirementDataAtom = atomWithQuery(() => ({
-  queryKey: ['retirement-data'],
-  queryFn: async () => {
-    // Simulate API call for retirement data
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    return {
-      currentSavings: 50000,
-      monthlyContribution: 1000,
-      expectedReturn: 0.07,
-      projectedValue: 1200000,
-    };
-  },
-}));
 // Wewnętrzna projekcja gromadząca kapitał i parametry potrzebne do dalszych obliczeń.
 const retirementComputationAtom = atom<RetirementProjection | null>((get) => {
   const inputs = get(retirementInputsAtom);
