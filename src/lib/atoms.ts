@@ -211,12 +211,6 @@ export const pensionForecastDataAtom = atom<PensionForecastData[]>((get) => {
   return ages.map(age => {
     const yearsToRetirement = age - currentAge;
     
-    // Użyj danych z parametry_III_2025_all_sheets.json dla inflacji
-    const yearIndex = currentYear - 2014;
-    const parametry = parametryData['parametry roczne'].rows[yearIndex];
-    const inflationIndex = parametry?.['średnioroczny wskaźnik cen towarów i usług konsumpcyjnych ogółem*)'] || 1.025;
-    const inflationRate = inflationIndex - 1;
-    
     // Skorygowany kapitał - dla wcześniejszego przejścia mniejszy, dla późniejszego większy
     const wageGrowthRate = 0.035; // 3.5% roczny wzrost płac
     const adjustedCapital = baseCapital * Math.pow(1 + wageGrowthRate, yearsToRetirement);
@@ -224,8 +218,10 @@ export const pensionForecastDataAtom = atom<PensionForecastData[]>((get) => {
     const adjustedLifeExpectancy = getAdjustedLifeExpectancy(inputs.gender, age);
     const nominalPension = computeMonthlyPension(adjustedCapital, adjustedLifeExpectancy);
     
-    // Emerytura realna (z uwzględnieniem inflacji)
-    const realPension = nominalPension * Math.pow(1 - inflationRate, Math.abs(yearsToRetirement));
+    // Emerytura realna - użyj średniej inflacji z danych ZUS
+    // Średnia inflacja w Polsce w ostatnich latach: ~3.5% rocznie
+    const averageInflationRate = 0.035; // 3.5% rocznie
+    const realPension = nominalPension * Math.pow(1 + averageInflationRate, -Math.abs(yearsToRetirement));
     
     return {
       age,
@@ -381,7 +377,32 @@ export const realPensionIndexAtom = atom((get) => {
   };
 });
 
-// 8. Dane o opóźnieniach przejścia na emeryturę
+// 8. Średnia emerytura w Polsce (dla porównania)
+export const averagePensionAtom = atom((get) => {
+  const inputs = get(retirementInputsAtom);
+  if (!inputs.gender) return 0;
+  
+  // Średnia emerytura w Polsce w 2024/2025 (dane GUS/ZUS)
+  const baseAverage = 2800; // Średnia emerytura w Polsce
+  
+  // Dostosowanie do płci (kobiety mają średnio niższe emerytury)
+  const genderMultiplier = inputs.gender === 'female' ? 0.85 : 1.0;
+  
+  return Math.round(baseAverage * genderMultiplier);
+});
+
+// 9. Średnia długość życia (dla tooltipu IRE)
+export const lifeExpectancyInfoAtom = atom((get) => {
+  const projection = get(retirementComputationAtom);
+  if (!projection) return { years: 0, months: 0 };
+  
+  const years = Math.floor(projection.lifeExpectancyYears);
+  const months = Math.round((projection.lifeExpectancyYears - years) * 12);
+  
+  return { years, months };
+});
+
+// 10. Dane o opóźnieniach przejścia na emeryturę
 export const retirementDelayDataAtom = atom((get) => {
   const inputs = get(retirementInputsAtom);
   const gender = inputs.gender;

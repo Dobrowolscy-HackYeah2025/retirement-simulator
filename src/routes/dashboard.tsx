@@ -11,7 +11,9 @@ import {
   regionalBenchmarkAtom,
   realPensionIndexAtom,
   retirementInputsAtom,
-  includeSickLeaveAtom
+  includeSickLeaveAtom,
+  averagePensionAtom,
+  lifeExpectancyInfoAtom
 } from '../lib/atoms';
 
 // ZUS Brand Colors - głównie zielone (rzeczywiste wartości dla Highcharts)
@@ -58,6 +60,8 @@ export default function Dashboard() {
   const [scenariosData] = useAtom(scenariosDataAtom);
   const [regionalBenchmark] = useAtom(regionalBenchmarkAtom);
   const [realPensionIndex] = useAtom(realPensionIndexAtom);
+  const [averagePension] = useAtom(averagePensionAtom);
+  const [lifeExpectancyInfo] = useAtom(lifeExpectancyInfoAtom);
 
   // Chart refs
   const pensionForecastRef = useRef<HTMLDivElement>(null);
@@ -132,12 +136,7 @@ export default function Dashboard() {
           }
         },
         title: {
-          text: 'Prognoza emerytury vs wiek przejścia',
-          style: {
-            color: zusColors.darkBlue,
-            fontSize: '16px',
-            fontWeight: 'bold'
-          }
+          text: ''
         },
         xAxis: {
           type: 'linear',
@@ -275,12 +274,7 @@ export default function Dashboard() {
           backgroundColor: 'transparent'
         },
         title: {
-          text: 'Historia składek + kapitał początkowy',
-          style: {
-            color: zusColors.darkBlue,
-            fontSize: '16px',
-            fontWeight: 'bold'
-          }
+          text: ''
         },
         xAxis: {
           categories: contributionHistory.map(item => item.year.toString())
@@ -336,12 +330,7 @@ export default function Dashboard() {
           backgroundColor: 'transparent'
         },
         title: {
-          text: 'Scenariusze "co-jeśli"',
-          style: {
-            color: zusColors.darkBlue,
-            fontSize: '16px',
-            fontWeight: 'bold'
-          }
+          text: ''
         },
         xAxis: {
           categories: ['Pesymistyczny', 'Realistyczny', 'Optymistyczny']
@@ -382,12 +371,7 @@ export default function Dashboard() {
           backgroundColor: 'transparent'
         },
         title: {
-          text: 'Benchmark regionalny',
-          style: {
-            color: zusColors.darkBlue,
-            fontSize: '16px',
-            fontWeight: 'bold'
-          }
+          text: ''
         },
         xAxis: {
           categories: regionalBenchmark.map(item => item.region)
@@ -478,6 +462,12 @@ export default function Dashboard() {
             <div className="text-3xl font-bold" style={{ color: zusColors.primary }}>
               {scenariosData.realistic.toLocaleString()} zł
             </div>
+            <div className="mt-2 text-sm text-gray-600">
+              vs średnia: {averagePension.toLocaleString()} zł
+              <span className={`ml-2 font-semibold ${scenariosData.realistic > averagePension ? 'text-green-600' : 'text-red-600'}`}>
+                ({scenariosData.realistic > averagePension ? '+' : ''}{Math.round(((scenariosData.realistic - averagePension) / averagePension) * 100)}%)
+              </span>
+            </div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow text-center">
             <h3 className="text-lg font-semibold mb-2" style={{ color: zusColors.darkBlue }}>
@@ -503,21 +493,155 @@ export default function Dashboard() {
           <div className="lg:col-span-2 space-y-6">
             {/* Pension Forecast Chart */}
             <div className="bg-white p-6 rounded-lg shadow">
+              <div className="flex items-center gap-2 mb-4">
+                <h3 className="text-lg font-semibold" style={{ color: zusColors.darkBlue }}>
+                  Prognoza emerytury vs wiek przejścia
+                </h3>
+                <div className="group relative">
+                  <Info className="w-4 h-4 text-gray-400 hover:text-[var(--zus-green)] cursor-help" />
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-96">
+                    <div className="text-left">
+                      <div className="font-semibold mb-2">Emerytura nominalna vs realna</div>
+                      <div className="space-y-1">
+                        <div>
+                          <div className="font-medium text-green-400">Nominalna:</div>
+                          <div>Kwota w złotych na koncie</div>
+                        </div>
+                        <div>
+                          <div className="font-medium text-blue-400">Realna:</div>
+                          <div>Siła nabywcza po inflacji</div>
+                        </div>
+                        <div className="border-t border-gray-600 pt-2 mt-2">
+                          <div className="text-gray-300 text-xs">
+                            <div className="font-medium mb-1">Przykład:</div>
+                            <div>5000 zł nominalnie = ~4200 zł realnie</div>
+                            <div>Za 5 lat za te same pieniądze kupisz mniej</div>
+                            <div className="mt-1 text-yellow-300">Średnia inflacja: 3.5% rocznie</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                  </div>
+                </div>
+              </div>
               <div ref={pensionForecastRef} style={{ height: '400px' }}></div>
             </div>
 
             {/* Scenarios Chart */}
             <div className="bg-white p-6 rounded-lg shadow">
+              <div className="flex items-center gap-2 mb-4">
+                <h3 className="text-lg font-semibold" style={{ color: zusColors.darkBlue }}>
+                  Scenariusze "co-jeśli"
+                </h3>
+                <div className="group relative">
+                  <Info className="w-4 h-4 text-gray-400 hover:text-[var(--zus-green)] cursor-help" />
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-80">
+                    <div className="text-left">
+                      <div className="font-semibold mb-2">Scenariusze emerytalne</div>
+                      <div className="space-y-1">
+                        <div>
+                          <div className="font-medium text-red-400">Pesymistyczny:</div>
+                          <div>Niższe płace, wyższa inflacja</div>
+                        </div>
+                        <div>
+                          <div className="font-medium text-green-400">Realistyczny:</div>
+                          <div>Obecne trendy ekonomiczne</div>
+                        </div>
+                        <div>
+                          <div className="font-medium text-blue-400">Optymistyczny:</div>
+                          <div>Wzrost płac, niższa inflacja</div>
+                        </div>
+                        <div className="border-t border-gray-600 pt-2 mt-2">
+                          <div className="text-gray-300 text-xs">
+                            <div className="font-medium mb-1">Przykład różnic:</div>
+                            <div>Realistyczny: 4000 zł</div>
+                            <div>Pesymistyczny: 3200 zł (-20%)</div>
+                            <div>Optymistyczny: 4800 zł (+20%)</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                  </div>
+                </div>
+              </div>
               <div ref={scenariosRef} style={{ height: '400px' }}></div>
             </div>
 
             {/* Contribution History Chart */}
             <div className="bg-white p-6 rounded-lg shadow">
+              <div className="flex items-center gap-2 mb-4">
+                <h3 className="text-lg font-semibold" style={{ color: zusColors.darkBlue }}>
+                  Historia składek emerytalnych
+                </h3>
+                <div className="group relative">
+                  <Info className="w-4 h-4 text-gray-400 hover:text-[var(--zus-green)] cursor-help" />
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-88">
+                    <div className="text-left">
+                      <div className="font-semibold mb-2">Historia składek emerytalnych</div>
+                      <div className="space-y-1">
+                        <div>
+                          <div className="font-medium text-green-400">Składki roczne:</div>
+                          <div>Ile wpłacasz do ZUS każdego roku</div>
+                        </div>
+                        <div>
+                          <div className="font-medium text-blue-400">Kapitał skumulowany:</div>
+                          <div>Łączna kwota na koncie emerytalnym</div>
+                        </div>
+                        <div className="border-t border-gray-600 pt-2 mt-2">
+                          <div className="text-gray-300 text-xs">
+                            <div className="font-medium mb-1">Przykład:</div>
+                            <div>Rok 1: 5000 zł składki</div>
+                            <div>Rok 5: 6000 zł składki (+20%)</div>
+                            <div>Kapitał: 55,000 zł łącznie</div>
+                            <div className="mt-1 text-yellow-300">Składki rosną z podwyżkami</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                  </div>
+                </div>
+              </div>
               <div ref={contributionHistoryRef} style={{ height: '400px' }}></div>
             </div>
 
             {/* Regional Benchmark Chart */}
             <div className="bg-white p-6 rounded-lg shadow">
+              <div className="flex items-center gap-2 mb-4">
+                <h3 className="text-lg font-semibold" style={{ color: zusColors.darkBlue }}>
+                  Porównanie z innymi regionami
+                </h3>
+                <div className="group relative">
+                  <Info className="w-4 h-4 text-gray-400 hover:text-[var(--zus-green)] cursor-help" />
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-88">
+                    <div className="text-left">
+                      <div className="font-semibold mb-2">Benchmark regionalny</div>
+                      <div className="space-y-1">
+                        <div>
+                          <div className="font-medium text-green-400">Twoja emerytura:</div>
+                          <div>Na podstawie Twoich składek</div>
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-400">Średnia regionalna:</div>
+                          <div>Średnia emerytura w województwie</div>
+                        </div>
+                        <div className="border-t border-gray-600 pt-2 mt-2">
+                          <div className="text-gray-300 text-xs">
+                            <div className="font-medium mb-1">Przykład różnic:</div>
+                            <div>Twoja: 4500 zł</div>
+                            <div>Mazowieckie: 3500 zł</div>
+                            <div>Podlaskie: 2800 zł</div>
+                            <div className="mt-1 text-yellow-300">Większe miasta = wyższe płace</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                  </div>
+                </div>
+              </div>
               <div ref={regionalBenchmarkRef} style={{ height: '400px' }}></div>
             </div>
           </div>
@@ -671,8 +795,23 @@ export default function Dashboard() {
 
             {/* Real Pension Index */}
             <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-lg font-semibold mb-4" style={{ color: zusColors.darkBlue }}>
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2" style={{ color: zusColors.darkBlue }}>
                 Indeks Realnej Emerytury (IRE)
+                <div className="group relative">
+                  <Info className="w-4 h-4 text-gray-400 hover:text-[var(--zus-green)] cursor-help" />
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-4 py-2 bg-[var(--background)] border-2 border-[var(--zus-green)] text-[var(--foreground)] text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 w-64 shadow-lg">
+                    <div className="text-center">
+                      <div className="font-bold text-[var(--zus-green)] mb-1">Średnia długość życia</div>
+                      <div className="text-sm">
+                        Oczekiwane lata poboru emerytury:<br/>
+                        <span className="font-semibold text-[var(--zus-green)]">
+                          {lifeExpectancyInfo.years} lat {lifeExpectancyInfo.months} miesięcy
+                        </span>
+                      </div>
+                    </div>
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-[var(--zus-green)]"></div>
+                  </div>
+                </div>
               </h3>
               <div className="space-y-4">
                 <div className="text-center">
