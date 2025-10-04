@@ -1,20 +1,23 @@
-import { useCallback } from 'react';
-import { pdf } from '@react-pdf/renderer';
-import { useAtomValue } from 'jotai';
-
 import {
+  inputAgeAtom,
+  inputGenderAtom,
+  inputGrossMonthlySalaryAtom,
+  inputPlannedRetirementYearAtom,
+  inputWorkStartYearAtom,
+  inputZusAccountBalanceAtom,
   retirementAccumulatedCapitalAtom,
   retirementMonthlyPensionAtom,
   retirementMonthlyPensionWithSickLeaveAtom,
   retirementPensionReplacementRatioAtom,
   retirementPensionReplacementRatioWithSickLeaveAtom,
-  inputAgeAtom,
-  inputGenderAtom,
-  inputGrossMonthlySalaryAtom,
-  inputWorkStartYearAtom,
-  inputPlannedRetirementYearAtom,
-  inputZusAccountBalanceAtom,
 } from '@/lib/atoms';
+
+import { useCallback } from 'react';
+
+import { pdf } from '@react-pdf/renderer';
+import { useAtomValue } from 'jotai';
+
+import { RetirementReportDocument } from './RetirementReportDocument';
 
 function normalizeStrings<T>(value: T): T {
   if (typeof value === 'string') {
@@ -26,9 +29,9 @@ function normalizeStrings<T>(value: T): T {
   }
 
   if (value && typeof value === 'object') {
-    const normalizedEntries = Object.entries(value as Record<string, unknown>).map(
-      ([key, entryValue]) => [key, normalizeStrings(entryValue)] as const,
-    );
+    const normalizedEntries = Object.entries(
+      value as Record<string, unknown>
+    ).map(([key, entryValue]) => [key, normalizeStrings(entryValue)] as const);
 
     return Object.fromEntries(normalizedEntries) as T;
   }
@@ -36,9 +39,11 @@ function normalizeStrings<T>(value: T): T {
   return value;
 }
 
-import { RetirementReportDocument } from './RetirementReportDocument';
+type RetirementReportHandle = {
+  open: () => void;
+};
 
-export function useRetirementReport() {
+export function useRetirementReport(): () => Promise<RetirementReportHandle> {
   const age = useAtomValue(inputAgeAtom);
   const gender = useAtomValue(inputGenderAtom);
   const grossMonthlySalary = useAtomValue(inputGrossMonthlySalaryAtom);
@@ -55,7 +60,7 @@ export function useRetirementReport() {
     retirementPensionReplacementRatioWithSickLeaveAtom
   );
 
-  return useCallback(async () => {
+  return useCallback(async (): Promise<RetirementReportHandle> => {
     const generatedAt = new Date().toLocaleString('pl-PL');
 
     const currencyFormatter = new Intl.NumberFormat('pl-PL', {
@@ -84,7 +89,7 @@ export function useRetirementReport() {
 
     const formatPercentPoints = (
       value: number | null | undefined,
-      fractionDigits = 1,
+      fractionDigits = 1
     ) => {
       if (value == null) {
         return '—';
@@ -141,7 +146,7 @@ export function useRetirementReport() {
         id: 'derived-sick-leave-impact',
         label: 'Spadek świadczenia spowodowany L4',
         formattedValue: `${formatCurrencyDelta(sickLeaveDeltaCurrency)} / ${formatPercentPoints(
-          replacementDeltaPoints,
+          replacementDeltaPoints
         )}`,
         description:
           'Różnica pomiędzy wariantem bez absencji i wariantem z typową absencją chorobową (wartość i punkty procentowe).',
@@ -157,8 +162,7 @@ export function useRetirementReport() {
         id: 'derived-replacement-sick',
         label: 'Wskaźnik zastąpienia (z L4)',
         formattedValue: formatPercent(replacementRatioWithSickLeave),
-        description:
-          'Ten sam wskaźnik przy założeniu absencji chorobowej.',
+        description: 'Ten sam wskaźnik przy założeniu absencji chorobowej.',
       },
     ];
 
@@ -169,7 +173,7 @@ export function useRetirementReport() {
 
     if (derivedItems.some((item) => item.formattedValue.includes('—'))) {
       notes.push(
-        'Jeżeli widzisz brakujące wartości, uzupełnij proszę dane wejściowe i wygeneruj raport ponownie.',
+        'Jeżeli widzisz brakujące wartości, uzupełnij proszę dane wejściowe i wygeneruj raport ponownie.'
       );
     }
 
@@ -222,16 +226,68 @@ export function useRetirementReport() {
     );
 
     const blob = await pdf(report).toBlob();
-    const url = URL.createObjectURL(blob);
+    const pdfBlob =
+      blob.type === 'application/pdf'
+        ? blob
+        : new Blob([blob], { type: 'application/pdf' });
+    const url = URL.createObjectURL(pdfBlob);
 
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = 'retirement-report.pdf';
-    document.body.appendChild(anchor);
-    anchor.click();
-    document.body.removeChild(anchor);
+    let hasOpened = false;
 
-    URL.revokeObjectURL(url);
+    const openReport = () => {
+      if (hasOpened) {
+        return;
+      }
+      hasOpened = true;
+
+      if (typeof window === 'undefined') {
+        URL.revokeObjectURL(url);
+        return;
+      }
+
+      const scheduleRevocation = () => {
+        window.setTimeout(() => {
+          URL.revokeObjectURL(url);
+        }, 60_000);
+      };
+
+      let viewerWindow: Window | null = null;
+
+      try {
+        viewerWindow = window.open('', '_blank', 'noopener,noreferrer');
+      } catch (error) {
+        console.error('Failed to open preview window', error);
+      }
+
+      if (viewerWindow && !viewerWindow.closed) {
+        try {
+          viewerWindow.document.open();
+          viewerWindow.document.write(`<!DOCTYPE html><html lang="pl"><head><title>Raport emerytalny ZUS</title><meta charset="utf-8" /></head><body style="margin:0;background:#0b2312;color:#ffffff;font-family:Inter,system-ui,-apple-system,sans-serif;">
+            <embed src="${url}" type="application/pdf" style="border:none;width:100%;height:100vh;" title="Raport emerytalny ZUS" />
+          </body></html>`);
+          viewerWindow.document.close();
+        } catch (error) {
+          console.error('Failed to render PDF in new tab', error);
+          viewerWindow.location.href = url;
+        }
+
+        viewerWindow.focus();
+        scheduleRevocation();
+        return;
+      }
+
+      const fallbackWindow = window.open(url, '_blank');
+      if (fallbackWindow) {
+        fallbackWindow.focus();
+        scheduleRevocation();
+        return;
+      }
+
+      window.location.href = url;
+      scheduleRevocation();
+    };
+
+    return { open: openReport };
   }, [
     age,
     gender,
