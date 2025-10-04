@@ -4,6 +4,7 @@ import { AboutPage } from '@/routes/about';
 import { HomePage } from '@/routes/index';
 import { OnboardingPage } from '@/routes/onboarding';
 import { Onboarding2SalaryPage } from '@/routes/onboarding-2-salary';
+import Dashboard from '@/routes/dashboard';
 
 import { useCallback } from 'react';
 
@@ -31,6 +32,9 @@ const AppContent = () => {
             <Button variant="ghost">Onboarding</Button>
           </Link>
           <Button onClick={handleGenerateReport}>Generate raport</Button>
+          <Link to="/dashboard">
+            <Button variant="ghost">Dashboard</Button>
+          </Link>
         </nav>
       )}
 
@@ -38,6 +42,7 @@ const AppContent = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/onboarding" element={<OnboardingPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route
           path="/onboarding/2-zarobki"
           element={<Onboarding2SalaryPage />}
