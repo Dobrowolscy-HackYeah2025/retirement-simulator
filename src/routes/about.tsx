@@ -22,7 +22,7 @@ function About() {
           <div className="space-y-4">
             <p>
               The Retirement Simulator is a comprehensive tool designed to help
-              you plan and visualize your financial future.
+              you plan and visualize your fincial future.
             </p>
             <p>Features include:</p>
             <ul className="list-disc list-inside space-y-1 ml-4">
