@@ -1,10 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { useRetirementReport } from '@/lib/report';
 import { AboutPage } from '@/routes/about';
+import Dashboard from '@/routes/dashboard';
 import { HomePage } from '@/routes/index';
 import { OnboardingPage } from '@/routes/onboarding';
 import { Onboarding2SalaryPage } from '@/routes/onboarding-2-salary';
-import Dashboard from '@/routes/dashboard';
 
 import { useCallback } from 'react';
 

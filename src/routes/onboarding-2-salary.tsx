@@ -3,8 +3,10 @@ import { Input } from '@/components/ui/input';
 import { ZUSReportGenerator } from '@/components/ZUSReportGenerator';
 import { retirementInputsAtom, showReportGeneratorAtom } from '@/lib/atoms';
 
+import { useEffect, useState } from 'react';
+
 import { useAtom } from 'jotai';
-import { CheckIcon, InfoIcon } from 'lucide-react';
+import { InfoIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from '../components/ui/button';
@@ -29,16 +31,49 @@ export function Onboarding2SalaryPage() {
   );
   const navigate = useNavigate();
 
-  const currentSalaryGross = retirementInputs.grossMonthlySalary;
-  const workStartYear = retirementInputs.workStartYear;
-  const retirementYear = retirementInputs.plannedRetirementYear;
+  // Use local state for inputs to avoid triggering expensive atom computations on every keystroke
+  const [localSalary, setLocalSalary] = useState(
+    retirementInputs.grossMonthlySalary?.toString() || ''
+  );
+  const [localZusBalance, setLocalZusBalance] = useState(
+    retirementInputs.zusAccountBalance?.toString() || ''
+  );
+
+  const currentSalaryGross = retirementInputs.grossMonthlySalary || 0;
+  const workStartYear = retirementInputs.workStartYear || 2020;
+  const retirementYear = retirementInputs.plannedRetirementYear || 2065;
   const zusAccountBalance = retirementInputs.zusAccountBalance || 0;
 
-  const setCurrentSalaryGross = (value: number) => {
-    setRetirementInputs((prev) => ({
-      ...prev,
-      grossMonthlySalary: value,
-    }));
+  // Debounce salary input
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const value = Number(localSalary) || null;
+      if (value !== retirementInputs.grossMonthlySalary) {
+        setRetirementInputs((prev) => ({
+          ...prev,
+          grossMonthlySalary: value,
+        }));
+      }
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [localSalary]);
+
+  // Debounce ZUS balance input
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const value = Number(localZusBalance) || null;
+      if (value !== retirementInputs.zusAccountBalance) {
+        setRetirementInputs((prev) => ({
+          ...prev,
+          zusAccountBalance: value,
+        }));
+      }
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [localZusBalance]);
+
+  const setCurrentSalaryGross = (value: string) => {
+    setLocalSalary(value);
   };
 
   const setWorkStartYear = (year: number) => {
@@ -55,13 +90,6 @@ export function Onboarding2SalaryPage() {
     }));
   };
 
-  const setZusAccountBalance = (value: number) => {
-    setRetirementInputs((prev) => ({
-      ...prev,
-      zusAccountBalance: value,
-    }));
-  };
-
   // Generate years from 1950 to 2025
   const workStartYears = Array.from({ length: 76 }, (_, i) => 1950 + i);
 
@@ -70,12 +98,6 @@ export function Onboarding2SalaryPage() {
     { length: 2100 - workStartYear },
     (_, i) => workStartYear + 1 + i
   );
-
-  const isFormValid =
-    currentSalaryGross > 0 &&
-    workStartYear >= 1950 &&
-    workStartYear <= 2025 &&
-    retirementYear > workStartYear;
 
   const handleGenerateReport = () => {
     setShowReportGenerator(true);
@@ -124,18 +146,13 @@ export function Onboarding2SalaryPage() {
         <div className="relative">
           <div className="flex items-center gap-2 mb-2">
             <Label>Obecne zarobki brutto (miesięcznie)</Label>
-            {currentSalaryGross > 0 && (
-              <CheckIcon className="size-4 text-primary ml-auto" />
-            )}
           </div>
           <div className="relative">
             <Input
               type="number"
               placeholder="0"
-              value={currentSalaryGross || ''}
-              onChange={(e) =>
-                setCurrentSalaryGross(Number(e.target.value) || 0)
-              }
+              value={localSalary}
+              onChange={(e) => setCurrentSalaryGross(e.target.value)}
               className="w-full pr-8"
             />
             <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground">
@@ -148,12 +165,9 @@ export function Onboarding2SalaryPage() {
         <div className="relative">
           <div className="flex items-center gap-2 mb-2">
             <Label>Rok rozpoczęcia pracy</Label>
-            {workStartYear >= 1950 && workStartYear <= 2025 && (
-              <CheckIcon className="size-4 text-primary ml-auto" />
-            )}
           </div>
           <Select
-            value={workStartYear || 'choose'}
+            value={workStartYear?.toString() || 'choose'}
             onValueChange={(value) => setWorkStartYear(Number(value))}
           >
             <SelectTrigger className="w-full">
@@ -173,12 +187,9 @@ export function Onboarding2SalaryPage() {
         <div className="relative">
           <div className="flex items-center gap-2 mb-2">
             <Label>Planowany rok zakończenia aktywności zawodowej</Label>
-            {retirementYear > workStartYear && (
-              <CheckIcon className="size-4 text-primary ml-auto" />
-            )}
           </div>
           <Select
-            value={retirementYear || 'choose'}
+            value={retirementYear?.toString() || 'choose'}
             onValueChange={(value) => setRetirementYear(Number(value))}
           >
             <SelectTrigger className="w-full">
@@ -197,22 +208,29 @@ export function Onboarding2SalaryPage() {
         {/* ZUS Account Balance (Optional) */}
         <div className="relative">
           <div className="flex items-center gap-2 mb-2">
-            <Label className="flex items-center gap-1">
-              Stan konta ZUS (opcjonalnie)
-              <InfoIcon className="size-3 text-muted-foreground" />
-            </Label>
-            {zusAccountBalance > 0 && (
-              <CheckIcon className="size-4 text-primary ml-auto" />
-            )}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Label className="flex items-center gap-1 cursor-help">
+                  Stan konta ZUS (opcjonalnie)
+                  <InfoIcon className="size-3 text-muted-foreground" />
+                </Label>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-xs">
+                <p className="text-xs">
+                  Aktualna wartość zgromadzonych środków na Twoim koncie i
+                  subkoncie emerytalnym w ZUS. Możesz sprawdzić to na portalu
+                  PUE ZUS. Pole jest opcjonalne - jeśli nie znasz tej wartości,
+                  zostaw puste.
+                </p>
+              </TooltipContent>
+            </Tooltip>
           </div>
           <div className="relative">
             <Input
               type="number"
               placeholder="0"
-              value={zusAccountBalance || ''}
-              onChange={(e) =>
-                setZusAccountBalance(Number(e.target.value) || 0)
-              }
+              value={localZusBalance}
+              onChange={(e) => setLocalZusBalance(e.target.value)}
               className="w-full pr-8"
             />
             <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground">

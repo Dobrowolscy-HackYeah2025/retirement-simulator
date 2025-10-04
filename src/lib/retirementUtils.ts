@@ -115,7 +115,8 @@ export const normalizeInputs = (
     inputs.grossMonthlySalary == null ||
     inputs.workStartYear == null ||
     inputs.plannedRetirementYear == null ||
-    inputs.age == null
+    inputs.age == null ||
+    inputs.gender == null
   ) {
     return null;
   }

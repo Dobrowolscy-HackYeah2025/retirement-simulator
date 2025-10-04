@@ -1,5 +1,9 @@
 import { atom } from 'jotai';
 
+// Import danych z plików JSON
+import absencjaChorobowaData from './data/absencja_chorobowa_all_sheets.json';
+import opoznienieData from './data/opoznienie_przejscia_all_sheets.json';
+import parametryData from './data/parametry_III_2025_all_sheets.json';
 import type {
   RetirementInputsState,
   RetirementProjection,
@@ -14,12 +18,9 @@ import {
   roundRatio,
 } from './retirementUtils';
 
-// Import danych z plików JSON
-import parametryData from './data/parametry_III_2025_all_sheets.json';
-import absencjaChorobowaData from './data/absencja_chorobowa_all_sheets.json';
-import opoznienieData from './data/opoznienie_przejscia_all_sheets.json';
+export type { Gender, RetirementInputsState } from './retirementUtils';
 
-export type { RetirementInputsState, Gender } from './retirementUtils';
+export const showReportGeneratorAtom = atom<boolean>(false);
 
 // Stan wejściowy: dane osobiste i finansowe wymagane przez symulator.
 export const retirementInputsAtom = atom<RetirementInputsState>({
@@ -32,21 +33,6 @@ export const retirementInputsAtom = atom<RetirementInputsState>({
   zusAccountBalance: null, // Aktualny stan środków na koncie i subkoncie w ZUS (wartość fakultatywna).
 });
 
-// User gender atom for onboarding
-export const userGenderAtom = atom<'man' | 'woman' | null>(null);
-
-// User age atom for onboarding
-export const userAgeAtom = atom<number | null>(null);
-
-// User city atom for onboarding
-export const userCityAtom = atom<string>('');
-
-// Salary and work-related atoms for onboarding stage 2
-export const currentSalaryGrossAtom = atom<number>(0);
-export const workStartYearAtom = atom<number>(2020);
-export const retirementYearAtom = atom<number>(2065);
-export const showReportGeneratorAtom = atom<boolean>(false);
-
 // Wewnętrzna projekcja gromadząca kapitał i parametry potrzebne do dalszych obliczeń.
 const retirementComputationAtom = atom<RetirementProjection | null>((get) => {
   const inputs = get(retirementInputsAtom);
@@ -58,11 +44,11 @@ const retirementComputationAtom = atom<RetirementProjection | null>((get) => {
 
   const { contributionsSum, monthlySalaryInFinalYear } =
     projectContributions(normalized);
-  
+
   if (!Number.isFinite(contributionsSum)) {
     return null;
   }
-  
+
   const capital = normalized.zusAccountBalance + contributionsSum;
   const sickLeavePenalty = getSickLeavePenalty(normalized.gender);
   const capitalWithSickLeave =
@@ -73,7 +59,10 @@ const retirementComputationAtom = atom<RetirementProjection | null>((get) => {
   );
 
   if (!Number.isFinite(lifeExpectancyYears) || lifeExpectancyYears <= 0) {
-    console.log('retirementComputationAtom: invalid lifeExpectancyYears', lifeExpectancyYears);
+    console.log(
+      'retirementComputationAtom: invalid lifeExpectancyYears',
+      lifeExpectancyYears
+    );
     return null;
   }
 
@@ -185,51 +174,73 @@ export interface ScenariosData {
 // 1. Prognoza emerytury vs wiek przejścia - NIEZALEŻNA od slidera retirementAge
 export const pensionForecastDataAtom = atom<PensionForecastData[]>((get) => {
   const inputs = get(retirementInputsAtom);
-  
-  if (!inputs.age || !inputs.gender || !inputs.grossMonthlySalary) return [];
+
+  // Early return if essential data is missing to avoid expensive calculations
+  if (
+    !inputs.age ||
+    !inputs.gender ||
+    !inputs.grossMonthlySalary ||
+    !inputs.workStartYear ||
+    !inputs.plannedRetirementYear
+  ) {
+    return [];
+  }
 
   const ages = [60, 62, 64, 65, 67, 70];
   const currentAge = inputs.age;
   const currentYear = new Date().getFullYear();
-  
+
   // Oblicz bazowy kapitał na podstawie aktualnych danych (bez uwzględniania plannedRetirementYear)
   const baseRetirementYear = currentYear + (65 - currentAge); // Użyj 65 jako bazowy wiek
-  
+
   // Stwórz tymczasowe inputs dla obliczenia bazowego kapitału
   const baseInputs = {
     ...inputs,
-    plannedRetirementYear: baseRetirementYear
+    plannedRetirementYear: baseRetirementYear,
   };
-  
+
   const normalized = normalizeInputs(baseInputs);
-  if (!normalized) return [];
-  
+  if (!normalized) {
+    return [];
+  }
+
   const { contributionsSum } = projectContributions(normalized);
   const baseCapital = normalized.zusAccountBalance + contributionsSum;
-  
-  return ages.map(age => {
+
+  return ages.map((age) => {
     const yearsToRetirement = age - currentAge;
-    
+
     // Użyj danych z parametry_III_2025_all_sheets.json dla inflacji
     const yearIndex = currentYear - 2014;
     const parametry = parametryData['parametry roczne'].rows[yearIndex];
-    const inflationIndex = parametry?.['średnioroczny wskaźnik cen towarów i usług konsumpcyjnych ogółem*)'] || 1.025;
+    const inflationIndex =
+      parametry?.[
+        'średnioroczny wskaźnik cen towarów i usług konsumpcyjnych ogółem*)'
+      ] || 1.025;
     const inflationRate = inflationIndex - 1;
-    
+
     // Skorygowany kapitał - dla wcześniejszego przejścia mniejszy, dla późniejszego większy
     const wageGrowthRate = 0.035; // 3.5% roczny wzrost płac
-    const adjustedCapital = baseCapital * Math.pow(1 + wageGrowthRate, yearsToRetirement);
-    
-    const adjustedLifeExpectancy = getAdjustedLifeExpectancy(inputs.gender, age);
-    const nominalPension = computeMonthlyPension(adjustedCapital, adjustedLifeExpectancy);
-    
+    const adjustedCapital =
+      baseCapital * Math.pow(1 + wageGrowthRate, yearsToRetirement);
+
+    const adjustedLifeExpectancy = getAdjustedLifeExpectancy(
+      inputs.gender,
+      age
+    );
+    const nominalPension = computeMonthlyPension(
+      adjustedCapital,
+      adjustedLifeExpectancy
+    );
+
     // Emerytura realna (z uwzględnieniem inflacji)
-    const realPension = nominalPension * Math.pow(1 - inflationRate, Math.abs(yearsToRetirement));
-    
+    const realPension =
+      nominalPension * Math.pow(1 - inflationRate, Math.abs(yearsToRetirement));
+
     return {
       age,
       amount: roundCurrency(nominalPension),
-      realAmount: roundCurrency(realPension)
+      realAmount: roundCurrency(realPension),
     };
   });
 });
@@ -244,129 +255,179 @@ export const replacementRateAtom = atom((get) => {
 export const sickLeaveImpactAtom = atom<SickLeaveImpactData>((get) => {
   const withSickLeave = get(retirementMonthlyPensionWithSickLeaveAtom) || 0;
   const withoutSickLeave = get(retirementMonthlyPensionAtom) || 0;
-  
+
   return {
     withSickLeave: roundCurrency(withSickLeave),
-    withoutSickLeave: roundCurrency(withoutSickLeave)
+    withoutSickLeave: roundCurrency(withoutSickLeave),
   };
 });
 
 // 4. Historia składek + kapitał narastający
-export const contributionHistoryAtom = atom<ContributionHistoryData[]>((get) => {
-  const inputs = get(retirementInputsAtom);
-  const projection = get(retirementComputationAtom);
-  
-  if (!projection || !inputs.workStartYear || !inputs.plannedRetirementYear) return [];
+export const contributionHistoryAtom = atom<ContributionHistoryData[]>(
+  (get) => {
+    const inputs = get(retirementInputsAtom);
 
-  const years: ContributionHistoryData[] = [];
-  const currentYear = new Date().getFullYear();
-  
-  // Generuj dane dla ostatnich 5 lat
-  for (let i = 4; i >= 0; i--) {
-    const year = currentYear - i;
-    const yearIndex = year - 2014; // Indeks w danych parametrów
-    
-    if (yearIndex >= 0 && yearIndex < parametryData['parametry roczne'].rows.length) {
-      const parametry = parametryData['parametry roczne'].rows[yearIndex];
-      const monthlySalary = parametry?.['przeciętne miesięczne wynagrodzenie w gospodarce narodowej**)'];
-      const contributionRate = (parametry?.['stopa składki na ubezpieczenie emerytalne finansowanej przez pracownika'] || 0) + 
-                              (parametry?.['stopa składki na ubezpieczenie emerytalne finansowanej przez pracodawcę'] || 0);
-      
-      if (monthlySalary && contributionRate) {
-        const annualContributions = monthlySalary * 12 * contributionRate;
-        const accumulatedCapital = projection.capital * (year - (inputs.workStartYear || 2014)) / ((inputs.plannedRetirementYear || 65) - (inputs.workStartYear || 2014));
-        
-        years.push({
-          year,
-          contributions: roundCurrency(annualContributions),
-          capital: roundCurrency(accumulatedCapital)
-        });
+    // Early return to avoid expensive computation
+    if (
+      !inputs.age ||
+      !inputs.gender ||
+      !inputs.grossMonthlySalary ||
+      !inputs.workStartYear ||
+      !inputs.plannedRetirementYear
+    ) {
+      return [];
+    }
+
+    const projection = get(retirementComputationAtom);
+
+    if (!projection) {
+      return [];
+    }
+
+    const years: ContributionHistoryData[] = [];
+    const currentYear = new Date().getFullYear();
+
+    // Generuj dane dla ostatnich 5 lat
+    for (let i = 4; i >= 0; i--) {
+      const year = currentYear - i;
+      const yearIndex = year - 2014; // Indeks w danych parametrów
+
+      if (
+        yearIndex >= 0 &&
+        yearIndex < parametryData['parametry roczne'].rows.length
+      ) {
+        const parametry = parametryData['parametry roczne'].rows[yearIndex];
+        const monthlySalary =
+          parametry?.[
+            'przeciętne miesięczne wynagrodzenie w gospodarce narodowej**)'
+          ];
+        const contributionRate =
+          (parametry?.[
+            'stopa składki na ubezpieczenie emerytalne finansowanej przez pracownika'
+          ] || 0) +
+          (parametry?.[
+            'stopa składki na ubezpieczenie emerytalne finansowanej przez pracodawcę'
+          ] || 0);
+
+        if (monthlySalary && contributionRate) {
+          const annualContributions = monthlySalary * 12 * contributionRate;
+          const accumulatedCapital =
+            (projection.capital * (year - (inputs.workStartYear || 2014))) /
+            ((inputs.plannedRetirementYear || 65) -
+              (inputs.workStartYear || 2014));
+
+          years.push({
+            year,
+            contributions: roundCurrency(annualContributions),
+            capital: roundCurrency(accumulatedCapital),
+          });
+        }
       }
     }
+
+    return years;
   }
-  
-  return years;
-});
+);
 
 // 5. Scenariusze "co-jeśli"
 export const scenariosDataAtom = atom<ScenariosData>((get) => {
   const inputs = get(retirementInputsAtom);
   const projection = get(retirementComputationAtom);
-  
-  if (!projection) return { pessimistic: 0, realistic: 0, optimistic: 0 };
 
-  const basePension = computeMonthlyPension(projection.capital, projection.lifeExpectancyYears);
-  
+  if (!projection) {
+    return { pessimistic: 0, realistic: 0, optimistic: 0 };
+  }
+
+  const basePension = computeMonthlyPension(
+    projection.capital,
+    projection.lifeExpectancyYears
+  );
+
   // Użyj danych z parametry_III_2025_all_sheets.json dla różnych wariantów
-  
+
   // Wariant 1 (realistyczny): inflacja 2.5%, wzrost płac 3.5%
   // Wariant 2 (pesymistyczny): inflacja 3.5%, wzrost płac 4.5%
   // Wariant 3 (optymistyczny): inflacja 4.5%, wzrost płac 5.5%
-  
+
   const inflationRate1 = 0.025; // Wariant 1
   const inflationRate2 = 0.035; // Wariant 2
   const inflationRate3 = 0.045; // Wariant 3
-  
+
   const wageGrowthRate1 = 0.035; // Wariant 1
   const wageGrowthRate2 = 0.045; // Wariant 2
   const wageGrowthRate3 = 0.055; // Wariant 3
-  
+
   // Oblicz emerytury dla różnych wariantów
   const currentYear = new Date().getFullYear();
-  const yearsToRetirement = (inputs.plannedRetirementYear || currentYear + 34) - currentYear;
-  
-  const pessimisticPension = basePension * Math.pow(1 + wageGrowthRate2, yearsToRetirement) * Math.pow(1 - inflationRate2, yearsToRetirement);
-  const realisticPension = basePension * Math.pow(1 + wageGrowthRate1, yearsToRetirement) * Math.pow(1 - inflationRate1, yearsToRetirement);
-  const optimisticPension = basePension * Math.pow(1 + wageGrowthRate3, yearsToRetirement) * Math.pow(1 - inflationRate3, yearsToRetirement);
-  
+  const yearsToRetirement =
+    (inputs.plannedRetirementYear || currentYear + 34) - currentYear;
+
+  const pessimisticPension =
+    basePension *
+    Math.pow(1 + wageGrowthRate2, yearsToRetirement) *
+    Math.pow(1 - inflationRate2, yearsToRetirement);
+  const realisticPension =
+    basePension *
+    Math.pow(1 + wageGrowthRate1, yearsToRetirement) *
+    Math.pow(1 - inflationRate1, yearsToRetirement);
+  const optimisticPension =
+    basePension *
+    Math.pow(1 + wageGrowthRate3, yearsToRetirement) *
+    Math.pow(1 - inflationRate3, yearsToRetirement);
+
   return {
     pessimistic: roundCurrency(pessimisticPension),
     realistic: roundCurrency(realisticPension),
-    optimistic: roundCurrency(optimisticPension)
+    optimistic: roundCurrency(optimisticPension),
   };
 });
 
 // 6. Benchmark regionalny
 export const regionalBenchmarkAtom = atom<RegionalBenchmarkData[]>((get) => {
   const userPension = get(retirementMonthlyPensionAtom) || 0;
-  
+
   // Wybierz 5 największych regionów (na podstawie danych)
   const topRegions = [
     { name: 'Mazowieckie', avgPension: 3500 },
     { name: 'Śląskie', avgPension: 3200 },
     { name: 'Wielkopolskie', avgPension: 3000 },
     { name: 'Małopolskie', avgPension: 3100 },
-    { name: 'Dolnośląskie', avgPension: 2900 }
+    { name: 'Dolnośląskie', avgPension: 2900 },
   ];
-  
-  return topRegions.map(region => ({
+
+  return topRegions.map((region) => ({
     region: region.name,
     average: region.avgPension,
-    user: roundCurrency(userPension)
+    user: roundCurrency(userPension),
   }));
 });
 
 // 7. Indeks Realnej Emerytury (uproszczona implementacja)
 export const realPensionIndexAtom = atom((get) => {
   const projection = get(retirementComputationAtom);
-  
-  if (!projection) return { breadLoaves: 0, cpiBasket: 0 };
 
-  const monthlyPension = computeMonthlyPension(projection.capital, projection.lifeExpectancyYears);
-  
+  if (!projection) {
+    return { breadLoaves: 0, cpiBasket: 0 };
+  }
+
+  const monthlyPension = computeMonthlyPension(
+    projection.capital,
+    projection.lifeExpectancyYears
+  );
+
   // Uproszczone obliczenia na podstawie dostępnych danych
   // Cena chleba: ~3.50 zł (przybliżona cena w 2024)
   // Koszyk CPI: ~2000 zł (przybliżona wartość w 2024)
-  
-  const breadPrice = 3.50; // zł za bochenek
+
+  const breadPrice = 3.5; // zł za bochenek
   const cpiBasketValue = 2000; // zł
-  
+
   const breadLoaves = Math.round(monthlyPension / breadPrice);
   const cpiBaskets = monthlyPension / cpiBasketValue;
-  
+
   return {
     breadLoaves: breadLoaves,
-    cpiBasket: Math.round(cpiBaskets * 100) / 100 // Zaokrąglij do 2 miejsc po przecinku
+    cpiBasket: Math.round(cpiBaskets * 100) / 100, // Zaokrąglij do 2 miejsc po przecinku
   };
 });
 
@@ -374,18 +435,18 @@ export const realPensionIndexAtom = atom((get) => {
 export const retirementDelayDataAtom = atom((get) => {
   const inputs = get(retirementInputsAtom);
   const gender = inputs.gender;
-  
+
   // Pobierz dane z opoznienie_przejscia_all_sheets.json
   const delayData = opoznienieData.Dane.rows;
-  
+
   // Zwróć dane dla odpowiedniej płci (przykładowe mapowanie)
   const genderKey = gender === 'female' ? '77.7' : '64.5';
-  
+
   return {
     exactAge: delayData[0][genderKey] || 77.7,
     delay1to11Months: delayData[1][genderKey] || 15.6,
     delay12to23Months: delayData[2][genderKey] || 3.0,
-    delay2YearsPlus: delayData[3][genderKey] || 3.6
+    delay2YearsPlus: delayData[3][genderKey] || 3.6,
   };
 });
 
@@ -393,18 +454,19 @@ export const retirementDelayDataAtom = atom((get) => {
 export const sickLeaveRegionalDataAtom = atom((get) => {
   const inputs = get(retirementInputsAtom);
   const gender = inputs.gender;
-  
+
   // Pobierz dane z absencja_chorobowa_all_sheets.json
-  const absencjaRows = absencjaChorobowaData['Zwolnienia_Lekarskie_Polska'].rows;
-  
+  const absencjaRows =
+    absencjaChorobowaData['Zwolnienia_Lekarskie_Polska'].rows;
+
   // Zwróć średnie dane dla Polski
   const avgSickLeave = gender === 'female' ? 38.12 : 32.81;
-  
+
   return {
     averageDays: avgSickLeave,
     regionalData: absencjaRows.slice(0, 10).map((row: any) => ({
       region: row['powiat aleksandrowski'],
-      days: gender === 'female' ? row['38.12'] : row['32.81']
-    }))
+      days: gender === 'female' ? row['38.12'] : row['32.81'],
+    })),
   };
-})
+});
