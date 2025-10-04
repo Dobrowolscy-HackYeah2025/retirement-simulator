@@ -456,6 +456,10 @@ export default function Dashboard() {
         </div>
 
         {/* Top KPI Row */}
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Twoja prognoza emerytalna</h2>
+        </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow text-center">
             <h3 className="text-lg font-semibold mb-2" style={{ color: zusColors.darkBlue }}>
@@ -530,17 +534,6 @@ export default function Dashboard() {
                       <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
                     </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500">Wariant:</span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    selectedScenario === 'pessimistic' ? 'bg-red-100 text-red-700' :
-                    selectedScenario === 'realistic' ? 'bg-green-100 text-green-700' :
-                    'bg-blue-100 text-blue-700'
-                  }`}>
-                    {selectedScenario === 'pessimistic' ? 'Pesymistyczny' :
-                     selectedScenario === 'realistic' ? 'Realistyczny' : 'Optymistyczny'}
-                  </span>
                 </div>
               </div>
               <div ref={pensionForecastRef} style={{ height: '400px' }}></div>
@@ -686,6 +679,48 @@ export default function Dashboard() {
                 Ustawienia symulacji
               </h3>
               
+              {/* Scenario Selection */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Wybierz scenariusz ekonomiczny:
+                </label>
+                <div className="flex flex-wrap gap-2 -mr-2">
+                  <button
+                    onClick={() => setSelectedScenario('pessimistic')}
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 flex-shrink-0 ${
+                      selectedScenario === 'pessimistic' 
+                        ? 'bg-red-100 text-red-700 border-red-300' 
+                        : 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200'
+                    }`}
+                  >
+                    Pesymistyczny
+                  </button>
+                  <button
+                    onClick={() => setSelectedScenario('realistic')}
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 flex-shrink-0 ${
+                      selectedScenario === 'realistic' 
+                        ? 'bg-green-100 text-green-700 border-green-300' 
+                        : 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200'
+                    }`}
+                  >
+                    Realistyczny
+                  </button>
+                  <button
+                    onClick={() => setSelectedScenario('optimistic')}
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 flex-shrink-0 ${
+                      selectedScenario === 'optimistic' 
+                        ? 'bg-blue-100 text-blue-700 border-blue-300' 
+                        : 'bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200'
+                    }`}
+                  >
+                    Optymistyczny
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Scenariusz wpływa na prognozy wzrostu płac i inflacji
+                </p>
+              </div>
+              
               <div className="space-y-4">
                 <div>
                   <label htmlFor="retirement-age" className="block text-sm font-medium text-gray-700">
@@ -782,47 +817,6 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Preset Scenarios */}
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-lg font-semibold mb-4" style={{ color: zusColors.darkBlue }}>
-                Preset scenariuszy
-              </h3>
-              <div className="space-y-2">
-                <button
-                  onClick={() => setSelectedScenario('pessimistic')}
-                  className="w-full text-left px-4 py-2 rounded-md border transition-colors"
-                  style={{ 
-                    backgroundColor: selectedScenario === 'pessimistic' ? zusColors.greenDark : 'transparent',
-                    color: selectedScenario === 'pessimistic' ? 'white' : zusColors.darkBlue,
-                    borderColor: zusColors.greenDark
-                  }}
-                >
-                  Pesymistyczny
-                </button>
-                <button
-                  onClick={() => setSelectedScenario('realistic')}
-                  className="w-full text-left px-4 py-2 rounded-md border transition-colors"
-                  style={{ 
-                    backgroundColor: selectedScenario === 'realistic' ? zusColors.primary : 'transparent',
-                    color: selectedScenario === 'realistic' ? 'white' : zusColors.darkBlue,
-                    borderColor: zusColors.primary
-                  }}
-                >
-                  Realistyczny
-                </button>
-                <button
-                  onClick={() => setSelectedScenario('optimistic')}
-                  className="w-full text-left px-4 py-2 rounded-md border transition-colors"
-                  style={{ 
-                    backgroundColor: selectedScenario === 'optimistic' ? zusColors.green : 'transparent',
-                    color: selectedScenario === 'optimistic' ? 'white' : zusColors.darkBlue,
-                    borderColor: zusColors.green
-                  }}
-                >
-                  Optymistyczny
-                </button>
-              </div>
-            </div>
 
             {/* Replacement Rate Gauge */}
             <div className="bg-white p-6 rounded-lg shadow">
