@@ -3,5 +3,7 @@ export const OnboardingPageWrapper = ({
 }: {
   children: React.ReactNode;
 }) => {
-  return <div className="p-2">{children}</div>;
+  return (
+    <div className="p-2 rounded-xl shadow-sm w-full h-full">{children}</div>
+  );
 };
