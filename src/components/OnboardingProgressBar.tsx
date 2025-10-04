@@ -29,7 +29,7 @@ export const OnboardingProgressBar = () => {
       id="progress-bar"
     >
       <div
-        className="h-full bg-zus-green shadow-sm rounded-tl outline-t transition-all duration-500 ease-out"
+        className="h-full bg-zus-green shadow-sm rounded-tl-xl transition-all duration-500 ease-out"
         style={{ width: `${progress}%` }}
       />
     </div>

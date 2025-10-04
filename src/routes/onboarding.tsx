@@ -82,7 +82,8 @@ export function OnboardingPage() {
       <h1 className="text-3xl font-bold mb-2 text-foreground">
         Uzupełnij swoje dane
       </h1>
-      <p className="text-sm mb-6 text-muted-foreground">
+
+      <p className="text-sm mb-8 text-muted-foreground">
         Wygenerujemy wszystko pod Ciebie.
       </p>
 
