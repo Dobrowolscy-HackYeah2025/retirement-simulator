@@ -20,6 +20,9 @@ export function App() {
           <Link to="/onboarding">
             <Button variant="ghost">Onboarding</Button>
           </Link>
+          <Button onClick={() => alert('Generate raport')}>
+            Generate raport
+          </Button>
         </nav>
 
         {/* Routes */}
