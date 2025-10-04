@@ -183,10 +183,6 @@ const styles = StyleSheet.create({
 });
 
 function Highlights({ items }: { items: RetirementReportHighlight[] }) {
-  if (items.length === 0) {
-    return null;
-  }
-
   return (
     <View style={styles.highlightRow}>
       {items.map((item) => (
@@ -248,19 +244,17 @@ export function RetirementReportDocument({
 
         <ReportGroup {...dataset.derived} />
 
-        {dataset.notes.length > 0 ? (
-          <View style={styles.notesBox} wrap={false}>
-            <Text style={styles.notesTitle}>Uwagi do odczytu</Text>
-            {dataset.notes.map((note, index) => (
-              <Text
-                key={`${index}-${note.slice(0, 8)}`}
-                style={styles.noteLine}
-              >
-                • {note}
-              </Text>
-            ))}
-          </View>
-        ) : null}
+        <View style={styles.notesBox} wrap={false}>
+          <Text style={styles.notesTitle}>Uwagi do odczytu</Text>
+          {dataset.notes.map((note, index) => (
+            <Text
+              key={`${index}-${note.slice(0, 8)}`}
+              style={styles.noteLine}
+            >
+              • {note}
+            </Text>
+          ))}
+        </View>
       </Page>
     </Document>
   );
