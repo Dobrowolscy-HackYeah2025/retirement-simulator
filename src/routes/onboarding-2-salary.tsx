@@ -54,7 +54,6 @@ export function Onboarding2SalaryPage() {
   const workStartYear = useAtomValue(inputWorkStartYearAtom);
   const plannedRetirementYear = useAtomValue(inputPlannedRetirementYearAtom);
   const zusAccountBalance = useAtomValue(inputZusAccountBalanceAtom);
-  const onboardingCompleted = useAtomValue(onboardingCompletedAtom);
   const showReportGenerator = useAtomValue(showReportGeneratorAtom);
 
   const setGrossMonthlySalary = useSetAtom(inputGrossMonthlySalaryAtom);
