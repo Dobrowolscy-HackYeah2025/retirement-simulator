@@ -1,6 +1,6 @@
 'use client';
 
-import { IconSquareRoundedX } from '@tabler/icons-react';
+import { XIcon } from 'lucide-react';
 
 import { MultiStepLoader as Loader } from './ui/multi-step-loader';
 
@@ -46,16 +46,18 @@ export function ZUSReportGenerator({
         loadingStates={zusLoadingStates}
         loading={loading}
         duration={2000}
+        loop={false}
+        onComplete={onComplete}
       />
 
       <button
-        className="fixed top-4 right-4 text-black dark:text-white z-[120]"
+        className="fixed top-4 right-4 text-white z-[120]"
         onClick={() => {
           setLoading(false);
           onComplete();
         }}
       >
-        <IconSquareRoundedX className="h-10 w-10" />
+        <XIcon className="h-6 w-6" />
       </button>
     </div>
   );

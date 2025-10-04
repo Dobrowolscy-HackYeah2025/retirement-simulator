@@ -58,8 +58,8 @@ export function Onboarding2SalaryPage() {
 
   const handleReportComplete = () => {
     setShowReportGenerator(false);
-    // Navigate to results page or show success message
-    alert('Raport ZUS został wygenerowany pomyślnie!');
+    // Navigate to main page after report generation
+    navigate('/');
   };
 
   const handleGoBack = () => {
@@ -102,9 +102,7 @@ export function Onboarding2SalaryPage() {
               Obecne zarobki brutto
             </span>
             {currentSalaryGross > 0 && (
-              <div className="bg-primary text-primary-foreground flex size-4 items-center justify-center rounded-full ml-auto">
-                <CheckIcon className="size-3" />
-              </div>
+              <CheckIcon className="size-4 text-primary ml-auto" />
             )}
           </div>
           <div className="relative">
@@ -130,9 +128,7 @@ export function Onboarding2SalaryPage() {
               Rok rozpoczęcia pracy
             </span>
             {workStartYear >= 1950 && workStartYear <= 2025 && (
-              <div className="bg-primary text-primary-foreground flex size-4 items-center justify-center rounded-full ml-auto">
-                <CheckIcon className="size-3" />
-              </div>
+              <CheckIcon className="size-4 text-primary ml-auto" />
             )}
           </div>
           <Select
@@ -159,9 +155,7 @@ export function Onboarding2SalaryPage() {
               Planowany rok zakończenia aktywności zawodowej
             </span>
             {retirementYear > workStartYear && (
-              <div className="bg-primary text-primary-foreground flex size-4 items-center justify-center rounded-full ml-auto">
-                <CheckIcon className="size-3" />
-              </div>
+              <CheckIcon className="size-4 text-primary ml-auto" />
             )}
           </div>
           <Select
