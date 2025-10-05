@@ -14,7 +14,7 @@ export function Wave({ waveIndex }: { waveIndex: 0 | 1 }) {
 
   return (
     <div
-      className="fixed bottom-0 md:top-0 left-0 z-30 w-full md:rotate-180"
+      className="fixed bottom-0 md:bottom-auto md:top-0 left-0 z-30 w-full md:rotate-180"
       id="wave-onboarding"
     >
       <svg

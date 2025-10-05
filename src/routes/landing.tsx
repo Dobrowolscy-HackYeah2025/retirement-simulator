@@ -90,7 +90,12 @@ export function LandingPage() {
         </div>
 
         <div className="fixed -bottom-0 lg:-bottom-16 left-0 right-0 -z-10 overflow-hidden">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 1440 320"
+            className="h-[10rem] md:h-auto"
+            preserveAspectRatio="none"
+          >
             <path
               fill="#35a454"
               opacity="87%"
