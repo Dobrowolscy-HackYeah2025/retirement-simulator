@@ -247,16 +247,16 @@ export function Onboarding2SalaryPage() {
             <Label>Obecne zarobki brutto (miesięcznie)</Label>
           </div>
           <div className="relative">
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground">
+              PLN
+            </span>
             <Input
               type="number"
               placeholder="0"
               value={salaryInputValue}
               onChange={(e) => handleCurrentSalaryChange(e.target.value)}
-              className="w-full pr-11"
+              className="w-full pl-11"
             />
-            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground">
-              PLN
-            </span>
           </div>
         </div>
 
@@ -266,7 +266,7 @@ export function Onboarding2SalaryPage() {
             <Label>Rok rozpoczęcia pracy</Label>
           </div>
           <Select
-            value={workStartYearValue?.toString() || 'choose'}
+            value={workStartYearValue?.toString()}
             onValueChange={(value) => handleWorkStartYearChange(Number(value))}
           >
             <SelectTrigger className="w-full">
@@ -288,7 +288,7 @@ export function Onboarding2SalaryPage() {
             <Label>Planowany rok zakończenia aktywności zawodowej</Label>
           </div>
           <Select
-            value={retirementYearValue?.toString() || 'choose'}
+            value={retirementYearValue?.toString()}
             onValueChange={(value) => handleRetirementYearChange(Number(value))}
           >
             <SelectTrigger className="w-full">
@@ -325,16 +325,16 @@ export function Onboarding2SalaryPage() {
             </Tooltip>
           </div>
           <div className="relative">
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground">
+              PLN
+            </span>
             <Input
               type="number"
               placeholder="0"
               value={zusBalanceInputValue}
               onChange={(e) => handleZusBalanceChange(e.target.value)}
-              className="w-full pr-11"
+              className="w-full pl-11"
             />
-            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground">
-              PLN
-            </span>
           </div>
         </div>
 
