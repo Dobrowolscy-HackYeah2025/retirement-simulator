@@ -47,6 +47,14 @@ const LazyZUSReportGenerator = lazy(async () => {
   return { default: module.ZUSReportGenerator };
 });
 
+// Format number with thousands separator
+const formatNumber = (value: number | null): string => {
+  if (value === null || value === 0) {
+    return '';
+  }
+  return value.toLocaleString('en-US');
+};
+
 export function Onboarding2SalaryPage() {
   const age = useAtomValue(inputAgeAtom);
   const gender = useAtomValue(inputGenderAtom);
@@ -66,24 +74,29 @@ export function Onboarding2SalaryPage() {
   const reportPayload = useAtomValue(reportEventPayloadAtom);
   const navigate = useNavigate();
 
-  const [salaryInputValue, setSalaryInputValue] = useState(
-    () => grossMonthlySalary?.toString() ?? ''
+  // Parse formatted number back to raw number
+  const parseFormattedNumber = useCallback((value: string): string => {
+    return value.replace(/,/g, '');
+  }, []);
+
+  const [salaryInputValue, setSalaryInputValue] = useState(() =>
+    formatNumber(grossMonthlySalary)
   );
-  const [zusBalanceInputValue, setZusBalanceInputValue] = useState(
-    () => zusAccountBalance?.toString() ?? ''
+  const [zusBalanceInputValue, setZusBalanceInputValue] = useState(() =>
+    formatNumber(zusAccountBalance)
   );
 
   useEffect(() => {
-    setSalaryInputValue(grossMonthlySalary?.toString() ?? '');
+    setSalaryInputValue(formatNumber(grossMonthlySalary));
   }, [grossMonthlySalary]);
 
   useEffect(() => {
-    setZusBalanceInputValue(zusAccountBalance?.toString() ?? '');
+    setZusBalanceInputValue(formatNumber(zusAccountBalance));
   }, [zusAccountBalance]);
 
   const [, startTransition] = useTransition();
 
-  const parsedSalaryValue = Number(salaryInputValue);
+  const parsedSalaryValue = Number(parseFormattedNumber(salaryInputValue));
   const currentSalaryGross = Number.isNaN(parsedSalaryValue)
     ? 0
     : parsedSalaryValue;
@@ -92,18 +105,22 @@ export function Onboarding2SalaryPage() {
 
   const handleCurrentSalaryChange = useCallback(
     (value: string) => {
-      setSalaryInputValue(value);
+      // Remove all non-digit characters except for leading digits
+      const cleanValue = value.replace(/[^\d]/g, '');
 
-      if (value === '') {
+      if (cleanValue === '') {
+        setSalaryInputValue('');
         startTransition(() => setGrossMonthlySalary(null));
         return;
       }
 
-      const parsedValue = Number(value);
+      const parsedValue = Number(cleanValue);
       if (Number.isNaN(parsedValue)) {
         return;
       }
 
+      // Format and display with thousands separator
+      setSalaryInputValue(parsedValue.toLocaleString('en-US'));
       startTransition(() => setGrossMonthlySalary(parsedValue));
     },
     [setGrossMonthlySalary, setSalaryInputValue, startTransition]
@@ -111,18 +128,22 @@ export function Onboarding2SalaryPage() {
 
   const handleZusBalanceChange = useCallback(
     (value: string) => {
-      setZusBalanceInputValue(value);
+      // Remove all non-digit characters except for leading digits
+      const cleanValue = value.replace(/[^\d]/g, '');
 
-      if (value === '') {
+      if (cleanValue === '') {
+        setZusBalanceInputValue('');
         startTransition(() => setZusAccountBalance(null));
         return;
       }
 
-      const parsedValue = Number(value);
+      const parsedValue = Number(cleanValue);
       if (Number.isNaN(parsedValue)) {
         return;
       }
 
+      // Format and display with thousands separator
+      setZusBalanceInputValue(parsedValue.toLocaleString('en-US'));
       startTransition(() => setZusAccountBalance(parsedValue));
     },
     [setZusAccountBalance, setZusBalanceInputValue, startTransition]
@@ -235,7 +256,8 @@ export function Onboarding2SalaryPage() {
               PLN
             </span>
             <Input
-              type="number"
+              type="text"
+              inputMode="numeric"
               placeholder="0"
               value={salaryInputValue}
               onChange={(e) => handleCurrentSalaryChange(e.target.value)}
@@ -313,7 +335,8 @@ export function Onboarding2SalaryPage() {
               PLN
             </span>
             <Input
-              type="number"
+              type="text"
+              inputMode="numeric"
               placeholder="0"
               value={zusBalanceInputValue}
               onChange={(e) => handleZusBalanceChange(e.target.value)}

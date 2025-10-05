@@ -98,10 +98,6 @@ export function OnboardingPage() {
       missing.push('płeć');
     }
 
-    if (!userCity) {
-      missing.push('miasto');
-    }
-
     if (!userAge || userAge < MIN_USER_AGE || userAge > MAX_USER_AGE) {
       missing.push('wiek');
     }
@@ -114,9 +110,13 @@ export function OnboardingPage() {
     return missing;
   };
 
+  const isAgeValid =
+    userAge && userAge >= MIN_USER_AGE && userAge <= MAX_USER_AGE;
+
   const missingFields = getMissingFields();
-  const disabledTooltipText =
-    missingFields.length > 0
+  const disabledTooltipText = !isAgeValid
+    ? 'Wiek musi być między 18 a 70.'
+    : missingFields.length > 0
       ? `Uzupełnij brakujące pola: ${missingFields.join(', ')}`
       : undefined;
 
@@ -247,7 +247,9 @@ export function OnboardingPage() {
           <div className="flex flex-row justify-between flex-1 items-center">
             <div className="flex items-start gap-2">
               <CalendarIcon className="size-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Wiek</span>
+              <span className="text-sm font-medium">
+                Wiek{userAge ? `: ${userAge}` : ''}
+              </span>
             </div>
 
             <div className="flex-1"></div>
@@ -293,6 +295,12 @@ export function OnboardingPage() {
               <span className="flex-1 text-right">{MAX_USER_AGE}</span>
             </div>
           </div>
+
+          {!isAgeValid && userAge && (
+            <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+              Wiek musi być między {MIN_USER_AGE} a {MAX_USER_AGE}.
+            </p>
+          )}
         </div>
       </div>
 
