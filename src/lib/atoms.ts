@@ -26,6 +26,9 @@ export const inputAgeAtom = atom<number | null>(
 export const inputGenderAtom = atom<Gender | null>(
   environment.DEV_MODE ? 'male' : null
 );
+export const inputRegionAtom = atom<string | null>(
+  environment.DEV_MODE ? 'Mazowieckie' : null
+);
 export const inputCityAtom = atom<string | null>(
   environment.DEV_MODE ? 'Warszawa' : null
 );

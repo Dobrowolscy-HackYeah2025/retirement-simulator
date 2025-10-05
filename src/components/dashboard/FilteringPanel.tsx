@@ -1,3 +1,4 @@
+import { Slider } from '@/components/ui/slider';
 import {
   Tooltip,
   TooltipContent,
@@ -7,6 +8,7 @@ import {
   includeSickLeaveAtom,
   inputCityAtom,
   inputGrossMonthlySalaryAtom,
+  inputRegionAtom,
   regionalBenchmarkAtom,
   retirementAgeAtom,
   selectedScenarioAtom,
@@ -16,6 +18,16 @@ import { useAtom, useAtomValue } from 'jotai';
 import { Info, Stethoscope } from 'lucide-react';
 
 import { Card } from '../ui/card';
+import { Checkbox } from '../ui/checkbox';
+import { Label } from '../ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
+import { Separator } from '../ui/separator';
 
 type ScenarioType = 'pessimistic' | 'realistic' | 'optimistic';
 
@@ -23,10 +35,15 @@ export function FilteringPanel() {
   const [retirementAge, setRetirementAge] = useAtom(retirementAgeAtom);
   const [salary, setSalary] = useAtom(inputGrossMonthlySalaryAtom);
   const [includeSickLeave, setIncludeSickLeave] = useAtom(includeSickLeaveAtom);
+  const [selectedRegion, setSelectedRegion] = useAtom(inputRegionAtom);
   const [selectedCity, setSelectedCity] = useAtom(inputCityAtom);
   const [selectedScenario, setSelectedScenario] = useAtom(selectedScenarioAtom);
 
   const regionalBenchmark = useAtomValue(regionalBenchmarkAtom);
+
+  const handleRegionChange = (e: string) => {
+    setSelectedRegion(e);
+  };
 
   const handleSalaryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number(e.target.value);
@@ -35,10 +52,8 @@ export function FilteringPanel() {
     }
   };
 
-  const handleRetirementAgeChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = Number(e.target.value);
+  const handleRetirementAgeChange = (values: number[]) => {
+    const value = values[0];
     if (!isNaN(value) && value >= 60 && value <= 70) {
       setRetirementAge(value);
     }
@@ -48,26 +63,22 @@ export function FilteringPanel() {
     setSelectedScenario(scenario);
   };
 
-  const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedCity(e.target.value);
+  const handleCityChange = (e: string) => {
+    setSelectedCity(e);
   };
 
-  const handleSickLeaveChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIncludeSickLeave(e.target.checked);
+  const handleSickLeaveChange = (checked: boolean) => {
+    setIncludeSickLeave(checked);
   };
 
   return (
-    <Card className="bg-card rounded-lg border shadow-sm p-6 h-full">
-      <h3 className="text-2xl font-semibold mb-4 text-foreground">
+    <Card className="bg-card rounded-lg border shadow-sm p-6 h-full gap-0">
+      <h3 className="text-2xl font-semibold text-foreground mb-3">
         Ustawienia symulacji
       </h3>
 
-      {/* Scenario Selection */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-3">
-          <label className="block text-sm font-medium text-foreground">
-            Wybierz scenariusz ekonomiczny:
-          </label>
           <Tooltip>
             <TooltipTrigger asChild>
               <Info className="w-4 h-4 text-muted-foreground hover:text-primary cursor-help transition-colors" />
@@ -124,11 +135,14 @@ export function FilteringPanel() {
               </div>
             </TooltipContent>
           </Tooltip>
+          <Label className="text-foreground">
+            Wybierz scenariusz ekonomiczny
+          </Label>
         </div>
         <div className="flex flex-col gap-2 mb-2">
           <button
             onClick={() => handleScenarioChange('pessimistic')}
-            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 ${
+            className={`cursor-pointer flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 ${
               selectedScenario === 'pessimistic'
                 ? 'bg-red-100 text-red-700 border-red-300 dark:bg-red-950 dark:text-red-300 dark:border-red-800'
                 : 'bg-muted text-muted-foreground border-border hover:bg-muted/80'
@@ -138,7 +152,7 @@ export function FilteringPanel() {
           </button>
           <button
             onClick={() => handleScenarioChange('realistic')}
-            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 ${
+            className={`cursor-pointer flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 ${
               selectedScenario === 'realistic'
                 ? 'bg-green-100 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-300 dark:border-green-800'
                 : 'bg-muted text-muted-foreground border-border hover:bg-muted/80'
@@ -148,7 +162,7 @@ export function FilteringPanel() {
           </button>
           <button
             onClick={() => handleScenarioChange('optimistic')}
-            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 ${
+            className={`cursor-pointer flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 ${
               selectedScenario === 'optimistic'
                 ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800'
                 : 'bg-muted text-muted-foreground border-border hover:bg-muted/80'
@@ -162,75 +176,136 @@ export function FilteringPanel() {
         </p>
       </div>
 
-      <div className="space-y-4">
-        {/* Retirement Age */}
-        <div>
-          <label
-            htmlFor="retirement-age"
-            className="block text-sm font-medium text-foreground"
-          >
-            <div className="flex items-center gap-2">
-              <span>Wiek przejścia na emeryturę: {retirementAge}</span>
+      <Separator className="mb-6" />
+
+      <div className="mb-3">
+        <label
+          htmlFor="retirement-age"
+          className="block text-sm font-medium text-foreground mb-2"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info
+                  className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors cursor-help"
+                  aria-label="Informacje o obliczeniach emerytury"
+                />
+              </TooltipTrigger>
+              <TooltipContent className="max-w-sm">
+                <div className="text-sm">
+                  <div className="font-semibold mb-2">
+                    Jak obliczana jest emerytura?
+                  </div>
+                  <div className="mb-2">
+                    <strong>Wzór:</strong> Kapitał emerytalny ÷ (Długość życia ×
+                    12)
+                  </div>
+                  <div className="mb-2">
+                    <strong>Kapitał:</strong> Stan konta ZUS + Składki przez
+                    całe życie
+                  </div>
+                  <div className="mb-2">
+                    <strong>Długość życia:</strong> Maleje z wiekiem przejścia
+                    na emeryturę
+                  </div>
+                  <div className="mb-2">
+                    <strong>Wpływ opóźnienia:</strong>
+                  </div>
+                  <ul className="text-xs ml-4 space-y-1">
+                    <li>• Więcej składek = wyższy kapitał</li>
+                    <li>• Krótsza emerytura = wyższa miesięczna emerytura</li>
+                    <li>• Razem: ~3-6% wzrostu rocznie</li>
+                  </ul>
+                  <div className="text-xs text-muted-foreground mt-2">
+                    * Wzrost jest realistyczny dzięki danym ZUS
+                  </div>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+            <Label className="text-foreground">
+              Wiek przejścia na emeryturę: {retirementAge}
+            </Label>
+          </div>
+        </label>
+        <Slider
+          id="retirement-age"
+          min={60}
+          max={70}
+          step={1}
+          value={[retirementAge]}
+          onValueChange={handleRetirementAgeChange}
+          className="mt-2"
+        />
+      </div>
+
+      <div className="bg-muted/50 p-4 rounded-lg border border-border mb-6">
+        <div className="flex items-start gap-3">
+          <div className="flex-shrink-0 pt-0.5">
+            <Checkbox
+              checked={includeSickLeave}
+              onCheckedChange={handleSickLeaveChange}
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <label
+              htmlFor="sick-leave"
+              className="flex items-center gap-2 text-sm font-medium text-foreground cursor-pointer"
+            >
+              <Stethoscope className="w-4 h-4 text-primary flex-shrink-0" />
+              <span>Uwzględnij absencję chorobową</span>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info
-                    className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors cursor-help"
-                    aria-label="Informacje o obliczeniach emerytury"
-                  />
+                  <Info className="w-4 h-4 text-muted-foreground hover:text-primary cursor-help transition-colors" />
                 </TooltipTrigger>
                 <TooltipContent className="max-w-sm">
                   <div className="text-sm">
-                    <div className="font-semibold mb-2">
-                      Jak obliczana jest emerytura?
+                    <div className="font-bold mb-3 text-center">
+                      Wpływ L4 na emeryturę
                     </div>
-                    <div className="mb-2">
-                      <strong>Wzór:</strong> Kapitał emerytalny ÷ (Długość życia
-                      × 12)
-                    </div>
-                    <div className="mb-2">
-                      <strong>Kapitał:</strong> Stan konta ZUS + Składki przez
-                      całe życie
-                    </div>
-                    <div className="mb-2">
-                      <strong>Długość życia:</strong> Maleje z wiekiem przejścia
-                      na emeryturę
-                    </div>
-                    <div className="mb-2">
-                      <strong>Wpływ opóźnienia:</strong>
-                    </div>
-                    <ul className="text-xs ml-4 space-y-1">
-                      <li>• Więcej składek = wyższy kapitał</li>
-                      <li>• Krótsza emerytura = wyższa miesięczna emerytura</li>
-                      <li>• Razem: ~3-6% wzrostu rocznie</li>
-                    </ul>
-                    <div className="text-xs text-muted-foreground mt-2">
-                      * Wzrost jest realistyczny dzięki danym ZUS
+                    <div className="space-y-2">
+                      <div className="font-semibold">Jak to działa:</div>
+                      <div className="pl-2">
+                        • Podczas L4 dostajesz 80% wynagrodzenia
+                      </div>
+                      <div className="pl-2">
+                        • Składki emerytalne naliczane są tylko od 80%
+                      </div>
+                      <div className="pl-2">
+                        • To oznacza niższy kapitał emerytalny
+                      </div>
+                      <div className="border-t pt-3 mt-3">
+                        <div className="font-semibold">Średnio w roku:</div>
+                        <div className="pl-2">• Kobiety: 24.2 dni L4</div>
+                        <div className="pl-2">• Mężczyźni: 14.5 dni L4</div>
+                      </div>
+                      <div className="bg-primary text-primary-foreground font-bold p-2 rounded-lg mt-3 text-center">
+                        Rezultat: ~1-2% niższa emerytura
+                      </div>
                     </div>
                   </div>
                 </TooltipContent>
               </Tooltip>
-            </div>
-          </label>
-          <input
-            type="range"
-            id="retirement-age"
-            min="60"
-            max="70"
-            step="1"
-            value={retirementAge}
-            onChange={handleRetirementAgeChange}
-            className="mt-2 w-full"
-          />
+            </label>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Symulacja uwzględni średnią liczbę dni L4 w ciągu kariery
+              zawodowej
+            </p>
+          </div>
         </div>
+      </div>
+
+      <Separator className="mb-6" />
+
+      <div className="space-y-4">
+        {/* Retirement Age */}
 
         {/* Salary */}
         <div>
           <label
             htmlFor="salary"
-            className="block text-sm font-medium text-foreground"
+            className="block text-sm font-medium text-foreground mb-2.5"
           >
             <div className="flex items-center gap-2">
-              <span>Wysokość wynagrodzenia brutto (zł)</span>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Info
@@ -260,6 +335,9 @@ export function FilteringPanel() {
                   </div>
                 </TooltipContent>
               </Tooltip>
+              <Label className="text-foreground">
+                Wysokość wynagrodzenia brutto (zł)
+              </Label>
             </div>
           </label>
           <input
@@ -272,85 +350,33 @@ export function FilteringPanel() {
         </div>
 
         {/* Sick Leave */}
-        <div className="bg-muted/50 p-4 rounded-lg border border-border">
-          <div className="flex items-start space-x-3">
-            <div className="flex-shrink-0 pt-0.5">
-              <input
-                type="checkbox"
-                id="sick-leave"
-                checked={includeSickLeave}
-                onChange={handleSickLeaveChange}
-                className="rounded"
-              />
-            </div>
-            <div className="flex-1 min-w-0">
-              <label
-                htmlFor="sick-leave"
-                className="flex items-center gap-2 text-sm font-medium text-foreground cursor-pointer"
-              >
-                <Stethoscope className="w-4 h-4 text-primary flex-shrink-0" />
-                <span>Uwzględnij absencję chorobową</span>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="w-4 h-4 text-muted-foreground hover:text-primary cursor-help transition-colors" />
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-sm">
-                    <div className="text-sm">
-                      <div className="font-bold mb-3 text-center">
-                        Wpływ L4 na emeryturę
-                      </div>
-                      <div className="space-y-2">
-                        <div className="font-semibold">Jak to działa:</div>
-                        <div className="pl-2">
-                          • Podczas L4 dostajesz 80% wynagrodzenia
-                        </div>
-                        <div className="pl-2">
-                          • Składki emerytalne naliczane są tylko od 80%
-                        </div>
-                        <div className="pl-2">
-                          • To oznacza niższy kapitał emerytalny
-                        </div>
-                        <div className="border-t pt-3 mt-3">
-                          <div className="font-semibold">Średnio w roku:</div>
-                          <div className="pl-2">• Kobiety: 24.2 dni L4</div>
-                          <div className="pl-2">• Mężczyźni: 14.5 dni L4</div>
-                        </div>
-                        <div className="bg-primary text-primary-foreground font-bold p-2 rounded-lg mt-3 text-center">
-                          Rezultat: ~1-2% niższa emerytura
-                        </div>
-                      </div>
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              </label>
-              <p className="mt-2 text-xs text-muted-foreground">
-                Symulacja uwzględni średnią liczbę dni L4 w ciągu kariery
-                zawodowej
-              </p>
-            </div>
-          </div>
-        </div>
 
         {/* Region */}
         <div>
           <label
             htmlFor="region"
-            className="block text-sm font-medium text-foreground"
+            className="block text-sm font-medium text-foreground mb-2.5"
           >
-            Region
+            Województwo
           </label>
-          <select
-            id="region"
-            value={selectedCity || 'Warszawa'}
-            onChange={handleCityChange}
-            className="mt-1 block w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+          <Select
+            value={selectedRegion || ''}
+            onValueChange={(value) => handleRegionChange(value as string)}
           >
-            {regionalBenchmark.map((region) => (
-              <option key={region.region} value={region.region}>
-                {region.region}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="w-full">
+              <SelectValue
+                placeholder="Wybierz województwo"
+                className="w-full"
+              />
+            </SelectTrigger>
+            <SelectContent>
+              {regionalBenchmark.map((region) => (
+                <SelectItem key={region.region} value={region.region}>
+                  {region.region}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </Card>
