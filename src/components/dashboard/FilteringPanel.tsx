@@ -297,7 +297,7 @@ export function FilteringPanel() {
             </label>
             <p className="mt-2 text-xs text-muted-foreground">
               Symulacja uwzględni średnią liczbę dni L4 w ciągu kariery
-              zawodowej
+              zawodowej.
             </p>
           </div>
         </div>
