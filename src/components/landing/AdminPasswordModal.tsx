@@ -106,7 +106,7 @@ export function AdminPasswordModal({
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
+        <DialogHeader className="text-left">
           <DialogTitle>Pobierz raport (admin)</DialogTitle>
           <DialogDescription>
             Wprowadź hasło administratora, aby pobrać raport zainteresowania w
@@ -114,7 +114,7 @@ export function AdminPasswordModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-4 py-4">
+        <div className="grid gap-4 pt-2 py-4">
           <div className="grid gap-2">
             <Label htmlFor="password">Hasło</Label>
             <div className="relative">
