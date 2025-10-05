@@ -28,6 +28,44 @@ export const inputPlannedRetirementYearAtom = atom<number | null>(null); // Rok 
 export const inputZusAccountBalanceAtom = atom<number | null>(null); // Stan konta ZUS
 export const onboardingCompletedAtom = atom<boolean>(false); // Onboarding zakończony
 
+// retirementAgeAtom - wiek przejścia na emeryturę
+export const retirementAgeAtom = atom(
+  (get) => {
+    const plannedRetirementYear = get(inputPlannedRetirementYearAtom);
+    const age = get(inputAgeAtom);
+
+    if (plannedRetirementYear != null && age != null) {
+      const currentYear = new Date().getFullYear();
+      const birthYear = currentYear - age;
+      const derivedAge = plannedRetirementYear - birthYear;
+
+      if (Number.isFinite(derivedAge) && derivedAge > 0) {
+        const clampedAge = Math.min(Math.max(derivedAge, 60), 70);
+        return clampedAge;
+      }
+    }
+
+    return 60;
+  },
+  (get, set, nextRetirementAge: number) => {
+    if (!Number.isFinite(nextRetirementAge) || nextRetirementAge <= 0) {
+      return;
+    }
+
+    const age = get(inputAgeAtom);
+    if (age == null) {
+      return;
+    }
+
+    const currentYear = new Date().getFullYear();
+    const birthYear = currentYear - age;
+    const sanitizedAge = Math.min(Math.max(nextRetirementAge, 60), 70);
+    const nextPlannedYear = birthYear + Math.round(sanitizedAge);
+
+    set(inputPlannedRetirementYearAtom, nextPlannedYear);
+  }
+);
+
 // (Legacy) Zbiorczy widok wejść, do zgodności w miejscach gdzie potrzebny obiekt
 export const retirementInputsAtom = atom<RetirementInputsState>((get) => ({
   age: get(inputAgeAtom),

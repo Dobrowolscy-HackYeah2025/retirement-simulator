@@ -3,7 +3,7 @@ import { KpiRows } from '@/components/dashboard/KpiRows';
 import { useEffect, useRef, useState } from 'react';
 
 import Highcharts from 'highcharts';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { Info, Stethoscope } from 'lucide-react';
 
 import {
@@ -16,10 +16,8 @@ import {
   contributionHistoryAtom,
   expectedPensionComparisonAtom,
   includeSickLeaveAtom,
-  inputAgeAtom,
   inputCityAtom,
   inputGrossMonthlySalaryAtom,
-  inputPlannedRetirementYearAtom,
   lifeExpectancyInfoAtom,
   pensionForecastDataAtom,
   purchasingPowerPercentageAtom,
@@ -33,6 +31,7 @@ import {
   selectedScenarioPensionAtom,
   selectedScenarioRealPensionAtom,
   sickLeaveImpactAtom,
+  retirementAgeAtom,
 } from '../lib/atoms';
 
 // ZUS Brand Colors - głównie zielone (rzeczywiste wartości dla Highcharts)
@@ -52,27 +51,15 @@ const zusColors = {
 // Usunięto sampleData - teraz używamy derived atomów
 
 export default function Dashboard() {
-  const [retirementAge, setRetirementAge] = useState(60);
-  const [salary, setSalary] = useState(5000);
+  const [retirementAge, setRetirementAge] = useAtom(retirementAgeAtom);
+  const [salary, setSalary] = useAtom(inputGrossMonthlySalaryAtom);
   const [includeSickLeave, setIncludeSickLeave] = useAtom(includeSickLeaveAtom);
   const [selectedCity, setSelectedCity] = useAtom(inputCityAtom);
   const [selectedScenario, setSelectedScenario] = useAtom(selectedScenarioAtom);
 
   // Aktualizacja pojedynczych atomów wejściowych
-  const age = useAtomValue(inputAgeAtom);
-  const setGross = useSetAtom(inputGrossMonthlySalaryAtom);
-  const setPlannedYear = useSetAtom(inputPlannedRetirementYearAtom);
-
   // Pobierz i zaktualizuj retirementInputsAtom na podstawie ustawień
-  const [inputs, setInputs] = useAtom(retirementInputsAtom);
-
-  // Zaktualizuj inputs gdy zmieniają się ustawienia
-  useEffect(() => {
-    setGross(salary);
-    if (age != null) {
-      setPlannedYear(new Date().getFullYear() + (retirementAge - age));
-    }
-  }, [salary, retirementAge, age, setGross, setPlannedYear]);
+  const inputs = useAtomValue(retirementInputsAtom);
 
   // Pobierz dane z derived atomów
   const [pensionForecastData] = useAtom(pensionForecastDataAtom);
@@ -1268,7 +1255,7 @@ export default function Dashboard() {
                   <input
                     id="salary"
                     type="number"
-                    value={salary}
+                    value={salary ?? 0}
                     onChange={(e) => setSalary(Number(e.target.value))}
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
