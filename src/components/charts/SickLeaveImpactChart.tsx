@@ -5,11 +5,13 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { includeSickLeaveAtom, sickLeaveImpactAtom } from '@/lib/atoms';
 
 import { useEffect, useRef, useState } from 'react';
 
 import Highcharts from 'highcharts';
+import { Info } from 'lucide-react';
 import { useAtomValue } from 'jotai';
 
 const CHART_COLORS = {
@@ -110,7 +112,36 @@ function SickLeaveImpactChart() {
   return (
     <Card className="@container/card h-full">
       <CardHeader>
-        <CardTitle as="h2">Wpływ absencji chorobowych</CardTitle>
+        <div className="flex items-center gap-2">
+          <CardTitle as="h2">Wpływ absencji chorobowych</CardTitle>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Info
+                className="h-4 w-4 text-gray-600 hover:text-gray-800 transition-colors cursor-help"
+                aria-label="Informacje o wpływie absencji chorobowych"
+              />
+            </TooltipTrigger>
+            <TooltipContent className="max-w-sm bg-white text-gray-800 border border-gray-200 shadow-lg">
+              <div className="text-sm">
+                <div className="font-semibold mb-2">Wpływ absencji chorobowych</div>
+                <div className="space-y-2">
+                  <div>
+                    <strong>Bez L4:</strong> Pełne składki przez cały okres pracy
+                  </div>
+                  <div>
+                    <strong>Z L4:</strong> Redukcja składek podczas zwolnień lekarskich
+                  </div>
+                  <div>
+                    <strong>Kara:</strong> Maksymalnie 5% redukcji kapitału emerytalnego
+                  </div>
+                  <div className="text-xs text-gray-500 mt-2">
+                    * Dane oparte na statystykach ZUS: mężczyźni ~11 dni/rok, kobiety ~12 dni/rok
+                  </div>
+                </div>
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </div>
         <CardDescription>
           Porównanie emerytury z uwzględnieniem L4 i bez
         </CardDescription>

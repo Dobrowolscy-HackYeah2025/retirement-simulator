@@ -5,11 +5,13 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { scenariosDataAtom } from '@/lib/atoms';
 
 import { useEffect, useRef, useState } from 'react';
 
 import Highcharts from 'highcharts';
+import { Info } from 'lucide-react';
 import { useAtomValue } from 'jotai';
 
 const CHART_COLORS = {
@@ -98,7 +100,54 @@ function ScenariosChart() {
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardTitle as="h2">Scenariusze "co-jeśli"</CardTitle>
+        <div className="flex items-center gap-2">
+          <CardTitle as="h2">Scenariusze "co-jeśli"</CardTitle>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Info
+                className="h-4 w-4 text-gray-600 hover:text-gray-800 transition-colors cursor-help"
+                aria-label="Informacje o scenariuszach ekonomicznych"
+              />
+            </TooltipTrigger>
+            <TooltipContent className="max-w-sm bg-white text-gray-800 border border-gray-200 shadow-lg">
+              <div className="text-sm">
+                <div className="font-semibold mb-2">Scenariusze ekonomiczne ZUS</div>
+                <div className="space-y-3">
+                  <div>
+                    <div className="font-medium text-red-400 mb-1">Pesymistyczny:</div>
+                    <div className="text-xs space-y-1">
+                      <div>• Wzrost płac: 50% normalnego (wolniejszy)</div>
+                      <div>• Stopy składek: 90% (niższe)</div>
+                      <div>• Długość życia: -2 lata (krótsza)</div>
+                      <div>• Więcej emerytów w systemie</div>
+                      <div className="text-red-300 font-medium">→ Niższa emerytura</div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="font-medium text-green-400 mb-1">Realistyczny:</div>
+                    <div className="text-xs space-y-1">
+                      <div>• Wzrost płac: standardowy (dane ZUS)</div>
+                      <div>• Stopy składek: normalne</div>
+                      <div>• Długość życia: standardowa</div>
+                      <div>• Stabilne warunki demograficzne</div>
+                      <div className="text-green-300 font-medium">→ Bazowa emerytura</div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="font-medium text-blue-400 mb-1">Optymistyczny:</div>
+                    <div className="text-xs space-y-1">
+                      <div>• Wzrost płac: 150% normalnego (szybszy)</div>
+                      <div>• Stopy składek: 110% (wyższe)</div>
+                      <div>• Długość życia: +2 lata (dłuższa)</div>
+                      <div>• Mniej emerytów w systemie</div>
+                      <div className="text-blue-300 font-medium">→ Wyższa emerytura</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </div>
         <CardDescription>
           Prognoza emerytury w różnych scenariuszach ekonomicznych
         </CardDescription>

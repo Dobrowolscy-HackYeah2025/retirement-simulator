@@ -5,11 +5,13 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { contributionHistoryAtom } from '@/lib/atoms';
 
 import { useEffect, useRef, useState } from 'react';
 
 import Highcharts from 'highcharts';
+import { Info } from 'lucide-react';
 import { useAtomValue } from 'jotai';
 
 const CHART_COLORS = {
@@ -127,7 +129,36 @@ function ContributionHistoryChart() {
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardTitle as="h2">Historia składek emerytalnych</CardTitle>
+        <div className="flex items-center gap-2">
+          <CardTitle as="h2">Historia składek emerytalnych</CardTitle>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Info
+                className="h-4 w-4 text-gray-600 hover:text-gray-800 transition-colors cursor-help"
+                aria-label="Informacje o historii składek"
+              />
+            </TooltipTrigger>
+            <TooltipContent className="max-w-sm bg-white text-gray-800 border border-gray-200 shadow-lg">
+              <div className="text-sm">
+                <div className="font-semibold mb-2">Historia składek emerytalnych</div>
+                <div className="space-y-2">
+                  <div>
+                    <strong>Składki roczne:</strong> 19.52% pensji brutto każdego roku
+                  </div>
+                  <div>
+                    <strong>Narastający kapitał:</strong> Suma wszystkich składek + stan konta ZUS
+                  </div>
+                  <div>
+                    <strong>Wzrost płac:</strong> Rzeczywiste dane ZUS (3-5% rocznie)
+                  </div>
+                  <div className="text-xs text-gray-500 mt-2">
+                    * Większe składki = wyższy kapitał = wyższa emerytura
+                  </div>
+                </div>
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </div>
         <CardDescription>
           Składki roczne i narastający kapitał emerytalny
         </CardDescription>

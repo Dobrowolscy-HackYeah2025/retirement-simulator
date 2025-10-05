@@ -42,7 +42,7 @@ export const OnboardingButtons = ({
         </TooltipTrigger>
 
         {Boolean(disabledTooltipText) && (
-          <TooltipContent side="top">
+          <TooltipContent side="top" className="max-w-sm bg-white text-gray-800 border border-gray-200 shadow-lg">
             <p>{disabledTooltipText}</p>
           </TooltipContent>
         )}

@@ -5,11 +5,13 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { regionalBenchmarkAtom } from '@/lib/atoms';
 
 import { useEffect, useRef, useState } from 'react';
 
 import Highcharts from 'highcharts';
+import { Info } from 'lucide-react';
 import { useAtomValue } from 'jotai';
 
 const CHART_COLORS = {
@@ -123,7 +125,36 @@ function RegionalBenchmarkChart() {
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardTitle as="h2">Porównanie z innymi regionami</CardTitle>
+        <div className="flex items-center gap-2">
+          <CardTitle as="h2">Porównanie z innymi regionami</CardTitle>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Info
+                className="h-4 w-4 text-gray-600 hover:text-gray-800 transition-colors cursor-help"
+                aria-label="Informacje o porównaniu regionalnym"
+              />
+            </TooltipTrigger>
+            <TooltipContent className="max-w-sm bg-white text-gray-800 border border-gray-200 shadow-lg">
+              <div className="text-sm">
+                <div className="font-semibold mb-2">Benchmark regionalny</div>
+                <div className="space-y-2">
+                  <div>
+                    <strong>Średnia w regionie:</strong> Średnia emerytura w danym województwie
+                  </div>
+                  <div>
+                    <strong>Twoja prognoza:</strong> Twoja przewidywana emerytura
+                  </div>
+                  <div>
+                    <strong>Wyróżniony region:</strong> Region odpowiadający Twojemu miastu
+                  </div>
+                  <div className="text-xs text-gray-500 mt-2">
+                    * Dane oparte na statystykach ZUS i GUS
+                  </div>
+                </div>
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </div>
         <CardDescription>
           Twoja prognoza vs średnia emerytury w regionach
         </CardDescription>

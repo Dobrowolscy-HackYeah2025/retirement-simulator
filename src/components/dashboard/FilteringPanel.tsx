@@ -83,26 +83,12 @@ export function FilteringPanel() {
             <TooltipTrigger asChild>
               <Info className="w-4 h-4 text-muted-foreground hover:text-primary cursor-help transition-colors" />
             </TooltipTrigger>
-            <TooltipContent className="max-w-sm">
+            <TooltipContent className="max-w-sm bg-white text-gray-800 border border-gray-200 shadow-lg">
               <div className="text-sm">
                 <div className="font-semibold mb-3">
                   Scenariusze ekonomiczne ZUS
                 </div>
                 <div className="space-y-3">
-                  <div>
-                    <div className="font-medium text-red-400 mb-1">
-                      Pesymistyczny:
-                    </div>
-                    <div className="text-xs space-y-1">
-                      <div>• Wzrost płac: 50% normalnego (wolniejszy)</div>
-                      <div>• Stopy składek: +10% (wyższe)</div>
-                      <div>• Długość życia: -1 rok (krótsza)</div>
-                      <div>• Więcej emerytów w systemie</div>
-                      <div className="text-red-300 font-medium">
-                        → Niższa emerytura
-                      </div>
-                    </div>
-                  </div>
                   <div>
                     <div className="font-medium text-green-400 mb-1">
                       Realistyczny:
@@ -131,6 +117,20 @@ export function FilteringPanel() {
                       </div>
                     </div>
                   </div>
+                  <div>
+                    <div className="font-medium text-red-400 mb-1">
+                      Pesymistyczny:
+                    </div>
+                    <div className="text-xs space-y-1">
+                      <div>• Wzrost płac: 50% normalnego (wolniejszy)</div>
+                      <div>• Stopy składek: +10% (wyższe)</div>
+                      <div>• Długość życia: -1 rok (krótsza)</div>
+                      <div>• Więcej emerytów w systemie</div>
+                      <div className="text-red-300 font-medium">
+                        → Niższa emerytura
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </TooltipContent>
@@ -140,16 +140,6 @@ export function FilteringPanel() {
           </Label>
         </div>
         <div className="flex flex-col gap-2 mb-2">
-          <button
-            onClick={() => handleScenarioChange('pessimistic')}
-            className={`cursor-pointer flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 ${
-              selectedScenario === 'pessimistic'
-                ? 'bg-red-100 text-red-700 border-red-300 dark:bg-red-950 dark:text-red-300 dark:border-red-800'
-                : 'bg-muted text-muted-foreground border-border hover:bg-muted/80'
-            }`}
-          >
-            Pesymistyczny
-          </button>
           <button
             onClick={() => handleScenarioChange('realistic')}
             className={`cursor-pointer flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 ${
@@ -169,6 +159,16 @@ export function FilteringPanel() {
             }`}
           >
             Optymistyczny
+          </button>
+          <button
+            onClick={() => handleScenarioChange('pessimistic')}
+            className={`cursor-pointer flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 ${
+              selectedScenario === 'pessimistic'
+                ? 'bg-red-100 text-red-700 border-red-300 dark:bg-red-950 dark:text-red-300 dark:border-red-800'
+                : 'bg-muted text-muted-foreground border-border hover:bg-muted/80'
+            }`}
+          >
+            Pesymistyczny
           </button>
         </div>
         <p className="text-xs text-muted-foreground mt-2">
@@ -191,7 +191,7 @@ export function FilteringPanel() {
                   aria-label="Informacje o obliczeniach emerytury"
                 />
               </TooltipTrigger>
-              <TooltipContent className="max-w-sm">
+              <TooltipContent className="max-w-sm bg-white text-gray-800 border border-gray-200 shadow-lg">
                 <div className="text-sm">
                   <div className="font-semibold mb-2">
                     Jak obliczana jest emerytura?
@@ -257,7 +257,7 @@ export function FilteringPanel() {
                 <TooltipTrigger asChild>
                   <Info className="w-4 h-4 text-muted-foreground hover:text-primary cursor-help transition-colors" />
                 </TooltipTrigger>
-                <TooltipContent className="max-w-sm">
+                <TooltipContent className="max-w-sm bg-white text-gray-800 border border-gray-200 shadow-lg">
                   <div className="text-sm">
                     <div className="font-bold mb-3 text-center">
                       Wpływ L4 na emeryturę
@@ -313,7 +313,7 @@ export function FilteringPanel() {
                     aria-label="Informacje o wpływie pensji na emeryturę"
                   />
                 </TooltipTrigger>
-                <TooltipContent className="max-w-sm">
+                <TooltipContent className="max-w-sm bg-white text-gray-800 border border-gray-200 shadow-lg">
                   <div className="text-sm">
                     <div className="font-semibold mb-2">
                       Wpływ pensji na emeryturę

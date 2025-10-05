@@ -5,11 +5,13 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { replacementRateAtom } from '@/lib/atoms';
 
 import { useEffect, useRef, useState } from 'react';
 
 import Highcharts from 'highcharts';
+import { Info } from 'lucide-react';
 import { useAtomValue } from 'jotai';
 
 const CHART_COLORS = {
@@ -117,7 +119,36 @@ function ReplacementRateChart() {
   return (
     <Card className="@container/card h-full">
       <CardHeader>
-        <CardTitle as="h2">Stopa zastąpienia</CardTitle>
+        <div className="flex items-center gap-2">
+          <CardTitle as="h2">Stopa zastąpienia</CardTitle>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Info
+                className="h-4 w-4 text-gray-600 hover:text-gray-800 transition-colors cursor-help"
+                aria-label="Informacje o stopie zastąpienia"
+              />
+            </TooltipTrigger>
+            <TooltipContent className="max-w-sm bg-white text-gray-800 border border-gray-200 shadow-lg">
+              <div className="text-sm">
+                <div className="font-semibold mb-2">Stopa zastąpienia</div>
+                <div className="space-y-2">
+                  <div>
+                    <strong>Wzór:</strong> (Emerytura ÷ Ostatnie wynagrodzenie) × 100%
+                  </div>
+                  <div>
+                    <strong>Oznacza:</strong> Jaki procent ostatniej pensji stanowi emerytura
+                  </div>
+                  <div>
+                    <strong>Cel ZUS:</strong> ~60% dla przeciętnego pracownika
+                  </div>
+                  <div className="text-xs text-gray-500 mt-2">
+                    * Wyższa stopa = lepsze zabezpieczenie emerytalne
+                  </div>
+                </div>
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </div>
         <CardDescription>
           Stosunek emerytury do ostatniego wynagrodzenia
         </CardDescription>
