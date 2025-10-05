@@ -2,23 +2,12 @@ import HeroImage from '@/assets/app_screenshots_2.webp';
 import ZusLogo from '@/assets/zus_logo.svg';
 import { Button } from '@/components/ui/button';
 
-import {
-  ArrowRightIcon,
-  CheckCircleIcon,
-  ShieldCheckIcon,
-  TrendingUpIcon,
-} from 'lucide-react';
+import { ArrowRightIcon, ShieldCheckIcon, TrendingUpIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { AdminReportButton } from '../components/landing/AdminReportButton';
 
 const cards = [
-  {
-    title: 'Dokładne prognozy',
-    description:
-      'Obliczenia oparte na oficjalnych danych ZUS i parametrach demograficznych GUS.',
-    icon: <CheckCircleIcon className="size-6 text-primary" />,
-  },
   {
     title: 'Różne scenariusze',
     description:
@@ -36,11 +25,11 @@ const cards = [
 export function LandingPage() {
   return (
     <div className="min-h-screen overflow-x-hidden">
-      <div className="max-w-7xl flex justify-end mx-auto mt-8 px-4 md:px-0">
+      <div className="max-w-7xl flex justify-end mx-auto mt-6 px-4 md:px-0">
         <AdminReportButton />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-6 pb-20 pt-12 md:pt-16 lg:pt-20">
+      <div className="relative max-w-7xl mx-auto px-6 pb-20 pt-8 md:pt-12 lg:pt-16">
         <div className="text-left">
           <div className="flex justify-start mb-4">
             <img
@@ -75,7 +64,7 @@ export function LandingPage() {
           <img
             src={HeroImage}
             alt="App Screenshot"
-            className="hidden lg:block absolute top-28 -right-[10%] -z-10 w-[60%]"
+            className="hidden lg:block absolute top-12 -right-[10%] -z-10 w-[60%]"
             fetchPriority="high"
             decoding="async"
             width="1600"
@@ -83,7 +72,7 @@ export function LandingPage() {
           />
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 row max-w-9xl gap-2 md:gap-8 mt-12 md:mt-32">
+        <div className="grid grid-cols-2 md:grid-cols-3 row max-w-9xl gap-2 md:gap-8 mt-12 md:mt-16">
           {cards.map((card) => (
             <div key={card.title}>
               <div className="text-left">
