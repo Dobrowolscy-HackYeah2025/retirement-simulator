@@ -1,6 +1,6 @@
 import { KpiRows } from '@/components/dashboard/KpiRows';
 
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 
 import Highcharts from 'highcharts';
 import { useAtom, useAtomValue } from 'jotai';
@@ -14,6 +14,7 @@ import {
 import {
   averagePensionAtom,
   contributionHistoryAtom,
+  dashboardSummaryAtom,
   expectedPensionComparisonAtom,
   includeSickLeaveAtom,
   inputCityAtom,
@@ -24,6 +25,7 @@ import {
   realPensionIndexAtom,
   regionalBenchmarkAtom,
   replacementRateAtom,
+  retirementAgeAtom,
   retirementDelayBenefitAtom,
   retirementInputsAtom,
   scenariosDataAtom,
@@ -31,7 +33,6 @@ import {
   selectedScenarioPensionAtom,
   selectedScenarioRealPensionAtom,
   sickLeaveImpactAtom,
-  retirementAgeAtom,
 } from '../lib/atoms';
 
 // ZUS Brand Colors - głównie zielone (rzeczywiste wartości dla Highcharts)
@@ -49,6 +50,46 @@ const zusColors = {
 };
 
 // Usunięto sampleData - teraz używamy derived atomów
+
+function DashboardSummaryFallback() {
+  return (
+    <section className="mb-8 rounded-lg border border-[var(--border)] bg-[var(--muted)] p-6 shadow-md">
+      <h2 className="text-lg font-semibold text-[var(--color-primary)]">
+        Podsumowanie w przygotowaniu
+      </h2>
+      <p className="mt-2 text-sm text-[var(--muted-foreground)]">
+        Ładujemy najważniejsze informacje o Twojej emeryturze.
+      </p>
+    </section>
+  );
+}
+
+function DashboardSummarySection() {
+  const summaryData = useAtomValue(dashboardSummaryAtom);
+  const summaryText = summaryData.summary?.trim();
+  const content =
+    summaryText && summaryText.length > 0
+      ? summaryText
+      : 'Brak dostępnego podsumowania w tej chwili. Spróbuj ponownie później.';
+
+  return (
+    <section className="mb-8 rounded-lg border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+      <div className="flex items-start gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--secondary)] text-[var(--secondary-foreground)]">
+          <Stethoscope className="h-5 w-5" aria-hidden="true" />
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold text-[var(--color-primary)]">
+            Podsumowanie agenta
+          </h2>
+          <p className="mt-2 text-base leading-relaxed text-[var(--foreground)]">
+            {content}
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default function Dashboard() {
   const [retirementAge, setRetirementAge] = useAtom(retirementAgeAtom);
@@ -591,6 +632,10 @@ export default function Dashboard() {
             Twoja prognoza emerytalna
           </h2>
         </div>
+
+        <Suspense fallback={<DashboardSummaryFallback />}>
+          <DashboardSummarySection />
+        </Suspense>
 
         <KpiRows
           selectedPension={selectedPension}

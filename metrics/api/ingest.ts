@@ -3,7 +3,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getDb } from '../lib/db';
 import { applyCors } from '../lib/security';
 
-interface IngestPayload {
+export interface IngestPayload {
   expectedPension: number; // Emerytura oczekiwana
   age: number; // Wiek
   gender: string; // Płeć
@@ -15,7 +15,7 @@ interface IngestPayload {
   postalCode: string; // Kod pocztowy
 }
 
-const parseRequestBody = (req: VercelRequest): unknown => {
+export const parseRequestBody = (req: VercelRequest): unknown => {
   if (req.body === undefined || req.body === null) {
     return null;
   }
@@ -61,7 +61,7 @@ const sanitizePostalCode = (value: string): string =>
 const isFiniteNumber = (value: unknown): value is number =>
   typeof value === 'number' && Number.isFinite(value);
 
-const validatePayload = (raw: unknown): IngestPayload | null => {
+export const validatePayload = (raw: unknown): IngestPayload | null => {
   if (typeof raw !== 'object' || raw === null) {
     return null;
   }
