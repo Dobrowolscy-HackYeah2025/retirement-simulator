@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from 'react';
 import Highcharts from 'highcharts';
 import { Info } from 'lucide-react';
 import { useAtomValue } from 'jotai';
+import polandTopology from '@/lib/data/poland-topology.json';
 
 // Import and initialize Highcharts Maps module
 import('highcharts/modules/map').then((mapModule) => {
@@ -77,12 +78,10 @@ function RegionalBenchmarkChart() {
       return;
     }
 
-    const initializeMap = async () => {
+    const initializeMap = () => {
       try {
-        // Ładuj topologię asynchronicznie jak w oficjalnym demo
-        const topology = await fetch(
-          'https://code.highcharts.com/mapdata/countries/pl/pl-all.topo.json'
-        ).then(response => response.json());
+        // Użyj lokalnej topologii zamiast fetch
+        const topology = polandTopology;
 
         // Przygotuj dane dla mapy
         const mapData = regionalBenchmark.map((item) => ({
@@ -172,7 +171,7 @@ function RegionalBenchmarkChart() {
 
         setChart(newChart);
       } catch (error) {
-        console.error('Error loading map topology:', error);
+        console.error('Error initializing map:', error);
       }
     };
 
