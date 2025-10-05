@@ -2,13 +2,7 @@
   "Zwolnienia_Lekarskie_Polska": {
     "file": "pkt 4 i 5_absencja chorobowa.xlsx",
     "header_row_used": 6,
-    "columns": [
-      "1",
-      "powiat aleksandrowski",
-      "0401",
-      "38.12",
-      "32.81"
-    ],
+    "columns": ["1", "powiat aleksandrowski", "0401", "38.12", "32.81"],
     "row_count": 379,
     "rows": [
       {
@@ -2669,13 +2663,7 @@
   "Zwolnienia_Lekarskie_Polska (2)": {
     "file": "pkt 4 i 5_absencja chorobowa.xlsx",
     "header_row_used": 6,
-    "columns": [
-      "1",
-      "powiat aleksandrowski",
-      "0401",
-      "12.33",
-      "11.28"
-    ],
+    "columns": ["1", "powiat aleksandrowski", "0401", "12.33", "11.28"],
     "row_count": 379,
     "rows": [
       {

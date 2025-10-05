@@ -1,0 +1,109 @@
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { includeSickLeaveAtom, sickLeaveImpactAtom } from '@/lib/atoms';
+
+import { useEffect, useRef, useState } from 'react';
+
+import Highcharts from 'highcharts';
+import { useAtomValue } from 'jotai';
+
+const CHART_COLORS = {
+  primary: '#00993f',
+  greenDark: '#084f25',
+  darkBlue: '#00416e',
+} as const;
+
+export function SickLeaveImpactChart() {
+  const sickLeaveImpact = useAtomValue(sickLeaveImpactAtom);
+  const includeSickLeave = useAtomValue(includeSickLeaveAtom);
+  const chartRef = useRef<HTMLDivElement>(null);
+  const [chart, setChart] = useState<Highcharts.Chart | null>(null);
+
+  // Initialize chart
+  useEffect(() => {
+    if (!chartRef.current || chart) {
+      return;
+    }
+
+    const newChart = Highcharts.chart(chartRef.current, {
+      chart: {
+        type: 'column',
+        backgroundColor: 'transparent',
+      },
+      title: {
+        text: '',
+      },
+      xAxis: {
+        categories: ['Z L4', 'Bez L4'],
+      },
+      yAxis: {
+        title: {
+          text: 'Kwota emerytury (zł)',
+          style: { color: CHART_COLORS.darkBlue },
+        },
+      },
+      series: [
+        {
+          name: 'Wysokość emerytury',
+          type: 'column',
+          data: [],
+          dataLabels: {
+            enabled: true,
+            format: '{y} zł',
+            style: { color: CHART_COLORS.darkBlue, fontWeight: 'bold' },
+          },
+          borderWidth: 0,
+          borderRadius: 4,
+        },
+      ],
+      legend: {
+        enabled: false,
+      },
+      credits: {
+        enabled: false,
+      },
+    });
+
+    setChart(newChart);
+
+    return () => {
+      newChart.destroy();
+    };
+  }, [chart]);
+
+  // Update chart data
+  useEffect(() => {
+    if (!chart || !chart.series || !chart.series[0] || !sickLeaveImpact) {
+      return;
+    }
+
+    const withSickLeave = includeSickLeave
+      ? sickLeaveImpact.withSickLeave
+      : sickLeaveImpact.withoutSickLeave;
+    const withoutSickLeave = sickLeaveImpact.withoutSickLeave;
+
+    chart.series[0].setData([
+      { y: withSickLeave, color: CHART_COLORS.greenDark },
+      { y: withoutSickLeave, color: CHART_COLORS.primary },
+    ]);
+  }, [chart, includeSickLeave, sickLeaveImpact]);
+
+  return (
+    <Card className="@container/card">
+      <CardHeader>
+        <CardTitle>Wpływ absencji chorobowych</CardTitle>
+        <CardDescription>
+          Porównanie emerytury z uwzględnieniem L4 i bez
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div ref={chartRef} className="h-[300px] w-full" />
+      </CardContent>
+    </Card>
+  );
+}

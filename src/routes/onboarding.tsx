@@ -100,8 +100,8 @@ export function OnboardingPage() {
                 )}
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="man">mężczyzna</SelectItem>
-                <SelectItem value="woman">kobieta</SelectItem>
+                <SelectItem value="man">Mężczyzna</SelectItem>
+                <SelectItem value="woman">Kobieta</SelectItem>
               </SelectContent>
             </Select>
           </div>

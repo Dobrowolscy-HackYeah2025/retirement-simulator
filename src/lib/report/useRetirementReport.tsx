@@ -24,10 +24,7 @@ import { pdf } from '@react-pdf/renderer';
 import { useAtomValue } from 'jotai';
 
 import { RetirementReportDocument } from './RetirementReportDocument';
-import type {
-  RetirementReportChart,
-  RetirementReportHandle,
-} from './types';
+import type { RetirementReportChart, RetirementReportHandle } from './types';
 
 const REPORT_COLORS = {
   primary: '#00993F',
@@ -279,9 +276,7 @@ export function useRetirementReport(): () => Promise<RetirementReportHandle> {
             id: 'series-replacement',
             label: 'Stopa zastąpienia',
             color: REPORT_COLORS.primary,
-            points: [
-              { x: 'Zastąpienie', y: replacementRateValue },
-            ],
+            points: [{ x: 'Zastąpienie', y: replacementRateValue }],
           },
           {
             id: 'series-remaining',
@@ -308,17 +303,13 @@ export function useRetirementReport(): () => Promise<RetirementReportHandle> {
             id: 'series-sick-leave',
             label: 'Uwzględnienie L4',
             color: REPORT_COLORS.coral,
-            points: [
-              { x: 'Z L4', y: sickLeaveImpact.withSickLeave },
-            ],
+            points: [{ x: 'Z L4', y: sickLeaveImpact.withSickLeave }],
           },
           {
             id: 'series-no-sick',
             label: 'Bez L4',
             color: REPORT_COLORS.primary,
-            points: [
-              { x: 'Bez L4', y: sickLeaveImpact.withoutSickLeave },
-            ],
+            points: [{ x: 'Bez L4', y: sickLeaveImpact.withoutSickLeave }],
           },
         ],
       });
@@ -469,7 +460,8 @@ export function useRetirementReport(): () => Promise<RetirementReportHandle> {
       if (viewerWindow && !viewerWindow.closed) {
         try {
           viewerWindow.document.open();
-          viewerWindow.document.write(`<!DOCTYPE html><html lang="pl"><head><title>Raport emerytalny ZUS</title><meta charset="utf-8" /></head><body style="margin:0;background:#0b2312;color:#ffffff;font-family:Inter,system-ui,-apple-system,sans-serif;">
+          viewerWindow.document
+            .write(`<!DOCTYPE html><html lang="pl"><head><title>Raport emerytalny ZUS</title><meta charset="utf-8" /></head><body style="margin:0;background:#0b2312;color:#ffffff;font-family:Inter,system-ui,-apple-system,sans-serif;">
             <embed src="${url}" type="application/pdf" style="border:none;width:100%;height:100vh;" title="Raport emerytalny ZUS" />
           </body></html>`);
           viewerWindow.document.close();

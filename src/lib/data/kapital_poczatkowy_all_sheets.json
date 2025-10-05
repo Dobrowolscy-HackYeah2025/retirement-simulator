@@ -2,10 +2,7 @@
   "Emerytury_Powiaty": {
     "file": "pkt 3_kapitał początkowy.xlsx",
     "header_row_used": 0,
-    "columns": [
-      "Lp.",
-      "Powiat"
-    ],
+    "columns": ["Lp.", "Powiat"],
     "row_count": 380,
     "rows": [
       {

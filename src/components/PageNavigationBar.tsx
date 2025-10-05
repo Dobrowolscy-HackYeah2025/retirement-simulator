@@ -57,7 +57,8 @@ const GeneratingReportOverlay = () => {
           Przygotowujemy raport PDF
         </p>
         <p className="text-sm text-white/90">
-          Prosimy o chwilę cierpliwości. Dokument otworzy się w nowej karcie zaraz po zakończeniu generowania.
+          Prosimy o chwilę cierpliwości. Dokument otworzy się w nowej karcie
+          zaraz po zakończeniu generowania.
         </p>
       </div>
     </div>

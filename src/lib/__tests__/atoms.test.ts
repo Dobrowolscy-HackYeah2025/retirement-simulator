@@ -1,17 +1,18 @@
-import { describe, it, expect, beforeEach } from 'vitest';
 import { createStore } from 'jotai';
-import { 
+import { beforeEach, describe, expect, it } from 'vitest';
+
+import {
   inputAgeAtom,
   inputGenderAtom,
   inputGrossMonthlySalaryAtom,
-  inputWorkStartYearAtom,
   inputPlannedRetirementYearAtom,
+  inputWorkStartYearAtom,
   inputZusAccountBalanceAtom,
   retirementComputationAtom,
   retirementMonthlyPensionAtom,
   retirementMonthlyPensionWithSickLeaveAtom,
   selectedScenarioPensionAtom,
-  selectedScenarioRealPensionAtom
+  selectedScenarioRealPensionAtom,
 } from '../atoms';
 
 describe('Retirement Atoms', () => {
@@ -33,7 +34,9 @@ describe('Retirement Atoms', () => {
 
       const computation = store.get(retirementComputationAtom);
       const pensionWithoutSickLeave = store.get(retirementMonthlyPensionAtom);
-      const pensionWithSickLeave = store.get(retirementMonthlyPensionWithSickLeaveAtom);
+      const pensionWithSickLeave = store.get(
+        retirementMonthlyPensionWithSickLeaveAtom
+      );
 
       // Sprawdź czy obliczenia są spójne
       expect(computation).not.toBeNull();
@@ -45,14 +48,17 @@ describe('Retirement Atoms', () => {
 
       // Sprawdź czy różnica jest realistyczna (0.5-5%)
       const difference = pensionWithoutSickLeave! - pensionWithSickLeave!;
-      const percentageDifference = (difference / pensionWithoutSickLeave!) * 100;
-      
+      const percentageDifference =
+        (difference / pensionWithoutSickLeave!) * 100;
+
       expect(percentageDifference).toBeGreaterThan(0.5); // Powyżej 0.5%
       expect(percentageDifference).toBeLessThan(5); // Poniżej 5%
 
       console.log(`Pension without sick leave: ${pensionWithoutSickLeave} PLN`);
       console.log(`Pension with sick leave: ${pensionWithSickLeave} PLN`);
-      console.log(`Difference: ${difference.toFixed(0)} PLN (${percentageDifference.toFixed(1)}%)`);
+      console.log(
+        `Difference: ${difference.toFixed(0)} PLN (${percentageDifference.toFixed(1)}%)`
+      );
     });
 
     it('should calculate realistic pension for different scenarios', () => {
@@ -111,7 +117,8 @@ describe('Retirement Atoms', () => {
       expect(realPension).toBeLessThan(realisticPension);
 
       // Różnica powinna być realistyczna (20-50% z powodu inflacji)
-      const inflationImpact = ((realisticPension - realPension) / realisticPension) * 100;
+      const inflationImpact =
+        ((realisticPension - realPension) / realisticPension) * 100;
       expect(inflationImpact).toBeGreaterThan(10); // Powyżej 10%
       expect(inflationImpact).toBeLessThan(70); // Poniżej 70%
 

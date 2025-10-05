@@ -1,13 +1,14 @@
-import { describe, it, expect, beforeEach } from 'vitest';
 import { createStore } from 'jotai';
-import { 
+import { beforeEach, describe, expect, it } from 'vitest';
+
+import {
   inputAgeAtom,
   inputGenderAtom,
   inputGrossMonthlySalaryAtom,
-  inputWorkStartYearAtom,
   inputPlannedRetirementYearAtom,
+  inputWorkStartYearAtom,
   inputZusAccountBalanceAtom,
-  pensionForecastDataAtom
+  pensionForecastDataAtom,
 } from '../atoms';
 
 describe('Pension Forecast Calculations', () => {
@@ -32,11 +33,11 @@ describe('Pension Forecast Calculations', () => {
       expect(forecastData).toHaveLength(6); // [60, 62, 64, 65, 67, 70]
 
       // Sprawdź czy emerytura rośnie z wiekiem (ale nie wykładniczo)
-      const pensions = forecastData.map(d => d.amount);
-      
+      const pensions = forecastData.map((d) => d.amount);
+
       // Emerytura powinna rosnąć z wiekiem
       for (let i = 1; i < pensions.length; i++) {
-        expect(pensions[i]).toBeGreaterThan(pensions[i-1]);
+        expect(pensions[i]).toBeGreaterThan(pensions[i - 1]);
       }
 
       // Sprawdź czy wzrost jest realistyczny (nie więcej niż 80% między 60 a 70)
@@ -50,8 +51,10 @@ describe('Pension Forecast Calculations', () => {
       expect(pensions[5]).toBeLessThan(15000); // Poniżej 15k PLN
 
       console.log('Pension progression:');
-      forecastData.forEach(data => {
-        console.log(`Age ${data.age}: ${data.amount} PLN (real: ${data.realAmount} PLN)`);
+      forecastData.forEach((data) => {
+        console.log(
+          `Age ${data.age}: ${data.amount} PLN (real: ${data.realAmount} PLN)`
+        );
       });
     });
 
@@ -64,15 +67,17 @@ describe('Pension Forecast Calculations', () => {
       store.set(inputZusAccountBalanceAtom, 150000);
 
       const forecastData = store.get(pensionForecastDataAtom);
-      const pensions = forecastData.map(d => d.amount);
+      const pensions = forecastData.map((d) => d.amount);
 
       // Sprawdź czy wzrost jest realistyczny
       const growth60to70 = (pensions[5] - pensions[0]) / pensions[0];
       expect(growth60to70).toBeLessThan(0.8); // Mniej niż 80% wzrostu
 
       console.log('Female pension progression:');
-      forecastData.forEach(data => {
-        console.log(`Age ${data.age}: ${data.amount} PLN (real: ${data.realAmount} PLN)`);
+      forecastData.forEach((data) => {
+        console.log(
+          `Age ${data.age}: ${data.amount} PLN (real: ${data.realAmount} PLN)`
+        );
       });
     });
 
@@ -88,21 +93,23 @@ describe('Pension Forecast Calculations', () => {
       const forecastData = store.get(pensionForecastDataAtom);
       expect(forecastData).toHaveLength(6);
 
-      const pensions = forecastData.map(d => d.amount);
-      
+      const pensions = forecastData.map((d) => d.amount);
+
       // Wszystkie emerytury powinny być dodatnie
-      pensions.forEach(pension => {
+      pensions.forEach((pension) => {
         expect(pension).toBeGreaterThan(0);
       });
 
       // Emerytura powinna rosnąć z wiekiem
       for (let i = 1; i < pensions.length; i++) {
-        expect(pensions[i]).toBeGreaterThan(pensions[i-1]);
+        expect(pensions[i]).toBeGreaterThan(pensions[i - 1]);
       }
 
       console.log('Young worker pension progression:');
-      forecastData.forEach(data => {
-        console.log(`Age ${data.age}: ${data.amount} PLN (real: ${data.realAmount} PLN)`);
+      forecastData.forEach((data) => {
+        console.log(
+          `Age ${data.age}: ${data.amount} PLN (real: ${data.realAmount} PLN)`
+        );
       });
     });
   });

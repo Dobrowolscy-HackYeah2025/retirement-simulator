@@ -1,10 +1,11 @@
-import { describe, it, expect } from 'vitest';
-import { 
-  getSickLeavePenalty, 
-  getRealWageGrowthFactor, 
-  getContributionRate,
+import { describe, expect, it } from 'vitest';
+
+import {
   computeMonthlyPension,
-  getAdjustedLifeExpectancy
+  getAdjustedLifeExpectancy,
+  getContributionRate,
+  getRealWageGrowthFactor,
+  getSickLeavePenalty,
 } from '../retirementUtils';
 
 describe('Retirement Calculations', () => {
@@ -77,36 +78,43 @@ describe('Retirement Calculations', () => {
       const workStartYear = 2010;
       const retirementYear = 2055;
       const zusBalance = 150000; // 150k PLN
-      
+
       // Obliczenia
       const yearsOfWork = retirementYear - workStartYear; // 45 lat
       const sickLeavePenalty = getSickLeavePenalty(gender, yearsOfWork);
-      
+
       // Szacunkowe składki (uproszczone)
       const annualSalary = grossSalary * 12;
       const contributionRate = 0.1952; // 19.52%
       const annualContributions = annualSalary * contributionRate;
       const totalContributions = annualContributions * yearsOfWork;
-      
+
       // Kapitał z uwzględnieniem L4
       const totalCapital = zusBalance + totalContributions;
       const capitalWithSickLeave = totalCapital * (1 - sickLeavePenalty);
-      
+
       // Emerytura
       const retirementAge = retirementYear - (2025 - age); // 65 lat
       const lifeExpectancy = getAdjustedLifeExpectancy(gender, retirementAge);
-      const monthlyPension = computeMonthlyPension(capitalWithSickLeave, lifeExpectancy);
-      
+      const monthlyPension = computeMonthlyPension(
+        capitalWithSickLeave,
+        lifeExpectancy
+      );
+
       // Sprawdź czy emerytura jest realistyczna
       expect(monthlyPension).toBeGreaterThan(2000); // Powyżej 2k PLN
       expect(monthlyPension).toBeLessThan(5000); // Poniżej 5k PLN
-      
+
       // Sprawdź czy kara za L4 jest realistyczna
       expect(sickLeavePenalty).toBeGreaterThan(0.005); // Powyżej 0.5%
       expect(sickLeavePenalty).toBeLessThan(0.05); // Poniżej 5%
-      
-      console.log(`Test case: ${age}yo male, ${grossSalary}PLN salary, ${yearsOfWork} years work`);
-      console.log(`Sick leave penalty: ${(sickLeavePenalty * 100).toFixed(1)}%`);
+
+      console.log(
+        `Test case: ${age}yo male, ${grossSalary}PLN salary, ${yearsOfWork} years work`
+      );
+      console.log(
+        `Sick leave penalty: ${(sickLeavePenalty * 100).toFixed(1)}%`
+      );
       console.log(`Monthly pension: ${monthlyPension.toFixed(0)} PLN`);
     });
   });

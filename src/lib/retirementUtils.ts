@@ -62,7 +62,7 @@ const getContributionRateFromData = (year: number): number => {
 // Średnia liczba dni absencji chorobowej na osobę rocznie (dane ZUS 2024/2025)
 const SICK_LEAVE_DAYS_BY_GENDER: Record<Gender, number> = {
   female: 12.33, // Kobiety: średnia z danych ZUS dla Polski
-  male: 11.28,   // Mężczyźni: średnia z danych ZUS dla Polski
+  male: 11.28, // Mężczyźni: średnia z danych ZUS dla Polski
 };
 
 const WORKING_DAYS_PER_YEAR = 252;
@@ -85,14 +85,14 @@ export const getContributionRate = getContributionRateFromData;
 export const getSickLeavePenalty = (gender: Gender, yearsOfWork: number) => {
   const days = SICK_LEAVE_DAYS_BY_GENDER[gender] ?? 0;
   const shareOfYear = Math.min(Math.max(days / WORKING_DAYS_PER_YEAR, 0), 1);
-  
+
   // ZUS nie odprowadza składek emerytalnych podczas L4
   // Wpływ na emeryturę = brak składek przez czas absencji
   // Wzór: udział_absencji_w_roku * współczynnik_składek * współczynnik_czasu
   const contributionRate = 0.1952; // 19.52% składki emerytalne
   const timeFactor = Math.min(yearsOfWork / 45, 1); // Maksymalnie 45 lat
   const penalty = shareOfYear * contributionRate * timeFactor;
-  
+
   // Ograniczenie do realistycznego poziomu (maksymalnie 5% redukcji)
   return Math.min(penalty, 0.05);
 };
@@ -112,7 +112,7 @@ export const getAdjustedLifeExpectancy = (
   // Wzór: baseExpectancy - (ageDelta * 0.3)
   // To daje bardziej realistyczne wartości
   const ageDelta = retirementAge - statutoryAge;
-  const adjusted = baseExpectancy - (ageDelta * 0.3);
+  const adjusted = baseExpectancy - ageDelta * 0.3;
 
   return Math.max(1, adjusted);
 };
