@@ -73,7 +73,7 @@ export function OnboardingPage() {
 
   return (
     <OnboardingPageWrapper waveIndex={0}>
-      <h1 className="text-3xl font-bold mb-2 text-foreground">
+      <h1 className="text-2xl md:text-3xl font-bold mb-2 text-foreground">
         Uzupełnij swoje dane
       </h1>
 

@@ -202,10 +202,6 @@ export function Onboarding2SalaryPage() {
     setOnboardingCompleted,
   ]);
 
-  const handleGoBack = useCallback(() => {
-    navigate('/onboarding');
-  }, [navigate]);
-
   const missingFields = useMemo(() => {
     const missing: string[] = [];
 
@@ -236,7 +232,7 @@ export function Onboarding2SalaryPage() {
 
   return (
     <OnboardingPageWrapper waveIndex={1}>
-      <h1 className="text-3xl font-bold mb-2 text-foreground">
+      <h1 className="text-2xl md:text-3xl font-bold mb-2 text-foreground">
         Zarobki i aktywność zawodowa
       </h1>
 

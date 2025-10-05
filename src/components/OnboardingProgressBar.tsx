@@ -32,11 +32,11 @@ export const OnboardingProgressBar = () => {
 
   return (
     <div
-      className="w-2xl h-2 absolute top-0 md:top-20 -translate-x-1/2 left-1/2 z-70"
+      className="w-2xl max-w-full h-2 absolute top-0 md:top-20 md:-translate-x-1/2 left-0 md:left-1/2 z-70"
       id="progress-bar"
     >
       <div
-        className="h-full bg-zus-green shadow-sm rounded-tl-xl transition-all duration-500 ease-out"
+        className="h-full bg-zus-green shadow-sm rounded-none md:rounded-tl-xl transition-all duration-500 ease-out"
         style={{ width: `${progress}%` }}
       />
     </div>

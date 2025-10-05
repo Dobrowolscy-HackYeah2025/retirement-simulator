@@ -23,7 +23,7 @@ export const OnboardingPageWrapper = ({
 }) => {
   return (
     <div className="w-full flex flex-col justify-center items-center">
-      <div className="m-0 mt-20 rounded-lg shadow-md border-b border-l border-r border-foreground/15 h-full bg-white w-2xl max-w-[100%] z-50">
+      <div className="m-0 mt-16 md:mt-20 rounded-lg md:shadow-md md:border-b md:border-l md:border-r border-foreground/15 h-full bg-white w-2xl max-w-[100%] z-50">
         <OnboardingNavigation />
         <div className="flex justify-center pt-8">
           <div className="w-xl max-w-[100%] px-4 md:px-0 pb-16">
