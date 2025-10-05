@@ -2,7 +2,7 @@ import { OnboardingPageWrapper } from '@/components/OnboardingPageWrapper';
 
 import { useCallback, useEffect, useState } from 'react';
 
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import {
   AlertCircleIcon,
   CalendarIcon,
@@ -28,6 +28,8 @@ import {
   inputCityAtom,
   inputGenderAtom,
   inputPostalCodeAtom,
+  inputRegionAtom,
+  regionalBenchmarkAtom,
 } from '../lib/atoms';
 import { filterCities } from '../lib/polish-cities';
 
@@ -42,6 +44,8 @@ export function OnboardingPage() {
   const [age, setAge] = useAtom(inputAgeAtom);
   const [city, setCity] = useAtom(inputCityAtom);
   const [postalCode, setPostalCode] = useAtom(inputPostalCodeAtom);
+  const [region, setRegion] = useAtom(inputRegionAtom);
+  const regionalBenchmark = useAtomValue(regionalBenchmarkAtom);
   const [cityInput, setCityInput] = useState(city);
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
   const [postalCodeError, setPostalCodeError] = useState<string | null>(null);
@@ -158,7 +162,7 @@ export function OnboardingPage() {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="flex flex-col gap-2 mb-6">
+        <div className="flex flex-col gap-2">
           <Label>
             Miasto zamieszkania{' '}
             <span className="hidden md:inline">(opcjonalne)</span>
@@ -209,7 +213,7 @@ export function OnboardingPage() {
             </div>
           </div>
         </div>
-        <div className="flex flex-col gap-2 mb-6">
+        <div className="flex flex-col gap-2">
           <Label>Kod pocztowy (opcjonalne)</Label>
 
           <div className="relative">
@@ -240,6 +244,26 @@ export function OnboardingPage() {
             )}
           </div>
         </div>
+      </div>
+
+      <div className="flex flex-col gap-2 mb-6 w-full mt-6">
+        <Label>Województwo (opcjonalne)</Label>
+
+        <Select
+          value={region || ''}
+          onValueChange={(value) => setRegion(value)}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Wybierz województwo" />
+          </SelectTrigger>
+          <SelectContent>
+            {regionalBenchmark.map((regionItem) => (
+              <SelectItem key={regionItem.region} value={regionItem.region}>
+                {regionItem.region}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="flex flex-col gap-2 mb-6">

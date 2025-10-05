@@ -6,27 +6,17 @@ import {
 } from '@/components/ui/tooltip';
 import {
   includeSickLeaveAtom,
-  inputCityAtom,
   inputGrossMonthlySalaryAtom,
-  inputRegionAtom,
-  regionalBenchmarkAtom,
   retirementAgeAtom,
   selectedScenarioAtom,
 } from '@/lib/atoms';
 
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { Info, Stethoscope } from 'lucide-react';
 
 import { Card } from '../ui/card';
 import { Checkbox } from '../ui/checkbox';
 import { Label } from '../ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select';
 import { Separator } from '../ui/separator';
 
 type ScenarioType = 'pessimistic' | 'realistic' | 'optimistic';
@@ -35,15 +25,7 @@ export function FilteringPanel() {
   const [retirementAge, setRetirementAge] = useAtom(retirementAgeAtom);
   const [salary, setSalary] = useAtom(inputGrossMonthlySalaryAtom);
   const [includeSickLeave, setIncludeSickLeave] = useAtom(includeSickLeaveAtom);
-  const [selectedRegion, setSelectedRegion] = useAtom(inputRegionAtom);
-  const [selectedCity, setSelectedCity] = useAtom(inputCityAtom);
   const [selectedScenario, setSelectedScenario] = useAtom(selectedScenarioAtom);
-
-  const regionalBenchmark = useAtomValue(regionalBenchmarkAtom);
-
-  const handleRegionChange = (e: string) => {
-    setSelectedRegion(e);
-  };
 
   const handleSalaryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number(e.target.value);
@@ -61,10 +43,6 @@ export function FilteringPanel() {
 
   const handleScenarioChange = (scenario: ScenarioType) => {
     setSelectedScenario(scenario);
-  };
-
-  const handleCityChange = (e: string) => {
-    setSelectedCity(e);
   };
 
   const handleSickLeaveChange = (checked: boolean) => {
@@ -347,36 +325,6 @@ export function FilteringPanel() {
             onChange={handleSalaryChange}
             className="mt-1 block w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
           />
-        </div>
-
-        {/* Sick Leave */}
-
-        {/* Region */}
-        <div>
-          <label
-            htmlFor="region"
-            className="block text-sm font-medium text-foreground mb-2.5"
-          >
-            Województwo
-          </label>
-          <Select
-            value={selectedRegion || ''}
-            onValueChange={(value) => handleRegionChange(value as string)}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue
-                placeholder="Wybierz województwo"
-                className="w-full"
-              />
-            </SelectTrigger>
-            <SelectContent>
-              {regionalBenchmark.map((region) => (
-                <SelectItem key={region.region} value={region.region}>
-                  {region.region}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
       </div>
     </Card>
