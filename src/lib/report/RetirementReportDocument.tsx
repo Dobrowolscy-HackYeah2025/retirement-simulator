@@ -289,8 +289,8 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: ZUS_COLORS.gray,
-    backgroundColor: '#F8FAFC',
+    borderColor: ZUS_COLORS.amber,
+    backgroundColor: '#FFF6E5',
   },
   notesTitle: {
     fontSize: 11,
