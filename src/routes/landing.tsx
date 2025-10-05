@@ -40,7 +40,7 @@ export function LandingPage() {
         <AdminReportButton />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-6 pb-20 pt-16 md:pt-20 lg:pt-24">
+      <div className="relative max-w-7xl mx-auto px-6 pb-20 pt-12 md:pt-16 lg:pt-20">
         <div className="text-left">
           <div className="flex justify-start mb-4">
             <img
