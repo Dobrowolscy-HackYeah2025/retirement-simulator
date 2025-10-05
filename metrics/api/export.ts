@@ -1,20 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import * as ExcelJS from 'exceljs';
 
 import { getDb } from '../lib/db';
 import { applyCors, enforceAdminToken } from '../lib/security';
-
-const escapeHtml = (value: unknown): string => {
-  if (value === null || value === undefined) {
-    return '';
-  }
-
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
-};
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (applyCors(req, res, 'GET, OPTIONS')) {
@@ -52,72 +40,99 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const rows = (result.rows ?? []) as Array<Record<string, unknown>>;
 
-    const headerCells = [
-      'Data użycia',
-      'Godzina użycia',
-      'Emerytura oczekiwana',
-      'Wiek',
-      'Płeć',
-      'Wysokość wynagrodzenia',
-      'Czy uwzględniał okresy choroby',
-      'Wysokość zgromadzonych środków na koncie i Subkoncie',
-      'Emerytura rzeczywista',
-      'Emerytura urealniona',
-      'Kod pocztowy',
-    ]
-      .map((label) => `<th>${escapeHtml(label)}</th>`) // header labels w języku polskim
-      .join('');
+    // Create a new workbook and worksheet
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Raporty', {
+      properties: { defaultColWidth: 20 },
+    });
 
-    const bodyRows = rows
-      .map((row) => {
-        const includesSicknessRaw = row['includesSicknessPeriods'];
-        const includesSickness =
-          Number(includesSicknessRaw) === 1 || includesSicknessRaw === true
-            ? 'Tak'
-            : 'Nie';
-        return `
-          <tr>
-            <td>${escapeHtml(row['usageDate'])}</td>
-            <td>${escapeHtml(row['usageTime'])}</td>
-            <td>${escapeHtml(row['expectedPension'])}</td>
-            <td>${escapeHtml(row['age'])}</td>
-            <td>${escapeHtml(row['gender'])}</td>
-            <td>${escapeHtml(row['salary'])}</td>
-            <td>${escapeHtml(includesSickness)}</td>
-            <td>${escapeHtml(row['zusBalance'])}</td>
-            <td>${escapeHtml(row['actualPension'])}</td>
-            <td>${escapeHtml(row['adjustedPension'])}</td>
-            <td>${escapeHtml(row['postalCode'])}</td>
-          </tr>
-        `;
-      })
-      .join('');
+    // Define columns with headers
+    worksheet.columns = [
+      { header: 'Data użycia', key: 'usageDate', width: 15 },
+      { header: 'Godzina użycia', key: 'usageTime', width: 15 },
+      { header: 'Emerytura oczekiwana', key: 'expectedPension', width: 20 },
+      { header: 'Wiek', key: 'age', width: 10 },
+      { header: 'Płeć', key: 'gender', width: 15 },
+      { header: 'Wysokość wynagrodzenia', key: 'salary', width: 20 },
+      {
+        header: 'Czy uwzględniał okresy choroby',
+        key: 'includesSicknessPeriods',
+        width: 30,
+      },
+      {
+        header: 'Wysokość zgromadzonych środków',
+        key: 'zusBalance',
+        width: 25,
+      },
+      { header: 'Emerytura rzeczywista', key: 'actualPension', width: 20 },
+      { header: 'Emerytura urealniona', key: 'adjustedPension', width: 20 },
+      { header: 'Kod pocztowy', key: 'postalCode', width: 15 },
+    ];
 
-    const html = `<!DOCTYPE html>
-<html lang="pl">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Eksport raportów</title>
-  </head>
-  <body>
-    <table border="1">
-      <thead>
-        <tr>${headerCells}</tr>
-      </thead>
-      <tbody>
-        ${bodyRows}
-      </tbody>
-    </table>
-  </body>
-</html>`;
+    // Style the header row
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFE0E0E0' },
+    };
+    worksheet.getRow(1).alignment = {
+      vertical: 'middle',
+      horizontal: 'center',
+    };
 
-    res.setHeader('Content-Type', 'application/vnd.ms-excel; charset=utf-8');
+    // Add data rows
+    rows.forEach((row) => {
+      const includesSicknessRaw = row['includesSicknessPeriods'];
+      const includesSickness =
+        Number(includesSicknessRaw) === 1 || includesSicknessRaw === true
+          ? 'Tak'
+          : 'Nie';
+
+      worksheet.addRow({
+        usageDate: row['usageDate'],
+        usageTime: row['usageTime'],
+        expectedPension: row['expectedPension'],
+        age: row['age'],
+        gender: row['gender'],
+        salary: row['salary'],
+        includesSicknessPeriods: includesSickness,
+        zusBalance: row['zusBalance'],
+        actualPension: row['actualPension'],
+        adjustedPension: row['adjustedPension'],
+        postalCode: row['postalCode'],
+      });
+    });
+
+    // Add borders to all cells
+    worksheet.eachRow((row) => {
+      row.eachCell((cell) => {
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+      });
+    });
+
+    // Generate buffer
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    // Set headers for XLSX download
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
     res.setHeader(
       'Content-Disposition',
-      'attachment; filename="report-events.xls"'
+      'attachment; filename="metrics-report.xlsx"'
     );
-    res.status(200).send(html);
+    res.setHeader('Content-Length', buffer.byteLength.toString());
+
+    res.status(200).send(Buffer.from(buffer));
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error(error);
     res.status(500).json({ message: 'Wystąpił błąd po stronie serwera.' });
   }
