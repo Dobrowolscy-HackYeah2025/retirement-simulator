@@ -26,7 +26,7 @@ export const OnboardingPageWrapper = ({
       <div className="m-0 mt-12 md:mt-20 rounded-lg md:shadow-md md:border-b md:border-l md:border-r border-foreground/15 h-full bg-white w-2xl max-w-[100%] z-50">
         <OnboardingNavigation />
         <div className="flex justify-center pt-8">
-          <div className="w-xl max-w-[100%] px-4 md:px-0 pb-16">
+          <div className="w-xl max-w-[100%] px-4 md:px-0 pb-10">
             <AnimatePresence mode="wait">
               <motion.div
                 key={waveIndex}
