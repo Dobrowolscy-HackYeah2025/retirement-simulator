@@ -6,7 +6,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { pensionForecastDataAtom } from '@/lib/atoms';
+import { pensionForecastDataAtom, retirementAgeAtom } from '@/lib/atoms';
 
 import { useEffect, useRef, useState } from 'react';
 
@@ -15,14 +15,15 @@ import { Info } from 'lucide-react';
 import { useAtomValue } from 'jotai';
 
 const CHART_COLORS = {
-  primary: '#00993f',
-  green: '#00993f',
-  greenLight: '#bad4c4',
-  darkBlue: '#00416e',
+  primary: 'var(--zus-green)', // #00993f
+  green: 'var(--zus-green)', // #00993f
+  greenLight: 'var(--secondary)', // #bad4c4
+  darkBlue: 'var(--navy-blue)', // #00416e
 } as const;
 
 function PensionForecastChart() {
   const pensionForecastData = useAtomValue(pensionForecastDataAtom);
+  const retirementAge = useAtomValue(retirementAgeAtom);
   const chartRef = useRef<HTMLDivElement>(null);
   const [chart, setChart] = useState<Highcharts.Chart | null>(null);
 
@@ -56,6 +57,20 @@ function PensionForecastChart() {
         },
         min: 60,
         max: 70,
+        plotLines: [
+          {
+            id: 'retirement-age-line',
+            value: retirementAge,
+            color: CHART_COLORS.darkBlue,
+            width: 2,
+            dashStyle: 'Solid',
+            zIndex: 5, // Wyższy z-index żeby plotline był nad seriami
+            label: {
+              text: `Wybrany wiek: ${retirementAge} lat`,
+              style: { color: CHART_COLORS.darkBlue, fontWeight: 'bold' },
+            },
+          },
+        ],
       },
       yAxis: {
         title: {
@@ -70,9 +85,7 @@ function PensionForecastChart() {
           data: pensionForecastData.map((item) => [item.age, item.amount]),
           color: CHART_COLORS.primary,
           marker: {
-            radius: 6,
-            fillColor: CHART_COLORS.primary,
-            lineColor: CHART_COLORS.primary,
+            enabled: false, // Wyłączone markery
           },
           lineWidth: 3,
         },
@@ -82,9 +95,7 @@ function PensionForecastChart() {
           data: pensionForecastData.map((item) => [item.age, item.realAmount]),
           color: CHART_COLORS.green,
           marker: {
-            radius: 6,
-            fillColor: CHART_COLORS.green,
-            lineColor: CHART_COLORS.green,
+            enabled: false, // Wyłączone markery
           },
           lineWidth: 3,
         },
@@ -131,6 +142,47 @@ function PensionForecastChart() {
     );
     chart.redraw();
   }, [chart, pensionForecastData]);
+
+  // Update plotline when retirement age changes
+  useEffect(() => {
+    if (chart) {
+      const xAxis = chart.xAxis[0];
+      const plotLine = (xAxis as any).plotLinesAndBands.find(
+        (pl: any) => pl.id === 'retirement-age-line'
+      );
+
+      if (plotLine) {
+        // Remove existing plotline and add new one
+        chart.xAxis[0].removePlotLine('retirement-age-line');
+        chart.xAxis[0].addPlotLine({
+          id: 'retirement-age-line',
+          value: retirementAge,
+          color: CHART_COLORS.darkBlue,
+          width: 2,
+          dashStyle: 'Solid',
+          zIndex: 5, // Wyższy z-index żeby plotline był nad seriami
+          label: {
+            text: `Wybrany wiek: ${retirementAge} lat`,
+            style: { color: CHART_COLORS.darkBlue, fontWeight: 'bold' },
+          },
+        });
+      } else {
+        // Add new plotline if it doesn't exist
+        chart.xAxis[0].addPlotLine({
+          id: 'retirement-age-line',
+          value: retirementAge,
+          color: CHART_COLORS.darkBlue,
+          width: 2,
+          dashStyle: 'Solid',
+          zIndex: 5, // Wyższy z-index żeby plotline był nad seriami
+          label: {
+            text: `Wybrany wiek: ${retirementAge} lat`,
+            style: { color: CHART_COLORS.darkBlue, fontWeight: 'bold' },
+          },
+        });
+      }
+    }
+  }, [retirementAge, chart]);
 
   return (
     <Card className="@container/card">

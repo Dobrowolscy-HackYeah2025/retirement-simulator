@@ -15,10 +15,10 @@ import { Info } from 'lucide-react';
 import { useAtomValue } from 'jotai';
 
 const CHART_COLORS = {
-  primary: '#00993f',
-  greenLight: '#bad4c4',
-  greenDark: '#084f25',
-  gray: '#bec3ce',
+  primary: 'var(--zus-green)', // #00993f
+  greenLight: 'var(--secondary)', // #bad4c4
+  greenDark: 'var(--secondary-foreground)', // #084f25
+  gray: 'var(--gray-blue)', // #bec3ce
 } as const;
 
 function RegionalBenchmarkChart() {
@@ -53,6 +53,7 @@ function RegionalBenchmarkChart() {
         {
           name: 'Średnia w regionie',
           type: 'column',
+          color: CHART_COLORS.primary, // Kolor dla legendy
           data: regionalBenchmark.map((item) => ({
             y: item.average,
             color: item.isSelected
@@ -65,6 +66,7 @@ function RegionalBenchmarkChart() {
         {
           name: 'Twoja prognoza',
           type: 'column',
+          color: CHART_COLORS.greenDark, // Kolor dla legendy
           data: regionalBenchmark.map((item) => ({
             y: item.user,
             color: item.isSelected ? CHART_COLORS.greenDark : CHART_COLORS.gray,

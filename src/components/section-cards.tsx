@@ -33,7 +33,7 @@ export function SectionCards() {
   const isPensionAboveAverage = selectedPension > averagePension;
 
   return (
-    <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+    <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 @5xl/main:grid-cols-3">
       {/* Emerytura rzeczywista */}
       <Card className="@container/card">
         <CardHeader>
@@ -96,25 +96,10 @@ export function SectionCards() {
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             {replacementRate}%
           </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              {replacementRate >= 50 ? (
-                <IconTrendingUp />
-              ) : (
-                <IconTrendingDown />
-              )}
-              {replacementRate >= 50 ? 'Dobry' : 'Niski'}
-            </Badge>
-          </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            {replacementRate >= 50 ? 'Dobry poziom' : 'Niski poziom'}{' '}
-            {replacementRate >= 50 ? (
-              <IconTrendingUp className="size-4" />
-            ) : (
-              <IconTrendingDown className="size-4" />
-            )}
+            Stosunek emerytury do pensji
           </div>
           <div className="text-muted-foreground">
             Procent obecnego wynagrodzenia
@@ -122,28 +107,6 @@ export function SectionCards() {
         </CardFooter>
       </Card>
 
-      {/* Różnica nominalna vs realna */}
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Wpływ inflacji</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {(selectedPension - selectedRealPension).toLocaleString()} zł
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <IconTrendingDown />-{100 - purchasingPowerPercentage}%
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Utrata siły nabywczej <IconTrendingDown className="size-4" />
-          </div>
-          <div className="text-muted-foreground">
-            Różnica między nominalną a realną
-          </div>
-        </CardFooter>
-      </Card>
     </div>
   );
 }
