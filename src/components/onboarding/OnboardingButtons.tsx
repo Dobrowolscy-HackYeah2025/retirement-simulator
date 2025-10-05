@@ -31,7 +31,7 @@ export const OnboardingButtons = ({
               onClick={() => {
                 if (onNextClick) {
                   onNextClick();
-                } else {
+                } else if (nextUrl) {
                   navigate(nextUrl);
                 }
               }}
@@ -48,7 +48,7 @@ export const OnboardingButtons = ({
         )}
       </Tooltip>
 
-      <Button variant="outline" onClick={() => navigate(previousUrl)}>
+      <Button variant="ghost" onClick={() => navigate(previousUrl)}>
         Wróć
       </Button>
     </div>
