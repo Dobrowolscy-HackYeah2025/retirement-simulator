@@ -53,7 +53,12 @@ export default defineConfig({
             if (id.includes('jotai')) {
               return 'jotai';
             }
-            if (id.includes('react') || id.includes('react-dom')) {
+            // Keep React and React-DOM together to avoid hook issues
+            if (
+              id.includes('react') ||
+              id.includes('react-dom') ||
+              id.includes('scheduler')
+            ) {
               return 'react-vendor';
             }
             if (id.includes('posthog')) {
@@ -61,6 +66,10 @@ export default defineConfig({
             }
             if (id.includes('framer-motion') || id.includes('motion')) {
               return 'motion';
+            }
+            // Radix UI components together
+            if (id.includes('@radix-ui')) {
+              return 'radix-ui';
             }
             // Other node_modules
             return 'vendor';
@@ -73,6 +82,8 @@ export default defineConfig({
     // Enable minification
     minify: 'esbuild', // esbuild is faster than terser
     target: 'es2015', // Target modern browsers
+    // Ensure proper source maps for debugging
+    sourcemap: false, // Disable in production for smaller builds
   },
   // Ensure all routes fallback to index.html for SPA routing
   preview: {
