@@ -1213,3 +1213,56 @@ export const reportEventPayloadAtom = atom<ReportEventPayload>((get) => {
     postalCode: sanitizeString(postalCode),
   };
 });
+
+export interface DashboardSummaryResponse {
+  summary: string;
+}
+
+// Atom podsumowania emerytalnego (dashboard summary atom)
+export const dashboardSummaryAtom = atom<Promise<DashboardSummaryResponse>>(
+  async (get) => {
+    const payload = get(reportEventPayloadAtom);
+
+    try {
+      const response = await fetch(`${environment.METRICS_HOST}/api/summary`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Vercel-Protection-Bypass': environment.VERCEL_BYPASS,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const fallbackText = await response.text().catch(() => '');
+        return {
+          summary:
+            fallbackText.trim() ||
+            'Nie udało się pobrać podsumowania emerytalnego.',
+        };
+      }
+
+      const contentType = response.headers.get('content-type') ?? '';
+
+      if (contentType.includes('application/json')) {
+        const data =
+          (await response.json()) as Partial<DashboardSummaryResponse>;
+
+        return {
+          summary: data?.summary?.toString().trim() ?? '',
+        };
+      }
+
+      const text = await response.text();
+
+      return {
+        summary: text.trim(),
+      };
+    } catch (error) {
+      console.error('Nie udało się pobrać podsumowania emerytalnego', error);
+      return {
+        summary: 'Nie udało się pobrać podsumowania emerytalnego.',
+      };
+    }
+  }
+);
