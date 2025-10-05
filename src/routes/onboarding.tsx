@@ -196,37 +196,48 @@ export function OnboardingPage() {
         </div>
       </div>
 
-      <div
-        className={cn(
-          'relative mb-6',
-          'file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input w-full min-w-0 rounded-md border bg-transparent p-3 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
-          'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
-          'aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive'
-        )}
-      >
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-sm font-medium text-foreground">
-            {userAge ? `Wiek: ${userAge} lat` : 'Wybierz wiek'}
-          </span>
-          {userAge && userAge >= MIN_USER_AGE && userAge <= MAX_USER_AGE && (
-            <CheckIcon className="size-4 text-primary ml-auto" />
-          )}
-        </div>
+      <div className="flex flex-col gap-2 mb-6">
+        <Label>Wiek</Label>
 
-        <div className="flex gap-4 items-start mt-3">
-          <CalendarIcon className="size-4 text-muted-foreground -mt-1" />
-          <div className="flex flex-col gap-1 items-stretch w-full">
-            <Slider
-              value={[userAge || 30]}
-              onValueChange={(value) => setUserAge(value[0])}
-              min={MIN_USER_AGE}
-              max={MAX_USER_AGE}
-              step={1}
-              className="w-full"
-            />
-            <div className="flex w-full justify-between text-xs text-muted-foreground mt-1">
-              <span className="flex-1">{MIN_USER_AGE}</span>
-              <span className="flex-1 text-right">{MAX_USER_AGE}</span>
+        <div
+          className={cn(
+            'relative mb-6',
+            'file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input w-full min-w-0 rounded-md border bg-transparent p-3 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
+            'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
+            'aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive'
+          )}
+        >
+          <div className="flex flex-col gap-2 items-stretch mt-2">
+            <div className="flex flex-row justify-between flex-1 items-center">
+              <CalendarIcon className="size-4 text-muted-foreground -mt-1" />
+
+              <div className="flex-1"></div>
+
+              <div className="flex">
+                <Input
+                  className="min-w-0 text-center"
+                  size={3}
+                  value={userAge!}
+                  onChange={(e) => {
+                    setUserAge(+e.target.value);
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1 items-stretch w-full">
+              <Slider
+                value={[userAge || 30]}
+                onValueChange={(value) => setUserAge(value[0])}
+                min={MIN_USER_AGE}
+                max={MAX_USER_AGE}
+                step={1}
+                className="w-full"
+              />
+              <div className="flex w-full justify-between text-xs text-muted-foreground mt-1">
+                <span className="flex-1">{MIN_USER_AGE}</span>
+                <span className="flex-1 text-right">{MAX_USER_AGE}</span>
+              </div>
             </div>
           </div>
         </div>
