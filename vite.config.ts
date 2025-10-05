@@ -48,6 +48,14 @@ export default defineConfig({
     target: 'es2015', // Target modern browsers
     // Ensure proper source maps for debugging
     sourcemap: false, // Disable in production for smaller builds
+    // CSS code splitting
+    cssCodeSplit: true,
+    // Optimize CSS
+    cssMinify: true,
+    // Enable module preload for better performance
+    modulePreload: {
+      polyfill: true,
+    },
   },
   // Ensure all routes fallback to index.html for SPA routing
   preview: {

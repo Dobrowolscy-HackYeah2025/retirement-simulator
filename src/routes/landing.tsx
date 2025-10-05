@@ -66,6 +66,10 @@ export function LandingPage() {
             src={HeroImage}
             alt="App Screenshot"
             className="hidden lg:block absolute top-28 -right-[10%] -z-10 w-[60%]"
+            fetchPriority="high"
+            decoding="async"
+            width="1600"
+            height="1100"
           />
         </div>
 
