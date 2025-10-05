@@ -110,7 +110,7 @@ export function AdminPasswordModal({
           <DialogTitle>Pobierz raport (admin)</DialogTitle>
           <DialogDescription>
             Wprowadź hasło administratora, aby pobrać raport zainteresowania w
-            formacie XLSX.
+            formacie XLSX. Widnieje na ostatnim slajdzie prezentacji.
           </DialogDescription>
         </DialogHeader>
 

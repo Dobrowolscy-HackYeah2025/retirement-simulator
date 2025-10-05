@@ -51,7 +51,7 @@ export const AiBanner = () => {
   // Change color to light green when summary is ready
   const backgroundColor = showAiSummary
     ? '#00993f40' // Light green accent
-    : '#FFB34F'; // Orange
+    : '#00993f80'; // Orange
   const textColor = showAiSummary ? '#10331e' : '#10331e';
   const borderColor = showAiSummary ? '#10331e20' : 'transparent';
 
