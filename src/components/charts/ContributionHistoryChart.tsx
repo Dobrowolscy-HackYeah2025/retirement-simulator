@@ -163,7 +163,7 @@ function ContributionHistoryChart() {
           Składki roczne i narastający kapitał emerytalny
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-1 lg:px-6">
         <div ref={chartRef} className="h-[400px] w-full" />
       </CardContent>
     </Card>

@@ -2,8 +2,10 @@ import { FilteringPanel } from '@/components/dashboard/FilteringPanel';
 import { SectionCards } from '@/components/section-cards';
 import { SiteHeader } from '@/components/site-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { Button } from '@/components/ui/button';
+import { Settings } from 'lucide-react';
 
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useState } from 'react';
 
 // Lazy load charts to reduce initial bundle size
 const PensionForecastChart = lazy(
@@ -39,6 +41,8 @@ const ChartSkeleton = ({ fullWidth = false }: { fullWidth?: boolean }) => (
 );
 
 export function DashboardNew() {
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
   return (
     <SidebarProvider
       style={
@@ -48,7 +52,6 @@ export function DashboardNew() {
         } as React.CSSProperties
       }
     >
-      {/* <AppSidebar variant="inset" /> */}
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col">
@@ -57,47 +60,86 @@ export function DashboardNew() {
               {/* Main heading for the page - visually hidden but important for accessibility */}
               <h1 className="sr-only">Twoja prognoza emerytalna - Dashboard</h1>
 
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 px-4 lg:px-6">
-                <div className="lg:col-span-3 flex flex-col gap-4">
+              {/* Mobile: Settings button */}
+              <div className="lg:hidden px-4">
+                <Button 
+                  onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+                  variant="outline" 
+                  className="w-full"
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  Ustawienia symulacji
+                </Button>
+              </div>
+
+              {/* Mobile: Settings panel */}
+              {isSettingsOpen && (
+                <div className="lg:hidden px-4">
+                  <FilteringPanel />
+                </div>
+              )}
+
+              {/* Desktop: Grid layout */}
+              <div className="hidden lg:grid grid-cols-4 gap-4 px-6">
+                <div className="col-span-3 flex flex-col gap-4">
                   <SectionCards />
 
                   <div className="grid grid-cols-8 gap-4">
-                    <div className="lg:col-span-5 h-full">
+                    <div className="col-span-5 h-full">
                       <Suspense fallback={<ChartSkeleton fullWidth />}>
                         <PensionForecastChart />
                       </Suspense>
                     </div>
 
-                    <div className="lg:col-span-3 h-full">
+                    <div className="col-span-3 h-full">
                       <Suspense fallback={<ChartSkeleton fullWidth />}>
                         <RegionalBenchmarkChart />
                       </Suspense>
                     </div>
                   </div>
                 </div>
-                <div className="lg:col-span-1 flex flex-col justify-stretch items-stretch">
+                <div className="col-span-1 flex flex-col justify-stretch items-stretch">
                   <FilteringPanel />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 px-4 lg:grid-cols-24 lg:px-6 w-full">
-                <div className="lg:col-span-9 h-full">
-                  <Suspense fallback={<ChartSkeleton />}>
-                    <ScenariosChart />
-                  </Suspense>
-                </div>
+              {/* Mobile: Simple vertical layout */}
+              <div className="lg:hidden flex flex-col gap-4 px-4">
+                <SectionCards />
+                
+                <Suspense fallback={<ChartSkeleton />}>
+                  <PensionForecastChart />
+                </Suspense>
+                
+                <Suspense fallback={<ChartSkeleton />}>
+                  <RegionalBenchmarkChart />
+                </Suspense>
+              </div>
 
-                <div className="lg:col-span-9 h-full">
-                  <Suspense fallback={<ChartSkeleton />}>
-                    <ContributionHistoryChart />
-                  </Suspense>
-                </div>
+              {/* Bottom charts - Desktop */}
+              <div className="hidden lg:grid grid-cols-3 gap-4 px-6">
+                <Suspense fallback={<ChartSkeleton />}>
+                  <ScenariosChart />
+                </Suspense>
+                <Suspense fallback={<ChartSkeleton />}>
+                  <ContributionHistoryChart />
+                </Suspense>
+                <Suspense fallback={<ChartSkeleton />}>
+                  <SickLeaveImpactChart />
+                </Suspense>
+              </div>
 
-                <div className="lg:col-span-6 h-full">
-                  <Suspense fallback={<ChartSkeleton />}>
-                    <SickLeaveImpactChart />
-                  </Suspense>
-                </div>
+              {/* Bottom charts - Mobile */}
+              <div className="lg:hidden flex flex-col gap-4 px-4">
+                <Suspense fallback={<ChartSkeleton />}>
+                  <ScenariosChart />
+                </Suspense>
+                <Suspense fallback={<ChartSkeleton />}>
+                  <ContributionHistoryChart />
+                </Suspense>
+                <Suspense fallback={<ChartSkeleton />}>
+                  <SickLeaveImpactChart />
+                </Suspense>
               </div>
             </div>
           </div>

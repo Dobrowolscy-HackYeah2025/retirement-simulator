@@ -153,7 +153,7 @@ function ReplacementRateChart() {
           Stosunek emerytury do ostatniego wynagrodzenia
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-1 lg:px-6">
         <div ref={chartRef} className="h-[350px] w-full" />
       </CardContent>
     </Card>
