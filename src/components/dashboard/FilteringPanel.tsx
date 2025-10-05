@@ -6,50 +6,64 @@ import {
 } from '@/components/ui/tooltip';
 import {
   includeSickLeaveAtom,
-  inputCityAtom,
   inputGrossMonthlySalaryAtom,
-  inputRegionAtom,
-  regionalBenchmarkAtom,
   retirementAgeAtom,
   selectedScenarioAtom,
 } from '@/lib/atoms';
 
-import { useAtom, useAtomValue } from 'jotai';
+import { useEffect, useState } from 'react';
+
+import { useAtom } from 'jotai';
 import { Info, Stethoscope } from 'lucide-react';
 
 import { Card } from '../ui/card';
 import { Checkbox } from '../ui/checkbox';
+import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select';
 import { Separator } from '../ui/separator';
 
 type ScenarioType = 'pessimistic' | 'realistic' | 'optimistic';
+
+// Format number with thousands separator
+const formatNumber = (value: number | null): string => {
+  if (value === null || value === 0) {
+    return '';
+  }
+  return value.toLocaleString('en-US');
+};
 
 export function FilteringPanel() {
   const [retirementAge, setRetirementAge] = useAtom(retirementAgeAtom);
   const [salary, setSalary] = useAtom(inputGrossMonthlySalaryAtom);
   const [includeSickLeave, setIncludeSickLeave] = useAtom(includeSickLeaveAtom);
-  const [selectedRegion, setSelectedRegion] = useAtom(inputRegionAtom);
-  const [selectedCity, setSelectedCity] = useAtom(inputCityAtom);
   const [selectedScenario, setSelectedScenario] = useAtom(selectedScenarioAtom);
 
-  const regionalBenchmark = useAtomValue(regionalBenchmarkAtom);
+  const [salaryInputValue, setSalaryInputValue] = useState(() =>
+    formatNumber(salary)
+  );
 
-  const handleRegionChange = (e: string) => {
-    setSelectedRegion(e);
-  };
+  useEffect(() => {
+    setSalaryInputValue(formatNumber(salary));
+  }, [salary]);
 
-  const handleSalaryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Number(e.target.value);
-    if (!isNaN(value) && value >= 0) {
-      setSalary(value);
+  const handleSalaryChange = (value: string) => {
+    // Remove all non-digit characters
+    const cleanValue = value.replace(/[^\d]/g, '');
+
+    if (cleanValue === '') {
+      setSalaryInputValue('');
+      setSalary(null);
+      return;
     }
+
+    const parsedValue = Number(cleanValue);
+    if (Number.isNaN(parsedValue)) {
+      return;
+    }
+
+    // Format and display with thousands separator
+    setSalaryInputValue(parsedValue.toLocaleString('en-US'));
+    setSalary(parsedValue);
   };
 
   const handleRetirementAgeChange = (values: number[]) => {
@@ -61,10 +75,6 @@ export function FilteringPanel() {
 
   const handleScenarioChange = (scenario: ScenarioType) => {
     setSelectedScenario(scenario);
-  };
-
-  const handleCityChange = (e: string) => {
-    setSelectedCity(e);
   };
 
   const handleSickLeaveChange = (checked: boolean) => {
@@ -336,21 +346,27 @@ export function FilteringPanel() {
                 </TooltipContent>
               </Tooltip>
               <Label className="text-foreground">
-                Wysokość wynagrodzenia brutto (zł)
+                Wysokość wynagrodzenia brutto
               </Label>
             </div>
           </label>
-          <input
-            id="salary"
-            type="number"
-            value={salary ?? 0}
-            onChange={handleSalaryChange}
-            className="mt-1 block w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
-          />
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground">
+              PLN
+            </span>
+            <Input
+              id="salary"
+              type="text"
+              inputMode="numeric"
+              placeholder="0"
+              value={salaryInputValue}
+              onChange={(e) => handleSalaryChange(e.target.value)}
+              className="mt-1 block w-full pl-11"
+            />
+          </div>
         </div>
 
         {/* Sick Leave */}
-
       </div>
     </Card>
   );
