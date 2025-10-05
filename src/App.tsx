@@ -1,4 +1,3 @@
-import Dashboard from '@/routes/dashboard';
 import { OnboardingPage } from '@/routes/onboarding';
 import { Onboarding2SalaryPage } from '@/routes/onboarding-2-salary';
 
@@ -87,7 +86,7 @@ const AppContent = () => {
           path="/dashboard"
           element={
             <RequireOnboarding>
-              <Dashboard />
+              <DashboardNew />
             </RequireOnboarding>
           }
         />
