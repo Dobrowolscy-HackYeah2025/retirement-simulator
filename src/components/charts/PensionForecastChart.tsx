@@ -5,22 +5,25 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { pensionForecastDataAtom } from '@/lib/atoms';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { pensionForecastDataAtom, retirementAgeAtom } from '@/lib/atoms';
 
 import { useEffect, useRef, useState } from 'react';
 
 import Highcharts from 'highcharts';
+import { Info } from 'lucide-react';
 import { useAtomValue } from 'jotai';
 
 const CHART_COLORS = {
-  primary: '#00993f',
-  green: '#00993f',
-  greenLight: '#bad4c4',
-  darkBlue: '#00416e',
+  primary: 'var(--zus-green)', // #00993f
+  green: 'var(--zus-green)', // #00993f
+  greenLight: 'var(--secondary)', // #bad4c4
+  darkBlue: 'var(--navy-blue)', // #00416e
 } as const;
 
 function PensionForecastChart() {
   const pensionForecastData = useAtomValue(pensionForecastDataAtom);
+  const retirementAge = useAtomValue(retirementAgeAtom);
   const chartRef = useRef<HTMLDivElement>(null);
   const [chart, setChart] = useState<Highcharts.Chart | null>(null);
 
@@ -54,6 +57,20 @@ function PensionForecastChart() {
         },
         min: 60,
         max: 70,
+        plotLines: [
+          {
+            id: 'retirement-age-line',
+            value: retirementAge,
+            color: CHART_COLORS.darkBlue,
+            width: 2,
+            dashStyle: 'Solid',
+            zIndex: 5, // Wyższy z-index żeby plotline był nad seriami
+            label: {
+              text: `Wybrany wiek: ${retirementAge} lat`,
+              style: { color: CHART_COLORS.darkBlue, fontWeight: 'bold' },
+            },
+          },
+        ],
       },
       yAxis: {
         title: {
@@ -68,9 +85,7 @@ function PensionForecastChart() {
           data: pensionForecastData.map((item) => [item.age, item.amount]),
           color: CHART_COLORS.primary,
           marker: {
-            radius: 6,
-            fillColor: CHART_COLORS.primary,
-            lineColor: CHART_COLORS.primary,
+            enabled: false, // Wyłączone markery
           },
           lineWidth: 3,
         },
@@ -80,9 +95,7 @@ function PensionForecastChart() {
           data: pensionForecastData.map((item) => [item.age, item.realAmount]),
           color: CHART_COLORS.green,
           marker: {
-            radius: 6,
-            fillColor: CHART_COLORS.green,
-            lineColor: CHART_COLORS.green,
+            enabled: false, // Wyłączone markery
           },
           lineWidth: 3,
         },
@@ -130,10 +143,80 @@ function PensionForecastChart() {
     chart.redraw();
   }, [chart, pensionForecastData]);
 
+  // Update plotline when retirement age changes
+  useEffect(() => {
+    if (chart) {
+      const xAxis = chart.xAxis[0];
+      const plotLine = (xAxis as any).plotLinesAndBands.find(
+        (pl: any) => pl.id === 'retirement-age-line'
+      );
+
+      if (plotLine) {
+        // Remove existing plotline and add new one
+        chart.xAxis[0].removePlotLine('retirement-age-line');
+        chart.xAxis[0].addPlotLine({
+          id: 'retirement-age-line',
+          value: retirementAge,
+          color: CHART_COLORS.darkBlue,
+          width: 2,
+          dashStyle: 'Solid',
+          zIndex: 5, // Wyższy z-index żeby plotline był nad seriami
+          label: {
+            text: `Wybrany wiek: ${retirementAge} lat`,
+            style: { color: CHART_COLORS.darkBlue, fontWeight: 'bold' },
+          },
+        });
+      } else {
+        // Add new plotline if it doesn't exist
+        chart.xAxis[0].addPlotLine({
+          id: 'retirement-age-line',
+          value: retirementAge,
+          color: CHART_COLORS.darkBlue,
+          width: 2,
+          dashStyle: 'Solid',
+          zIndex: 5, // Wyższy z-index żeby plotline był nad seriami
+          label: {
+            text: `Wybrany wiek: ${retirementAge} lat`,
+            style: { color: CHART_COLORS.darkBlue, fontWeight: 'bold' },
+          },
+        });
+      }
+    }
+  }, [retirementAge, chart]);
+
   return (
-    <Card className="@container/card">
+    <Card className="@container/card max-h-[500px]">
       <CardHeader>
-        <CardTitle as="h2">Prognoza emerytury vs wiek przejścia</CardTitle>
+        <div className="flex items-center gap-2">
+          <CardTitle as="h2">Prognoza emerytury vs wiek przejścia</CardTitle>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Info
+                className="h-4 w-4 text-gray-600 hover:text-gray-800 transition-colors cursor-help"
+                aria-label="Informacje o prognozie emerytury"
+              />
+            </TooltipTrigger>
+            <TooltipContent className="max-w-sm bg-white text-gray-800 border border-gray-200 shadow-lg">
+              <div className="text-sm">
+                <div className="font-semibold mb-2">Wpływ wieku przejścia na emeryturę</div>
+                <div className="space-y-2">
+                  <div>
+                    <strong>Późniejsza emerytura:</strong> Więcej składek + krótsza emerytura = wyższa miesięczna emerytura
+                  </div>
+                  <div>
+                    <strong>Emerytura nominalna:</strong> Wartość w cenach z roku przejścia
+                  </div>
+                  <div>
+                    <strong>Emerytura realna:</strong> Wartość w cenach z 2025 roku (po inflacji)
+                  </div>
+                  <div className="text-xs text-gray-500 mt-2">
+                    * Wzrost ~3-6% rocznie dzięki danym ZUS
+                  </div>
+                </div>
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </div>
         <CardDescription>
           Wpływ wieku przejścia na emeryturę na wysokość świadczenia
         </CardDescription>
@@ -144,7 +227,9 @@ function PensionForecastChart() {
             Brak danych do wyświetlenia
           </div>
         ) : (
-          <div ref={chartRef} className="h-[400px] w-full" />
+          <div className="h-[400px] w-full relative">
+            <div ref={chartRef} className="absolute inset-0 h-full w-full" />
+          </div>
         )}
       </CardContent>
     </Card>

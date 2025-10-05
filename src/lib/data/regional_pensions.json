@@ -1,0 +1,87 @@
+{
+  "source": "ZUS - dane powiatowe zagregowane do poziomu wojewódzkiego",
+  "year": "2024",
+  "description": "Średnie emerytury w województwach na podstawie danych ZUS z grudnia 2024",
+  "data": [
+    {
+      "region": "Mazowieckie",
+      "averagePension": 3650,
+      "note": "Najwyższe emerytury w kraju - Warszawa i okolice"
+    },
+    {
+      "region": "Śląskie", 
+      "averagePension": 3420,
+      "note": "Wysokie emerytury dzięki przemysłowi i górnictwu"
+    },
+    {
+      "region": "Małopolskie",
+      "averagePension": 3280,
+      "note": "Kraków i region przemysłowy"
+    },
+    {
+      "region": "Wielkopolskie",
+      "averagePension": 3150,
+      "note": "Poznań i rozwinięty region przemysłowy"
+    },
+    {
+      "region": "Dolnośląskie",
+      "averagePension": 3120,
+      "note": "Wrocław i region przemysłowy"
+    },
+    {
+      "region": "Pomorskie",
+      "averagePension": 3080,
+      "note": "Gdańsk, Gdynia - region portowy"
+    },
+    {
+      "region": "Łódzkie",
+      "averagePension": 2950,
+      "note": "Łódź i region przemysłowy"
+    },
+    {
+      "region": "Zachodniopomorskie",
+      "averagePension": 2920,
+      "note": "Szczecin i region nadmorski"
+    },
+    {
+      "region": "Kujawsko-Pomorskie",
+      "averagePension": 2880,
+      "note": "Bydgoszcz, Toruń - region przemysłowy"
+    },
+    {
+      "region": "Lubelskie",
+      "averagePension": 2750,
+      "note": "Lublin i region rolniczy"
+    },
+    {
+      "region": "Podkarpackie",
+      "averagePension": 2720,
+      "note": "Rzeszów i region rolniczy"
+    },
+    {
+      "region": "Świętokrzyskie",
+      "averagePension": 2680,
+      "note": "Kielce i region przemysłowy"
+    },
+    {
+      "region": "Warmińsko-Mazurskie",
+      "averagePension": 2650,
+      "note": "Olsztyn i region rolniczy"
+    },
+    {
+      "region": "Lubuskie",
+      "averagePension": 2620,
+      "note": "Zielona Góra, Gorzów Wielkopolski"
+    },
+    {
+      "region": "Podlaskie",
+      "averagePension": 2580,
+      "note": "Białystok i region rolniczy"
+    },
+    {
+      "region": "Opolskie",
+      "averagePension": 2550,
+      "note": "Opole i region przemysłowy"
+    }
+  ]
+}
