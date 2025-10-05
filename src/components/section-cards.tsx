@@ -1,6 +1,4 @@
-import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-react"
-
-import { Badge } from "@/components/ui/badge"
+import { Badge } from '@/components/ui/badge';
 import {
   Card,
   CardAction,
@@ -8,95 +6,144 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from '@/components/ui/card';
+
+import { IconTrendingDown, IconTrendingUp } from '@tabler/icons-react';
+import { useAtomValue } from 'jotai';
+
+import {
+  averagePensionAtom,
+  purchasingPowerPercentageAtom,
+  replacementRateAtom,
+  selectedScenarioPensionAtom,
+  selectedScenarioRealPensionAtom,
+} from '../lib/atoms';
 
 export function SectionCards() {
+  // Get data from global state
+  const selectedPension = useAtomValue(selectedScenarioPensionAtom);
+  const selectedRealPension = useAtomValue(selectedScenarioRealPensionAtom);
+  const averagePension = useAtomValue(averagePensionAtom);
+  const replacementRate = useAtomValue(replacementRateAtom);
+  const purchasingPowerPercentage = useAtomValue(purchasingPowerPercentageAtom);
+
+  const pensionVsAverage = Math.round(
+    ((selectedPension - averagePension) / averagePension) * 100
+  );
+  const isPensionAboveAverage = selectedPension > averagePension;
+
   return (
     <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+      {/* Emerytura rzeczywista */}
       <Card className="@container/card">
         <CardHeader>
-          <CardDescription>Total Revenue</CardDescription>
+          <CardDescription>Emerytura rzeczywista</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            $1,250.00
+            {selectedPension.toLocaleString()} zł
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
-              <IconTrendingUp />
-              +12.5%
+              {isPensionAboveAverage ? (
+                <IconTrendingUp />
+              ) : (
+                <IconTrendingDown />
+              )}
+              {isPensionAboveAverage ? '+' : ''}
+              {pensionVsAverage}%
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Trending up this month <IconTrendingUp className="size-4" />
+            {isPensionAboveAverage ? 'Powyżej' : 'Poniżej'} średniej{' '}
+            {isPensionAboveAverage ? (
+              <IconTrendingUp className="size-4" />
+            ) : (
+              <IconTrendingDown className="size-4" />
+            )}
           </div>
           <div className="text-muted-foreground">
-            Visitors for the last 6 months
+            vs średnia: {averagePension.toLocaleString()} zł
           </div>
         </CardFooter>
       </Card>
+
+      {/* Emerytura urealniona */}
       <Card className="@container/card">
         <CardHeader>
-          <CardDescription>New Customers</CardDescription>
+          <CardDescription>Emerytura urealniona</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            1,234
+            {selectedRealPension.toLocaleString()} zł
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
-              <IconTrendingDown />
-              -20%
-            </Badge>
+            <Badge variant="outline">{purchasingPowerPercentage}%</Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Down 20% this period <IconTrendingDown className="size-4" />
+            Siła nabywcza po inflacji
           </div>
           <div className="text-muted-foreground">
-            Acquisition needs attention
+            {purchasingPowerPercentage}% wartości nominalnej
           </div>
         </CardFooter>
       </Card>
+
+      {/* Stopa zastąpienia */}
       <Card className="@container/card">
         <CardHeader>
-          <CardDescription>Active Accounts</CardDescription>
+          <CardDescription>Stopa zastąpienia</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            45,678
+            {replacementRate}%
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
-              <IconTrendingUp />
-              +12.5%
+              {replacementRate >= 50 ? (
+                <IconTrendingUp />
+              ) : (
+                <IconTrendingDown />
+              )}
+              {replacementRate >= 50 ? 'Dobry' : 'Niski'}
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Strong user retention <IconTrendingUp className="size-4" />
+            {replacementRate >= 50 ? 'Dobry poziom' : 'Niski poziom'}{' '}
+            {replacementRate >= 50 ? (
+              <IconTrendingUp className="size-4" />
+            ) : (
+              <IconTrendingDown className="size-4" />
+            )}
           </div>
-          <div className="text-muted-foreground">Engagement exceed targets</div>
+          <div className="text-muted-foreground">
+            Procent obecnego wynagrodzenia
+          </div>
         </CardFooter>
       </Card>
+
+      {/* Różnica nominalna vs realna */}
       <Card className="@container/card">
         <CardHeader>
-          <CardDescription>Growth Rate</CardDescription>
+          <CardDescription>Wpływ inflacji</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            4.5%
+            {(selectedPension - selectedRealPension).toLocaleString()} zł
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
-              <IconTrendingUp />
-              +4.5%
+              <IconTrendingDown />-{100 - purchasingPowerPercentage}%
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Steady performance increase <IconTrendingUp className="size-4" />
+            Utrata siły nabywczej <IconTrendingDown className="size-4" />
           </div>
-          <div className="text-muted-foreground">Meets growth projections</div>
+          <div className="text-muted-foreground">
+            Różnica między nominalną a realną
+          </div>
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }
