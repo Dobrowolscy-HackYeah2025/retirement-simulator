@@ -320,11 +320,11 @@ export function OnboardingPage() {
             </div>
           </div>
 
-          {!isAgeValid && userAge && (
+          {!isAgeValid && userAge ? (
             <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
               Wiek musi być między {MIN_USER_AGE} a {MAX_USER_AGE}.
             </p>
-          )}
+          ) : null}
         </div>
       </div>
 
