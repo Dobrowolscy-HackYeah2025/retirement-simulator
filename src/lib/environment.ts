@@ -26,4 +26,5 @@ export const environment = {
   POSTHOG_KEY: requiredStr(import.meta.env.VITE_PUBLIC_POSTHOG_KEY),
   POSTHOG_HOST: requiredStr(import.meta.env.VITE_PUBLIC_POSTHOG_HOST),
   TEST_MULTI_LOADER: parseBool(import.meta.env.VITE_PUBLIC_TEST_MULTI_LOADER),
+  DEV_MODE: parseBool(import.meta.env.VITE_PUBLIC_DEV_MODE),
 };

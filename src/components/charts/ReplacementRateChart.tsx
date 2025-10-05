@@ -67,7 +67,18 @@ export function ReplacementRateChart() {
         {
           name: 'Stopa zastąpienia',
           type: 'pie',
-          data: [],
+          data: [
+            {
+              name: 'Emerytura',
+              y: replacementRate,
+              color: CHART_COLORS.primary,
+            },
+            {
+              name: 'Różnica',
+              y: 100 - replacementRate,
+              color: CHART_COLORS.greenLight,
+            },
+          ],
         },
       ],
       credits: {
@@ -80,7 +91,8 @@ export function ReplacementRateChart() {
     return () => {
       newChart.destroy();
     };
-  }, [chart]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Update chart data
   useEffect(() => {

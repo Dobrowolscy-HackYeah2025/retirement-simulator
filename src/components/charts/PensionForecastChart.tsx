@@ -26,7 +26,12 @@ export function PensionForecastChart() {
 
   // Initialize chart
   useEffect(() => {
-    if (!chartRef.current || chart) {
+    if (!chartRef.current) {
+      return;
+    }
+
+    // Don't re-initialize if chart already exists
+    if (chart) {
       return;
     }
 
@@ -60,7 +65,7 @@ export function PensionForecastChart() {
         {
           name: 'Kwota emerytury',
           type: 'line',
-          data: [],
+          data: pensionForecastData.map((item) => [item.age, item.amount]),
           color: CHART_COLORS.primary,
           marker: {
             radius: 6,
@@ -72,7 +77,7 @@ export function PensionForecastChart() {
         {
           name: 'Emerytura realna',
           type: 'line',
-          data: [],
+          data: pensionForecastData.map((item) => [item.age, item.realAmount]),
           color: CHART_COLORS.green,
           marker: {
             radius: 6,
@@ -99,7 +104,8 @@ export function PensionForecastChart() {
     return () => {
       newChart.destroy();
     };
-  }, [chart]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Update chart data
   useEffect(() => {
@@ -133,7 +139,13 @@ export function PensionForecastChart() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div ref={chartRef} className="h-[400px] w-full" />
+        {pensionForecastData.length === 0 ? (
+          <div className="flex h-[400px] w-full items-center justify-center text-muted-foreground">
+            Brak danych do wyświetlenia
+          </div>
+        ) : (
+          <div ref={chartRef} className="h-[400px] w-full" />
+        )}
       </CardContent>
     </Card>
   );

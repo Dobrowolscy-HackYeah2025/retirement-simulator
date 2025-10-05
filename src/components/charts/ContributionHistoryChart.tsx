@@ -38,7 +38,7 @@ export function ContributionHistoryChart() {
         text: '',
       },
       xAxis: {
-        categories: [],
+        categories: contributionHistory.map((item) => item.year.toString()),
       },
       yAxis: [
         {
@@ -59,7 +59,7 @@ export function ContributionHistoryChart() {
         {
           name: 'Składki roczne',
           type: 'column',
-          data: [],
+          data: contributionHistory.map((item) => item.contributions),
           color: CHART_COLORS.greenLight,
           yAxis: 0,
           borderWidth: 0,
@@ -68,7 +68,7 @@ export function ContributionHistoryChart() {
         {
           name: 'Kapitał narastający',
           type: 'line',
-          data: [],
+          data: contributionHistory.map((item) => item.capital),
           color: CHART_COLORS.primary,
           yAxis: 1,
           marker: {
@@ -93,7 +93,8 @@ export function ContributionHistoryChart() {
     return () => {
       newChart.destroy();
     };
-  }, [chart]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Update chart data
   useEffect(() => {

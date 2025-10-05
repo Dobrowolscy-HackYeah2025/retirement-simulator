@@ -5,6 +5,7 @@ import { atomFamily } from 'jotai/utils';
 import absencjaChorobowaData from './data/absencja_chorobowa_all_sheets.json';
 import opoznienieData from './data/opoznienie_przejscia_all_sheets.json';
 import parametryData from './data/parametry_III_2025_all_sheets.json';
+import { environment } from './environment';
 import type { Gender, RetirementInputsState } from './retirementUtils';
 import {
   computeMonthlyPension,
@@ -19,14 +20,30 @@ import {
 export const showReportGeneratorAtom = atom<boolean>(false);
 
 // Wejścia użytkownika jako osobne atomy
-export const inputAgeAtom = atom<number | null>(null); // Wiek
-export const inputGenderAtom = atom<Gender | null>(null); // Płeć
-export const inputCityAtom = atom<string | null>(null); // Miasto
-export const inputGrossMonthlySalaryAtom = atom<number | null>(null); // Pensja brutto
-export const inputWorkStartYearAtom = atom<number | null>(null); // Rok startu pracy
-export const inputPlannedRetirementYearAtom = atom<number | null>(null); // Rok emerytury
-export const inputZusAccountBalanceAtom = atom<number | null>(null); // Stan konta ZUS
-export const onboardingCompletedAtom = atom<boolean>(false); // Onboarding zakończony
+export const inputAgeAtom = atom<number | null>(
+  environment.DEV_MODE ? 31 : null
+);
+export const inputGenderAtom = atom<Gender | null>(
+  environment.DEV_MODE ? 'male' : null
+);
+export const inputCityAtom = atom<string | null>(
+  environment.DEV_MODE ? 'Warszawa' : null
+);
+export const inputGrossMonthlySalaryAtom = atom<number | null>(
+  environment.DEV_MODE ? 5000 : null
+);
+export const inputWorkStartYearAtom = atom<number | null>(
+  environment.DEV_MODE ? 1990 : null
+);
+export const inputPlannedRetirementYearAtom = atom<number | null>(
+  environment.DEV_MODE ? 2050 : null
+);
+export const inputZusAccountBalanceAtom = atom<number | null>(
+  environment.DEV_MODE ? 100000 : null
+);
+export const onboardingCompletedAtom = atom<boolean>(
+  environment.DEV_MODE ? true : false
+);
 
 // retirementAgeAtom - wiek przejścia na emeryturę
 export const retirementAgeAtom = atom(
@@ -867,7 +884,9 @@ export const selectedScenarioRealPensionAtom = atom((get) => {
   const selectedPension = get(selectedScenarioPensionAtom);
   const inputs = get(retirementInputsAtom);
 
-  if (!inputs.plannedRetirementYear) return Math.round(selectedPension * 0.7);
+  if (!inputs.plannedRetirementYear) {
+    return Math.round(selectedPension * 0.7);
+  }
 
   // Oblicz urealnioną emeryturę na podstawie rzeczywistych danych inflacji ZUS
   const currentYear = new Date().getFullYear();
@@ -905,7 +924,9 @@ export const purchasingPowerPercentageAtom = atom((get) => {
   const selectedPension = get(selectedScenarioPensionAtom);
   const selectedRealPension = get(selectedScenarioRealPensionAtom);
 
-  if (selectedPension === 0) return 0;
+  if (selectedPension === 0) {
+    return 0;
+  }
   return Math.round((selectedRealPension / selectedPension) * 100);
 });
 
@@ -915,7 +936,9 @@ export const retirementDelayBenefitAtom = atom((get) => {
   const inputs = get(retirementInputsAtom);
   const selectedPension = get(selectedScenarioPensionAtom);
 
-  if (!inputs.plannedRetirementYear) return 18; // fallback
+  if (!inputs.plannedRetirementYear) {
+    return 18;
+  } // fallback
 
   // Oblicz emeryturę przy opóźnieniu o 2 lata używając rzeczywistych danych ZUS
 
@@ -1042,7 +1065,9 @@ export const realPensionIndexAtom = atom((get) => {
 // 8. Średnia emerytura w Polsce (dla porównania)
 export const averagePensionAtom = atom((get) => {
   const inputs = get(retirementInputsAtom);
-  if (!inputs.gender) return 0;
+  if (!inputs.gender) {
+    return 0;
+  }
 
   // Średnia emerytura w Polsce w 2024/2025 (dane GUS/ZUS)
   const baseAverage = 2800; // Średnia emerytura w Polsce
@@ -1056,7 +1081,9 @@ export const averagePensionAtom = atom((get) => {
 // 9. Średnia długość życia (dla tooltipu IRE)
 export const lifeExpectancyInfoAtom = atom((get) => {
   const projection = get(retirementComputationAtom);
-  if (!projection) return { years: 0, months: 0 };
+  if (!projection) {
+    return { years: 0, months: 0 };
+  }
 
   const years = Math.floor(projection.lifeExpectancyYears);
   const months = Math.round((projection.lifeExpectancyYears - years) * 12);
@@ -1070,7 +1097,9 @@ export const expectedPensionComparisonAtom = atom((get) => {
   const projection = get(retirementComputationAtom);
   const includeSickLeave = get(includeSickLeaveAtom);
 
-  if (!projection || !inputs.expectedPension) return null;
+  if (!projection || !inputs.expectedPension) {
+    return null;
+  }
 
   const currentPension = includeSickLeave
     ? get(retirementMonthlyPensionWithSickLeaveAtom) || 0

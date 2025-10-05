@@ -50,7 +50,13 @@ export function ScenariosChart() {
         {
           name: 'Prognozowana emerytura',
           type: 'column',
-          data: [],
+          data: scenariosData
+            ? [
+                { y: scenariosData.pessimistic, color: CHART_COLORS.greenDark },
+                { y: scenariosData.realistic, color: CHART_COLORS.primary },
+                { y: scenariosData.optimistic, color: CHART_COLORS.green },
+              ]
+            : [],
           dataLabels: {
             enabled: true,
             format: '{y} zł',
@@ -73,7 +79,8 @@ export function ScenariosChart() {
     return () => {
       newChart.destroy();
     };
-  }, [chart]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Update chart data
   useEffect(() => {

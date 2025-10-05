@@ -51,7 +51,20 @@ export function SickLeaveImpactChart() {
         {
           name: 'Wysokość emerytury',
           type: 'column',
-          data: [],
+          data: sickLeaveImpact
+            ? [
+                {
+                  y: includeSickLeave
+                    ? sickLeaveImpact.withSickLeave
+                    : sickLeaveImpact.withoutSickLeave,
+                  color: CHART_COLORS.greenDark,
+                },
+                {
+                  y: sickLeaveImpact.withoutSickLeave,
+                  color: CHART_COLORS.primary,
+                },
+              ]
+            : [],
           dataLabels: {
             enabled: true,
             format: '{y} zł',
@@ -74,7 +87,8 @@ export function SickLeaveImpactChart() {
     return () => {
       newChart.destroy();
     };
-  }, [chart]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Update chart data
   useEffect(() => {

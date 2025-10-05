@@ -39,7 +39,7 @@ export function RegionalBenchmarkChart() {
         text: '',
       },
       xAxis: {
-        categories: [],
+        categories: regionalBenchmark.map((item) => item.region),
       },
       yAxis: {
         title: {
@@ -51,14 +51,22 @@ export function RegionalBenchmarkChart() {
         {
           name: 'Średnia w regionie',
           type: 'column',
-          data: [],
+          data: regionalBenchmark.map((item) => ({
+            y: item.average,
+            color: item.isSelected
+              ? CHART_COLORS.primary
+              : CHART_COLORS.greenLight,
+          })),
           borderWidth: 0,
           borderRadius: 4,
         },
         {
           name: 'Twoja prognoza',
           type: 'column',
-          data: [],
+          data: regionalBenchmark.map((item) => ({
+            y: item.user,
+            color: item.isSelected ? CHART_COLORS.greenDark : CHART_COLORS.gray,
+          })),
           borderWidth: 0,
           borderRadius: 4,
         },
@@ -77,7 +85,8 @@ export function RegionalBenchmarkChart() {
     return () => {
       newChart.destroy();
     };
-  }, [chart]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Update chart data
   useEffect(() => {
