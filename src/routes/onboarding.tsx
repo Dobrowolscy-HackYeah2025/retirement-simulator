@@ -56,7 +56,7 @@ export function OnboardingPage() {
     setGender(value === 'man' ? 'male' : 'female');
   };
 
-  const setUserAge = (val: number) => {
+  const setUserAge = (val: number | null) => {
     setAge(val);
   };
 
@@ -260,9 +260,17 @@ export function OnboardingPage() {
                 step={1}
                 className="min-w-0 text-center"
                 size={3}
-                value={userAge!}
+                value={typeof userAge === 'number' ? userAge : undefined}
                 onChange={(e) => {
-                  setUserAge(+e.target.value);
+                  const value = e.target.value;
+                  if (value === '') {
+                    setUserAge(null);
+                  } else {
+                    const numValue = parseInt(value, 10);
+                    if (!isNaN(numValue)) {
+                      setUserAge(numValue);
+                    }
+                  }
                 }}
               />
             </div>
