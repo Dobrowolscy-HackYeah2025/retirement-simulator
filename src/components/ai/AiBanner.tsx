@@ -1,10 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { useAtom } from 'jotai';
-import { CheckCircleIcon, Loader2 } from 'lucide-react';
+import { useAtom, useAtomValue } from 'jotai';
+import { BrainIcon, CheckCircleIcon, Loader2 } from 'lucide-react';
 
-import { showAiBannerAtom, showAiSummaryAtom } from '../../lib/atoms';
+import {
+  dashboardSummaryQueryAtom,
+  showAiBannerAtom,
+  showAiSummaryAtom,
+} from '../../lib/atoms';
 
 const SAMPLE_AI_SUMMARY = `
  Masz 31 lat. Jestes super zdrowy i aktywny. Masz 100000 zl na koncie emerytalnym.
@@ -19,7 +23,7 @@ const SAMPLE_AI_SUMMARY = `
 export const AiBanner = () => {
   const [showAiBanner, setShowAiBanner] = useAtom(showAiBannerAtom);
   const [showAiSummary, setShowAiSummary] = useAtom(showAiSummaryAtom);
-  const [isLoading, setIsLoading] = useState(true);
+  const summaryQuery = useAtomValue(dashboardSummaryQueryAtom);
 
   const handleIgnoreNotification = () => {
     setShowAiBanner(false);
@@ -29,21 +33,44 @@ export const AiBanner = () => {
     setShowAiSummary(true);
   };
 
+  // Automatically show summary when data is received
   useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-  }, []);
+    if (summaryQuery.isSuccess && summaryQuery.data) {
+      setShowAiSummary(true);
+    }
+  }, [summaryQuery.isSuccess, summaryQuery.data, setShowAiSummary]);
 
   if (!showAiBanner) {
     return null;
   }
 
+  const isLoading = summaryQuery.isPending;
+  const summaryData = summaryQuery.data;
+  const hasError = summaryQuery.isError;
+
+  // Change color to light green when summary is ready
+  const backgroundColor = showAiSummary
+    ? '#00993f40' // Light green accent
+    : '#FFB34F'; // Orange
+  const textColor = showAiSummary ? '#10331e' : '#10331e';
+  const borderColor = showAiSummary ? '#10331e20' : 'transparent';
+
   return (
     <motion.div
-      className="w-full bg-[#FFB34F] text-[#281803] overflow-hidden"
+      className="w-full overflow-hidden"
+      style={{
+        backgroundColor,
+        color: textColor,
+        borderStyle: 'solid',
+        borderTopWidth: '1px',
+        borderBottomWidth: '1px',
+      }}
       initial={{ height: 'auto' }}
-      animate={{ height: 'auto' }}
+      animate={{
+        height: 'auto',
+        backgroundColor,
+        borderColor,
+      }}
       transition={{ duration: 0.5, ease: 'easeInOut' }}
     >
       <AnimatePresence mode="wait">
@@ -76,7 +103,16 @@ export const AiBanner = () => {
               transition={{ delay: 0.2, duration: 0.4 }}
               className="flex items-start gap-2"
             >
-              {SAMPLE_AI_SUMMARY}
+              <BrainIcon className="h-5 w-5 flex-shrink-0 mt-0.5" />
+
+              <div className="text-sm">
+                <span className="underline font-medium">
+                  Podsumowanie AI (może popełniać błędy):
+                </span>{' '}
+                {hasError
+                  ? 'Nie udało się wygenerować podsumowania. Spróbuj ponownie później.'
+                  : summaryData?.summary || SAMPLE_AI_SUMMARY}
+              </div>
             </motion.div>
           </motion.div>
         ) : (

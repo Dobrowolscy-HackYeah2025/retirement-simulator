@@ -1,4 +1,5 @@
 import { atom } from 'jotai';
+import { atomWithQuery } from 'jotai-tanstack-query';
 import { atomFamily } from 'jotai/utils';
 
 // Import danych z plików JSON
@@ -1222,53 +1223,47 @@ export interface DashboardSummaryResponse {
 }
 
 // Atom podsumowania emerytalnego (dashboard summary atom)
-export const dashboardSummaryAtom = atom<Promise<DashboardSummaryResponse>>(
-  async (get) => {
+export const dashboardSummaryQueryAtom = atomWithQuery((get) => ({
+  queryKey: ['dashboard-summary'],
+  queryFn: async (): Promise<DashboardSummaryResponse> => {
     const payload = get(reportEventPayloadAtom);
 
-    try {
-      const response = await fetch(`${environment.METRICS_HOST}/api/summary`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Vercel-Protection-Bypass': environment.VERCEL_BYPASS,
-        },
-        body: JSON.stringify(payload),
-      });
+    const response = await fetch(`${environment.METRICS_HOST}/api/summary`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Vercel-Protection-Bypass': environment.VERCEL_BYPASS,
+      },
+      body: JSON.stringify(payload),
+    });
 
-      if (!response.ok) {
-        const fallbackText = await response.text().catch(() => '');
-        return {
-          summary:
-            fallbackText.trim() ||
-            'Nie udało się pobrać podsumowania emerytalnego.',
-        };
-      }
+    if (!response.ok) {
+      const fallbackText = await response.text().catch(() => '');
+      throw new Error(
+        fallbackText.trim() || 'Nie udało się pobrać podsumowania emerytalnego.'
+      );
+    }
 
-      const contentType = response.headers.get('content-type') ?? '';
+    const contentType = response.headers.get('content-type') ?? '';
 
-      if (contentType.includes('application/json')) {
-        const data =
-          (await response.json()) as Partial<DashboardSummaryResponse>;
-
-        return {
-          summary: data?.summary?.toString().trim() ?? '',
-        };
-      }
-
-      const text = await response.text();
+    if (contentType.includes('application/json')) {
+      const data = (await response.json()) as Partial<DashboardSummaryResponse>;
 
       return {
-        summary: text.trim(),
-      };
-    } catch (error) {
-      console.error('Nie udało się pobrać podsumowania emerytalnego', error);
-      return {
-        summary: 'Nie udało się pobrać podsumowania emerytalnego.',
+        summary: data?.summary?.toString().trim() ?? '',
       };
     }
-  }
-);
+
+    const text = await response.text();
+
+    return {
+      summary: text.trim(),
+    };
+  },
+  retry: 0,
+  staleTime: Infinity, // Never refetch automatically
+  gcTime: Infinity, // Keep in cache forever
+}));
 
 /** AI */
 export const showAiBannerAtom = atom<boolean>(true);
