@@ -1179,7 +1179,6 @@ export const reportEventPayloadAtom = atom<ReportEventPayload>((get) => {
   const actualPension = get(selectedScenarioPensionAtom);
   const adjustedPension = get(selectedScenarioRealPensionAtom);
   const postalCode = get(inputPostalCodeAtom);
-  const expectedPension = get(selectedScenarioPensionAtom);
 
   const sanitizeNumber = (value: number | null | undefined): number | null =>
     typeof value === 'number' && Number.isFinite(value) ? value : null;
@@ -1203,13 +1202,13 @@ export const reportEventPayloadAtom = atom<ReportEventPayload>((get) => {
   };
 
   return {
-    expectedPension: sanitizeNumber(expectedPension),
     age: sanitizeNumber(inputs.age),
     gender: mapGenderToLabel(inputs.gender),
     salary: sanitizeNumber(inputs.grossMonthlySalary),
     includesSicknessPeriods,
     zusBalance: sanitizeNumber(inputs.zusAccountBalance),
     actualPension: sanitizeNumber(actualPension),
+    expectedPension: sanitizeNumber(actualPension),
     adjustedPension: sanitizeNumber(adjustedPension),
     postalCode: sanitizeString(postalCode),
   };
