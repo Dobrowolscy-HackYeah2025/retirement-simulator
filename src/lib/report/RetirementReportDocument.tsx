@@ -1,24 +1,30 @@
 import ZusSansBold from '@/lib/report/fonts/DejaVuSans-Bold.ttf';
 import ZusSansRegular from '@/lib/report/fonts/DejaVuSans.ttf';
+import polandTopology from '@/lib/data/poland-topology.json';
 import type {
   RetirementReportChart,
   RetirementReportChartSeries,
   RetirementReportData,
   RetirementReportGroup,
   RetirementReportHighlight,
+  RetirementReportMapChart,
+  RetirementReportSeriesChart,
 } from '@/lib/report/types';
 
 import type { ReactElement } from 'react';
 
 import {
   Circle,
+  Defs,
   Document,
   Font,
   G,
+  LinearGradient,
   Page,
   Path,
-  Text as PdfText,
+  Text,
   Rect,
+  Stop,
   StyleSheet,
   Svg,
   View,
@@ -32,6 +38,9 @@ Font.register({
   ],
   fallback: true,
 });
+
+const PdfText = Text;
+const SvgText = Text;
 
 export interface RetirementReportDocumentProps {
   dataset: RetirementReportData;
@@ -303,12 +312,52 @@ const styles = StyleSheet.create({
     marginBottom: 2,
     color: ZUS_COLORS.navy,
   },
+  mapLegend: {
+    marginTop: 12,
+    flexDirection: 'column',
+  },
+  mapLegendTitle: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: ZUS_COLORS.navy,
+  },
+  mapLegendRange: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  mapLegendValue: {
+    fontSize: 10,
+    color: ZUS_COLORS.navy,
+  },
+  mapSummaryBox: {
+    marginTop: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 8,
+    backgroundColor: 'rgba(186, 212, 196, 0.35)',
+  },
+  mapSummaryTitle: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: ZUS_COLORS.navy,
+    marginBottom: 4,
+  },
+  mapSummaryText: {
+    fontSize: 10,
+    color: ZUS_COLORS.navy,
+    marginBottom: 2,
+  },
 });
 
 const CHART_WIDTH = 520;
 const CHART_HEIGHT = 240;
 const CHART_MARGIN = { top: 24, right: 28, bottom: 44, left: 60 } as const;
 const numberFormatter = new Intl.NumberFormat('pl-PL');
+const currencyFormatter = new Intl.NumberFormat('pl-PL', {
+  style: 'currency',
+  currency: 'PLN',
+  maximumFractionDigits: 0,
+});
 
 const formatAxisValue = (value: number) => {
   if (!Number.isFinite(value)) {
@@ -352,6 +401,263 @@ const formatColumnValue = (
   }
 
   return formattedBase;
+};
+
+const formatMapLegendValue = (
+  value: number,
+  suffix?: string
+): string => {
+  if (!Number.isFinite(value)) {
+    return '—';
+  }
+
+  if (suffix?.trim().startsWith('zł')) {
+    return currencyFormatter.format(value);
+  }
+
+  const formatted = numberFormatter.format(Math.round(value));
+  return suffix ? `${formatted}${suffix}` : formatted;
+};
+
+type Coordinate = [number, number];
+
+interface PolygonGeometry {
+  polygons: Coordinate[][][]; // polygon -> ring -> coordinate
+}
+
+type TopologyShape = {
+  arcs: number[][][];
+  transform: { scale: [number, number]; translate: [number, number] };
+  objects: {
+    default: {
+      geometries: Array<{
+        type: 'Polygon' | 'MultiPolygon';
+        arcs: number[][] | number[][][];
+        properties: { 'hc-key': string };
+      }>;
+    };
+  };
+  bbox: [number, number, number, number];
+};
+
+const polandTopologyTyped = polandTopology as TopologyShape;
+
+const decodedArcs: Coordinate[][] = polandTopologyTyped.arcs.map((arc) => {
+  const { scale, translate } = polandTopologyTyped.transform;
+  let x = 0;
+  let y = 0;
+
+  return arc.map(([dx, dy]) => {
+    x += dx;
+    y += dy;
+    return [x * scale[0] + translate[0], y * scale[1] + translate[1]] as Coordinate;
+  });
+});
+
+const assembleRing = (ringArcs: number[]): Coordinate[] => {
+  const ring: Coordinate[] = [];
+
+  ringArcs.forEach((arcIndex, index) => {
+    const sourceIndex = arcIndex >= 0 ? arcIndex : ~arcIndex;
+    const sourceArc = decodedArcs[sourceIndex];
+    const arcPoints = arcIndex >= 0 ? sourceArc : [...sourceArc].reverse();
+
+    if (index > 0) {
+      ring.push(...arcPoints.slice(1));
+    } else {
+      ring.push(...arcPoints);
+    }
+  });
+
+  return ring;
+};
+
+const buildGeometry = (geometry: {
+  type: 'Polygon' | 'MultiPolygon';
+  arcs: number[][] | number[][][];
+}): Coordinate[][][] => {
+  if (geometry.type === 'Polygon') {
+    return [
+      (geometry.arcs as number[][]).map((ring) => assembleRing(ring)),
+    ];
+  }
+
+  return (geometry.arcs as number[][][]).map((polygon) =>
+    polygon.map((ring) => assembleRing(ring))
+  );
+};
+
+const polandGeometries: Map<string, PolygonGeometry> = new Map(
+  polandTopologyTyped.objects.default.geometries.map((geometry) => {
+    const hcKey = geometry.properties['hc-key'];
+    return [hcKey, { polygons: buildGeometry(geometry) }] as const;
+  })
+);
+
+const polandBBox = polandTopologyTyped.bbox;
+
+const computeRingCentroid = (
+  ring: Coordinate[]
+): { centroid: Coordinate; area: number } => {
+  if (ring.length === 0) {
+    return { centroid: [0, 0], area: 0 };
+  }
+
+  let twiceArea = 0;
+  let centroidX = 0;
+  let centroidY = 0;
+
+  for (let index = 0; index < ring.length; index += 1) {
+    const current = ring[index];
+    const next = ring[(index + 1) % ring.length];
+    const cross = current[0] * next[1] - next[0] * current[1];
+
+    twiceArea += cross;
+    centroidX += (current[0] + next[0]) * cross;
+    centroidY += (current[1] + next[1]) * cross;
+  }
+
+  if (twiceArea === 0) {
+    const fallback = ring.reduce<Coordinate>(
+      (accumulator, coordinate) => [
+        accumulator[0] + coordinate[0],
+        accumulator[1] + coordinate[1],
+      ],
+      [0, 0]
+    );
+    return {
+      centroid: [fallback[0] / ring.length, fallback[1] / ring.length],
+      area: 0,
+    };
+  }
+
+  const area = twiceArea / 2;
+  const centroid: Coordinate = [
+    centroidX / (3 * twiceArea),
+    centroidY / (3 * twiceArea),
+  ];
+
+  return { centroid, area: Math.abs(area) };
+};
+
+const computeGeometryCentroid = (geometry: PolygonGeometry): Coordinate => {
+  let largestArea = 0;
+  let bestCentroid: Coordinate | null = null;
+
+  geometry.polygons.forEach((polygon) => {
+    if (polygon.length === 0) {
+      return;
+    }
+
+    const { centroid, area } = computeRingCentroid(polygon[0]);
+
+    if (area > largestArea && Number.isFinite(centroid[0]) && Number.isFinite(centroid[1])) {
+      largestArea = area;
+      bestCentroid = centroid;
+    }
+  });
+
+  if (bestCentroid) {
+    return bestCentroid;
+  }
+
+  const allCoordinates: Coordinate[] = [];
+  geometry.polygons.forEach((polygon) => {
+    polygon.forEach((ring) => {
+      ring.forEach((coordinate) => {
+        allCoordinates.push(coordinate);
+      });
+    });
+  });
+
+  if (allCoordinates.length === 0) {
+    return [0, 0];
+  }
+
+  const sum = allCoordinates.reduce<Coordinate>(
+    (accumulator, coordinate) => [
+      accumulator[0] + coordinate[0],
+      accumulator[1] + coordinate[1],
+    ],
+    [0, 0]
+  );
+
+  return [sum[0] / allCoordinates.length, sum[1] / allCoordinates.length];
+};
+
+const polandRegionCentroids: Map<string, Coordinate> = new Map(
+  Array.from(polandGeometries.entries()).map(([hcKey, geometry]) => [
+    hcKey,
+    computeGeometryCentroid(geometry),
+  ])
+);
+
+interface RGBColor {
+  r: number;
+  g: number;
+  b: number;
+}
+
+const hexToRgb = (hex: string): RGBColor => {
+  const normalized = hex.replace('#', '');
+  const value = normalized.length === 3
+    ? normalized
+        .split('')
+        .map((char) => `${char}${char}`)
+        .join('')
+    : normalized;
+  const intValue = parseInt(value, 16);
+  return {
+    r: (intValue >> 16) & 255,
+    g: (intValue >> 8) & 255,
+    b: intValue & 255,
+  };
+};
+
+const interpolateHex = (start: string, end: string, t: number): string => {
+  const startRgb = hexToRgb(start);
+  const endRgb = hexToRgb(end);
+
+  const clamp = (value: number) => Math.max(0, Math.min(255, value));
+
+  const r = clamp(startRgb.r + (endRgb.r - startRgb.r) * t);
+  const g = clamp(startRgb.g + (endRgb.g - startRgb.g) * t);
+  const b = clamp(startRgb.b + (endRgb.b - startRgb.b) * t);
+
+  const toHex = (value: number) => Math.round(value).toString(16).padStart(2, '0');
+
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+};
+
+const getColorForValue = (
+  value: number,
+  min: number,
+  max: number,
+  stops: Array<{ offset: number; color: string }>
+): string => {
+  if (!Number.isFinite(value) || !Number.isFinite(min) || !Number.isFinite(max)) {
+    return '#E0E4EC';
+  }
+
+  if (max === min) {
+    return stops[stops.length - 1]?.color ?? '#BAD4C4';
+  }
+
+  const normalized = Math.max(0, Math.min(1, (value - min) / (max - min)));
+  const sortedStops = [...stops].sort((a, b) => a.offset - b.offset);
+
+  for (let index = 0; index < sortedStops.length - 1; index += 1) {
+    const current = sortedStops[index];
+    const next = sortedStops[index + 1];
+
+    if (normalized >= current.offset && normalized <= next.offset) {
+      const range = next.offset - current.offset || 1;
+      const localT = (normalized - current.offset) / range;
+      return interpolateHex(current.color, next.color, localT);
+    }
+  }
+
+  return sortedStops[sortedStops.length - 1]?.color ?? '#BAD4C4';
 };
 
 const getChartHints = (chart: RetirementReportChart): string[] => {
@@ -960,11 +1266,262 @@ function ColumnChartSvg({ chart }: { chart: RetirementReportChart }) {
   );
 }
 
+function MapChartSvg({ chart }: { chart: RetirementReportMapChart }) {
+  const width = CHART_WIDTH;
+  const margin = 12;
+
+  const { regions, min, max, stops } = chart.map;
+  const regionByKey = new Map(regions.map((region) => [region.hcKey, region]));
+
+  const [minX, minY, maxX, maxY] = polandBBox;
+  const spanX = maxX - minX;
+  const spanY = maxY - minY;
+
+  const baseHeightFromAspect =
+    spanX > 0
+      ? spanY * ((width - margin * 2) / spanX) + margin * 2
+      : CHART_HEIGHT;
+  const height = Math.max(CHART_HEIGHT, Math.round(baseHeightFromAspect));
+
+  const usableWidth = width - margin * 2;
+  const usableHeight = height - margin * 2;
+  const scale =
+    spanX > 0 && spanY > 0
+      ? Math.min(usableWidth / spanX, usableHeight / spanY)
+      : 1;
+
+  const projectedWidth = spanX * scale;
+  const projectedHeight = spanY * scale;
+
+  const offsetX = (width - projectedWidth) / 2;
+  const offsetY = (height - projectedHeight) / 2;
+
+  const project = (coordinate: Coordinate) => {
+    const x = offsetX + (coordinate[0] - minX) * scale;
+    const y = height - (offsetY + (coordinate[1] - minY) * scale);
+    return { x, y };
+  };
+
+  const renderedPolygons = Array.from(polandGeometries.entries())
+    .map(([hcKey, geometry]) => {
+      const region = regionByKey.get(hcKey);
+      const fillColor = region
+        ? getColorForValue(region.value, min, max, stops)
+        : '#E0E4EC';
+      const strokeColor = region?.isSelected ? '#00416E' : '#D1D5DB';
+      const strokeWidth = region?.isSelected ? 1.5 : 0.8;
+
+      const paths = geometry.polygons.map((polygon) => {
+        const pathSegments = polygon
+          .map((ring) => {
+            if (!ring.length) {
+              return '';
+            }
+
+            const commands = ring
+              .map((coordinate, index) => {
+                const { x, y } = project(coordinate);
+                const prefix = index === 0 ? 'M' : 'L';
+                return `${prefix} ${x.toFixed(2)} ${y.toFixed(2)}`;
+              })
+              .join(' ');
+
+            return `${commands} Z`;
+          })
+          .join(' ');
+
+        return {
+          d: pathSegments,
+          fill: fillColor,
+          stroke: strokeColor,
+          strokeWidth,
+        };
+      });
+
+      return paths;
+    })
+    .flat();
+
+  const labelEntries = chart.map.regions
+    .map((region) => {
+      const centroid = polandRegionCentroids.get(region.hcKey);
+
+      if (!centroid) {
+        return null;
+      }
+
+      const projected = project(centroid);
+      const clampedX = Math.min(Math.max(projected.x, margin), width - margin);
+      const clampedY = Math.min(Math.max(projected.y, margin), height - margin);
+
+      return {
+        hcKey: region.hcKey,
+        name: region.name,
+        value: formatMapLegendValue(region.value, chart.map.valueSuffix),
+        isSelected: Boolean(region.isSelected),
+        x: clampedX,
+        y: clampedY,
+      };
+    })
+    .filter((entry): entry is {
+      hcKey: string;
+      name: string;
+      value: string;
+      isSelected: boolean;
+      x: number;
+      y: number;
+    } => entry !== null);
+
+  return (
+    <View style={{ width, height }}>
+      <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+        {renderedPolygons.map((polygon, index) => (
+          <Path
+            key={`map-polygon-${index}`}
+            d={polygon.d}
+            fill={polygon.fill}
+            stroke={polygon.stroke}
+            strokeWidth={polygon.strokeWidth}
+          />
+        ))}
+        {labelEntries.map((entry) => (
+          <G key={`map-label-${entry.hcKey}`}>
+            <SvgText
+              x={entry.x}
+              y={entry.y - 4}
+              fontSize={7}
+              fill={entry.isSelected ? ZUS_COLORS.navy : '#1F2937'}
+              textAnchor="middle"
+              fontWeight={entry.isSelected ? 'bold' : 'normal'}
+              fontFamily="ZUS Sans"
+            >
+              {entry.name}
+            </SvgText>
+            <SvgText
+              x={entry.x}
+              y={entry.y + 6}
+              fontSize={7}
+              fill={entry.isSelected ? ZUS_COLORS.blue : '#475569'}
+              textAnchor="middle"
+              fontWeight={entry.isSelected ? 'bold' : 'normal'}
+              fontFamily="ZUS Sans"
+            >
+              {entry.value}
+            </SvgText>
+          </G>
+        ))}
+      </Svg>
+    </View>
+  );
+}
+
+function MapLegend({ chart }: { chart: RetirementReportMapChart }) {
+  const gradientId = `legend-gradient-${chart.id}`;
+
+  return (
+    <View style={styles.mapLegend} wrap={false}>
+      <PdfText style={styles.mapLegendTitle}>{chart.map.legendLabel}</PdfText>
+      <Svg width={180} height={14} viewBox="0 0 180 14">
+        <Defs>
+          <LinearGradient id={gradientId} x1="0" y1="0" x2="1" y2="0">
+            {chart.map.stops.map((stop, index) => (
+              <Stop
+                key={`legend-stop-${chart.id}-${index}`}
+                offset={`${Math.round(stop.offset * 100)}%`}
+                stopColor={stop.color}
+              />
+            ))}
+          </LinearGradient>
+        </Defs>
+        <Rect
+          x={0}
+          y={0}
+          width={180}
+          height={14}
+          rx={7}
+          ry={7}
+          stroke="#E5E7EB"
+          strokeWidth={0.6}
+          fill={`url(#${gradientId})`}
+        />
+      </Svg>
+      <View style={styles.mapLegendRange}>
+        <PdfText style={styles.mapLegendValue}>
+          {formatMapLegendValue(chart.map.min, chart.map.valueSuffix)}
+        </PdfText>
+        <PdfText style={styles.mapLegendValue}>
+          {formatMapLegendValue(chart.map.max, chart.map.valueSuffix)}
+        </PdfText>
+      </View>
+    </View>
+  );
+}
+
+function MapSelectedSummary({
+  chart,
+}: {
+  chart: RetirementReportMapChart;
+}) {
+  const selected = chart.map.selectedRegion;
+
+  if (!selected) {
+    return null;
+  }
+
+  const formattedAverage = formatMapLegendValue(
+    selected.average,
+    chart.map.valueSuffix
+  );
+  const formattedUser = formatMapLegendValue(
+    selected.user,
+    chart.map.valueSuffix
+  );
+  const difference = selected.user - selected.average;
+  const formattedDifference = formatMapLegendValue(
+    Math.abs(difference),
+    chart.map.valueSuffix
+  );
+
+  const differenceText =
+    difference > 0
+      ? `To o ${formattedDifference} więcej niż średnia w regionie.`
+      : difference < 0
+        ? `To o ${formattedDifference} mniej niż średnia w regionie.`
+        : 'Twoja prognoza odpowiada średniej w regionie.';
+
+  return (
+    <View style={styles.mapSummaryBox} wrap={false}>
+      <PdfText style={styles.mapSummaryTitle}>
+        Wybrane województwo: {selected.name}
+      </PdfText>
+      <PdfText style={styles.mapSummaryText}>
+        Średnia emerytura: {formattedAverage}
+      </PdfText>
+      <PdfText style={styles.mapSummaryText}>
+        Twoja prognoza: {formattedUser}
+      </PdfText>
+      <PdfText style={styles.mapSummaryText}>{differenceText}</PdfText>
+    </View>
+  );
+}
+
+const isSeriesChart = (
+  chart: RetirementReportChart
+): chart is RetirementReportSeriesChart =>
+  chart.type === 'line' || chart.type === 'column';
+
+const isMapChart = (
+  chart: RetirementReportChart
+): chart is RetirementReportMapChart => chart.type === 'map';
+
 function ChartRenderer({ chart }: { chart: RetirementReportChart }) {
   if (chart.type === 'line') {
     return <LineChartSvg chart={chart} />;
   }
-  return <ColumnChartSvg chart={chart} />;
+  if (chart.type === 'column') {
+    return <ColumnChartSvg chart={chart} />;
+  }
+  return <MapChartSvg chart={chart} />;
 }
 
 export function RetirementReportDocument({
@@ -1002,37 +1559,45 @@ export function RetirementReportDocument({
 
         {dataset.charts.length > 0 ? (
           <View style={styles.chartsSection} break>
-            {dataset.charts.map((chart) => (
-              <View key={chart.id} style={styles.chartCard} wrap={false}>
-                <View style={styles.chartsHeaderRow}>
-                  <View style={styles.sectionAccent} />
-                  <PdfText style={styles.chartsSectionTitle}>
-                    {chart.title}
-                  </PdfText>
-                </View>
-                {chart.description ? (
-                  <PdfText style={styles.chartDescription}>
-                    {chart.description}
-                  </PdfText>
-                ) : null}
-                <View style={styles.chartCanvasWrapper} wrap={false}>
-                  <ChartRenderer chart={chart} />
-                </View>
-                <View style={styles.chartAxesRow}>
-                  <PdfText style={styles.chartAxisLabel}>
-                    Oś Y: {chart.yLabel ?? 'brak opisu'}
-                  </PdfText>
-                  <PdfText style={styles.chartAxisLabel}>
-                    Oś X: {chart.xLabel ?? 'brak opisu'}
-                  </PdfText>
-                </View>
-                <ChartLegend series={chart.series} />
-                {(() => {
-                  const hints = getChartHints(chart);
-                  if (!hints.length) {
-                    return null;
-                  }
-                  return (
+            {dataset.charts.map((chart) => {
+              const isSeries = isSeriesChart(chart);
+              const isMap = isMapChart(chart);
+              const hints = getChartHints(chart);
+
+              return (
+                <View key={chart.id} style={styles.chartCard} wrap={false}>
+                  <View style={styles.chartsHeaderRow}>
+                    <View style={styles.sectionAccent} />
+                    <PdfText style={styles.chartsSectionTitle}>
+                      {chart.title}
+                    </PdfText>
+                  </View>
+                  {chart.description ? (
+                    <PdfText style={styles.chartDescription}>
+                      {chart.description}
+                    </PdfText>
+                  ) : null}
+                  <View style={styles.chartCanvasWrapper} wrap={false}>
+                    <ChartRenderer chart={chart} />
+                  </View>
+                  {isSeries ? (
+                    <View style={styles.chartAxesRow}>
+                      <PdfText style={styles.chartAxisLabel}>
+                        Oś Y: {chart.yLabel ?? 'brak opisu'}
+                      </PdfText>
+                      <PdfText style={styles.chartAxisLabel}>
+                        Oś X: {chart.xLabel ?? 'brak opisu'}
+                      </PdfText>
+                    </View>
+                  ) : null}
+                  {isSeries ? <ChartLegend series={chart.series} /> : null}
+                  {isMap ? (
+                    <>
+                      <MapLegend chart={chart} />
+                      <MapSelectedSummary chart={chart} />
+                    </>
+                  ) : null}
+                  {hints.length ? (
                     <View style={styles.chartHintBox} wrap={false}>
                       <PdfText style={styles.chartHintTitle}>
                         Wskazówki dla Ciebie
@@ -1046,10 +1611,10 @@ export function RetirementReportDocument({
                         </PdfText>
                       ))}
                     </View>
-                  );
-                })()}
-              </View>
-            ))}
+                  ) : null}
+                </View>
+              );
+            })}
           </View>
         ) : null}
 

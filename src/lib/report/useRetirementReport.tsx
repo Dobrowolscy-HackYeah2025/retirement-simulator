@@ -17,7 +17,6 @@ import {
   scenariosDataAtom,
   sickLeaveImpactAtom,
 } from '@/lib/atoms';
-
 import { useCallback } from 'react';
 
 import { pdf } from '@react-pdf/renderer';
@@ -59,6 +58,26 @@ function normalizeStrings<T>(value: T): T {
 interface GenerateRetirementReportOptions {
   previewWindow?: Window | null;
 }
+
+// Mapowanie województw na kody hc-key dla mapy Polski
+const regionToHcKey: Record<string, string> = {
+  Dolnośląskie: 'pl-ds',
+  'Kujawsko-Pomorskie': 'pl-kp',
+  Lubelskie: 'pl-lu',
+  Lubuskie: 'pl-lb',
+  Łódzkie: 'pl-ld',
+  Małopolskie: 'pl-ma',
+  Mazowieckie: 'pl-mz',
+  Opolskie: 'pl-op',
+  Podkarpackie: 'pl-pk',
+  Podlaskie: 'pl-pd',
+  Pomorskie: 'pl-pm',
+  Śląskie: 'pl-sl',
+  Świętokrzyskie: 'pl-sk',
+  'Warmińsko-Mazurskie': 'pl-wn',
+  Wielkopolskie: 'pl-wp',
+  Zachodniopomorskie: 'pl-zp',
+};
 
 export function useRetirementReport(): (
   options?: GenerateRetirementReportOptions
@@ -386,33 +405,49 @@ export function useRetirementReport(): (
       }
 
       if (regionalBenchmark.length > 0) {
+        const mapRegions = regionalBenchmark.map((item) => ({
+          hcKey: regionToHcKey[item.region],
+          name: item.region,
+          value: item.average,
+          isSelected: item.isSelected,
+        }));
+
+        const minAverage = Math.min(
+          ...regionalBenchmark.map((item) => item.average)
+        );
+        const maxAverage = Math.max(
+          ...regionalBenchmark.map((item) => item.average)
+        );
+
+        const selectedRegionEntry = regionalBenchmark.find(
+          (region) => region.isSelected
+        );
+
         charts.push({
           id: 'chart-regional-benchmark',
-          title: 'Porównanie regionalne',
+          title: 'Mapa emerytur w województwach',
           description:
-            'Zestawienie średniej emerytury w wybranych województwach z prognozą użytkownika.',
-          type: 'column',
-          yLabel: 'Kwota świadczenia (zł)',
-          series: [
-            {
-              id: 'series-region-average',
-              label: 'Średnia w regionie',
-              color: REPORT_COLORS.primaryLight,
-              points: regionalBenchmark.map((item) => ({
-                x: item.region,
-                y: item.average,
-              })),
-            },
-            {
-              id: 'series-user-region',
-              label: 'Prognoza użytkownika',
-              color: REPORT_COLORS.primary,
-              points: regionalBenchmark.map((item) => ({
-                x: item.region,
-                y: item.user,
-              })),
-            },
-          ],
+            'Porównanie średnich świadczeń emerytalnych w województwach. Kolor wskazuje poziom średniej emerytury.',
+          type: 'map',
+          map: {
+            regions: mapRegions,
+            min: minAverage,
+            max: maxAverage,
+            stops: [
+              { offset: 0, color: '#BAD4C4' },
+              { offset: 0.5, color: REPORT_COLORS.primary },
+              { offset: 1, color: '#084F25' },
+            ],
+            valueSuffix: ' zł',
+            legendLabel: 'Średnia miesięczna emerytura (zł)',
+            selectedRegion: selectedRegionEntry
+              ? {
+                  name: selectedRegionEntry.region,
+                  average: selectedRegionEntry.average,
+                  user: selectedRegionEntry.user,
+                }
+              : undefined,
+          },
         });
       }
 

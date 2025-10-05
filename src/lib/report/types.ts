@@ -31,7 +31,7 @@ export interface RetirementReportChartSeries {
   type?: 'line' | 'column';
 }
 
-export interface RetirementReportChart {
+export interface RetirementReportSeriesChart {
   id: string;
   title: string;
   description?: string;
@@ -40,6 +40,39 @@ export interface RetirementReportChart {
   yLabel?: string;
   series: RetirementReportChartSeries[];
 }
+
+export interface RetirementReportMapRegion {
+  hcKey: string;
+  name: string;
+  value: number;
+  isSelected?: boolean;
+}
+
+export interface RetirementReportMapSelectedRegion {
+  name: string;
+  average: number;
+  user: number;
+}
+
+export interface RetirementReportMapChart {
+  id: string;
+  title: string;
+  description?: string;
+  type: 'map';
+  map: {
+    regions: RetirementReportMapRegion[];
+    min: number;
+    max: number;
+    stops: Array<{ offset: number; color: string }>;
+    valueSuffix?: string;
+    legendLabel: string;
+    selectedRegion?: RetirementReportMapSelectedRegion;
+  };
+}
+
+export type RetirementReportChart =
+  | RetirementReportSeriesChart
+  | RetirementReportMapChart;
 
 export interface RetirementReportData {
   highlights: RetirementReportHighlight[];
