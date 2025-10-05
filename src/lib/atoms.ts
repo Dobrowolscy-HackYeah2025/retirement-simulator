@@ -19,14 +19,14 @@ import {
 export const showReportGeneratorAtom = atom<boolean>(false);
 
 // Wejścia użytkownika jako osobne atomy
-export const inputAgeAtom = atom<number | null>(35); // Wiek
-export const inputGenderAtom = atom<Gender | null>('male'); // Płeć
-export const inputCityAtom = atom<string | null>('Warszawa'); // Miasto
-export const inputGrossMonthlySalaryAtom = atom<number | null>(8000); // Pensja brutto
-export const inputWorkStartYearAtom = atom<number | null>(2010); // Rok startu pracy
-export const inputPlannedRetirementYearAtom = atom<number | null>(2055); // Rok emerytury
-export const inputZusAccountBalanceAtom = atom<number | null>(150000); // Stan konta ZUS
-export const onboardingCompletedAtom = atom<boolean>(true); // Onboarding zakończony
+export const inputAgeAtom = atom<number | null>(null); // Wiek
+export const inputGenderAtom = atom<Gender | null>(null); // Płeć
+export const inputCityAtom = atom<string | null>(null); // Miasto
+export const inputGrossMonthlySalaryAtom = atom<number | null>(null); // Pensja brutto
+export const inputWorkStartYearAtom = atom<number | null>(null); // Rok startu pracy
+export const inputPlannedRetirementYearAtom = atom<number | null>(null); // Rok emerytury
+export const inputZusAccountBalanceAtom = atom<number | null>(null); // Stan konta ZUS
+export const onboardingCompletedAtom = atom<boolean>(false); // Onboarding zakończony
 
 // (Legacy) Zbiorczy widok wejść, do zgodności w miejscach gdzie potrzebny obiekt
 export const retirementInputsAtom = atom<RetirementInputsState>((get) => ({
@@ -54,60 +54,66 @@ export const selectedScenarioAtom = atom<
 >('realistic');
 
 // Wewnętrzna projekcja gromadząca kapitał i parametry potrzebne do dalszych obliczeń.
-export const retirementComputationAtom = atom<RetirementProjection | null>((get) => {
-  const age = get(inputAgeAtom);
-  const gender = get(inputGenderAtom);
-  const grossMonthlySalary = get(inputGrossMonthlySalaryAtom);
-  const workStartYear = get(inputWorkStartYearAtom);
-  const plannedRetirementYear = get(inputPlannedRetirementYearAtom);
-  const zusAccountBalance = get(inputZusAccountBalanceAtom) ?? 0;
-  // Wymagane: age, gender, grossMonthlySalary, workStartYear, plannedRetirementYear
-  if (
-    age == null ||
-    gender == null ||
-    grossMonthlySalary == null ||
-    workStartYear == null ||
-    plannedRetirementYear == null
-  ) {
-    return null;
-  }
+export const retirementComputationAtom = atom<RetirementProjection | null>(
+  (get) => {
+    const age = get(inputAgeAtom);
+    const gender = get(inputGenderAtom);
+    const grossMonthlySalary = get(inputGrossMonthlySalaryAtom);
+    const workStartYear = get(inputWorkStartYearAtom);
+    const plannedRetirementYear = get(inputPlannedRetirementYearAtom);
+    const zusAccountBalance = get(inputZusAccountBalanceAtom) ?? 0;
+    // Wymagane: age, gender, grossMonthlySalary, workStartYear, plannedRetirementYear
+    if (
+      age == null ||
+      gender == null ||
+      grossMonthlySalary == null ||
+      workStartYear == null ||
+      plannedRetirementYear == null
+    ) {
+      return null;
+    }
 
-  const contributionProjection = get(contributionProjectionAtom);
-  if (!contributionProjection) {
-    return null;
-  }
-  const { contributionsSum, monthlySalaryInFinalYear } = contributionProjection;
+    const contributionProjection = get(contributionProjectionAtom);
+    if (!contributionProjection) {
+      return null;
+    }
+    const { contributionsSum, monthlySalaryInFinalYear } =
+      contributionProjection;
 
-  if (!Number.isFinite(contributionsSum)) {
-    return null;
-  }
+    if (!Number.isFinite(contributionsSum)) {
+      return null;
+    }
 
-  const capital = zusAccountBalance + contributionsSum;
-  const yearsOfWork = plannedRetirementYear - workStartYear;
-  const sickLeavePenalty = getSickLeavePenalty(gender, yearsOfWork);
-  // Oblicz wiek emerytalny na podstawie wieku i planowanego roku przejścia
-  const currentYear = new Date().getFullYear();
-  const birthYear = currentYear - age;
-  const retirementAge = plannedRetirementYear - birthYear;
-  const capitalWithSickLeave =
-    (zusAccountBalance + contributionsSum) * (1 - sickLeavePenalty);
-  const lifeExpectancyYears = getAdjustedLifeExpectancy(gender, retirementAge);
-
-  if (!Number.isFinite(lifeExpectancyYears) || lifeExpectancyYears <= 0) {
-    console.log(
-      'retirementComputationAtom: invalid lifeExpectancyYears',
-      lifeExpectancyYears
+    const capital = zusAccountBalance + contributionsSum;
+    const yearsOfWork = plannedRetirementYear - workStartYear;
+    const sickLeavePenalty = getSickLeavePenalty(gender, yearsOfWork);
+    // Oblicz wiek emerytalny na podstawie wieku i planowanego roku przejścia
+    const currentYear = new Date().getFullYear();
+    const birthYear = currentYear - age;
+    const retirementAge = plannedRetirementYear - birthYear;
+    const capitalWithSickLeave =
+      (zusAccountBalance + contributionsSum) * (1 - sickLeavePenalty);
+    const lifeExpectancyYears = getAdjustedLifeExpectancy(
+      gender,
+      retirementAge
     );
-    return null;
-  }
 
-  return {
-    capital,
-    capitalWithSickLeave,
-    finalMonthlySalary: monthlySalaryInFinalYear,
-    lifeExpectancyYears,
-  };
-});
+    if (!Number.isFinite(lifeExpectancyYears) || lifeExpectancyYears <= 0) {
+      console.log(
+        'retirementComputationAtom: invalid lifeExpectancyYears',
+        lifeExpectancyYears
+      );
+      return null;
+    }
+
+    return {
+      capital,
+      capitalWithSickLeave,
+      finalMonthlySalary: monthlySalaryInFinalYear,
+      lifeExpectancyYears,
+    };
+  }
+);
 
 export type ContributionProjection = {
   contributionsSum: number;
@@ -434,12 +440,15 @@ export const pensionForecastDataAtom = atom<PensionForecastData[]>((get) => {
       expectedPension: null,
     };
 
-    const targetProjection = get(contributionProjectionForInputsFamily(targetInputs));
+    const targetProjection = get(
+      contributionProjectionForInputsFamily(targetInputs)
+    );
     if (!targetProjection) {
       return { age, amount: 0, realAmount: 0 };
     }
 
-    const targetCapital = (zusAccountBalance || 0) + targetProjection.contributionsSum;
+    const targetCapital =
+      (zusAccountBalance || 0) + targetProjection.contributionsSum;
     const targetCapitalWithSickLeave = includeSickLeave
       ? targetCapital * (1 - getSickLeavePenalty(gender, yearsToRetirement))
       : targetCapital;
@@ -454,7 +463,7 @@ export const pensionForecastDataAtom = atom<PensionForecastData[]>((get) => {
     let inflationFactor = 1.0;
     const baseYear = currentYear;
     const targetYear = currentYear + yearsToRetirement;
-    
+
     for (let year = baseYear; year < targetYear; year++) {
       const yearIndex = year - 2014;
       if (
@@ -472,7 +481,7 @@ export const pensionForecastDataAtom = atom<PensionForecastData[]>((get) => {
         inflationFactor *= 1.025;
       }
     }
-    
+
     // Urealniona emerytura = nominalna / wskaźnik inflacji
     const realPension = nominalPension / inflationFactor;
 
@@ -700,7 +709,8 @@ function computeScenarioProjection(
   const yearsOfWork = inputs.plannedRetirementYear! - inputs.workStartYear!;
   const sickLeavePenalty = getSickLeavePenalty(inputs.gender!, yearsOfWork);
   const capitalWithSickLeave =
-    ((inputs.zusAccountBalance ?? 0) + contributionsSum) * (1 - sickLeavePenalty);
+    ((inputs.zusAccountBalance ?? 0) + contributionsSum) *
+    (1 - sickLeavePenalty);
 
   // Długość życia z korektą scenariusza
   const baseLifeExpectancy = getAdjustedLifeExpectancy(
@@ -734,7 +744,11 @@ function projectContributionsWithScenario(
   const projectionStartYear = inputs.workStartYear;
   const projectionEndYear = inputs.plannedRetirementYear;
 
-  if (!projectionStartYear || !projectionEndYear || !inputs.grossMonthlySalary) {
+  if (
+    !projectionStartYear ||
+    !projectionEndYear ||
+    !inputs.grossMonthlySalary
+  ) {
     return { contributionsSum: 0, monthlySalaryInFinalYear: 0 };
   }
 
@@ -925,19 +939,21 @@ export const regionalBenchmarkAtom = atom<RegionalBenchmarkData[]>((get) => {
 
   // Mapuj miasta na regiony
   const cityToRegion: Record<string, string> = {
-    'Warszawa': 'Mazowieckie',
-    'Kraków': 'Małopolskie',
-    'Wrocław': 'Dolnośląskie',
-    'Poznań': 'Wielkopolskie',
-    'Katowice': 'Śląskie',
-    'Gdańsk': 'Pomorskie',
-    'Szczecin': 'Zachodniopomorskie',
-    'Białystok': 'Podlaskie',
-    'Lublin': 'Lubelskie',
-    'Rzeszów': 'Podkarpackie',
+    Warszawa: 'Mazowieckie',
+    Kraków: 'Małopolskie',
+    Wrocław: 'Dolnośląskie',
+    Poznań: 'Wielkopolskie',
+    Katowice: 'Śląskie',
+    Gdańsk: 'Pomorskie',
+    Szczecin: 'Zachodniopomorskie',
+    Białystok: 'Podlaskie',
+    Lublin: 'Lubelskie',
+    Rzeszów: 'Podkarpackie',
   };
 
-  const userRegion = selectedCity ? cityToRegion[selectedCity] || 'Mazowieckie' : 'Mazowieckie';
+  const userRegion = selectedCity
+    ? cityToRegion[selectedCity] || 'Mazowieckie'
+    : 'Mazowieckie';
 
   return topRegions.map((region) => ({
     region: region.name,
