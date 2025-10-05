@@ -1,5 +1,3 @@
-import type { ReactElement } from 'react';
-
 import ZusSansBold from '@/lib/report/fonts/DejaVuSans-Bold.ttf';
 import ZusSansRegular from '@/lib/report/fonts/DejaVuSans.ttf';
 import type {
@@ -10,6 +8,8 @@ import type {
   RetirementReportHighlight,
 } from '@/lib/report/types';
 
+import type { ReactElement } from 'react';
+
 import {
   Circle,
   Document,
@@ -17,10 +17,10 @@ import {
   G,
   Page,
   Path,
+  Text as PdfText,
   Rect,
   StyleSheet,
   Svg,
-  Text as PdfText,
   View,
 } from '@react-pdf/renderer';
 
@@ -50,7 +50,7 @@ const ZUS_COLORS = {
 
 const styles = StyleSheet.create({
   page: {
-    paddingTop: 90,
+    paddingTop: 80,
     paddingHorizontal: 36,
     paddingBottom: 36,
     fontFamily: 'ZUS Sans',
@@ -66,6 +66,22 @@ const styles = StyleSheet.create({
     paddingBottom: 6,
     borderBottomWidth: 1.5,
     borderBottomColor: 'rgba(63, 132, 210, 0.45)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  metaLogoWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 12,
+  },
+  metaInfo: {
+    flexGrow: 1,
+    flexDirection: 'column',
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end',
+    display: 'flex',
+    marginLeft: 'auto',
   },
   metaText: {
     fontSize: 9,
@@ -276,6 +292,19 @@ const formatAxisValue = (value: number) => {
   return numberFormatter.format(Math.round(value));
 };
 
+function PdfZusLogo({ width = 64 }: { width?: number }) {
+  const height = (width / 110) * 60.712;
+
+  return (
+    <Svg width={width} height={height} viewBox="0 0 110 60.712">
+      <Path
+        d="M42.0402 0.1579l0.2259 0 -0.2259 0.4515 0 -0.4515zm67.9598 45.9687c-0.2484,-2.348 -1.0386,-4.922 -2.4385,-7.6314 -4.1995,-6.7959 -8.3765,-13.5692 -12.576,-20.3653 -4.8316,-7.4732 0.4743,-9.3473 7.067,-8.9183 0.9483,0.0452 1.6032,0.0903 2.5513,0.1356 -1.174,-3.1159 -2.0771,-6.2315 -3.2512,-9.3474 -3.1157,0 -6.209,0 -9.3246,0 -2.6869,0 -4.7866,0.3612 -7.3379,1.4451 -7.4057,3.1382 -8.1056,8.6699 -3.5674,17.2496 3.2512,5.1251 6.5024,10.2729 9.7538,15.4206 3.0931,5.893 1.0837,11.6052 -5.9155,11.6052l-42.9208 0 0 14.9917c16.7981,0 33.5509,0 50.3264,0 2.1901,0 4.0415,0.0226 6.1863,-0.474 6.7961,-1.5129 10.8375,-5.5543 11.4471,-11.0408l0 -3.0706zm-67.9598 -15.353c0.9936,6.5024 5.1253,11.8083 15.5336,12.5307 5.6897,0.4065 11.4471,-0.0903 17.1818,-0.1353l0 -43.0111 -10.747 0.1354 0 33.5283c-2.619,-0.0903 -5.2381,0 -7.7443,-0.9935 -4.38,-1.7384 -4.1318,-5.5992 -2.3932,-12.3049 2.1223,-6.8412 4.222,-13.6823 6.3443,-20.5234l-11.3114 0 -4.9446 15.0145c-0.8353,2.6416 -1.5579,5.5541 -1.9192,8.4441l0 7.3152zm-16.7303 -30.6157l16.7303 0 0 0.4515 -16.0981 33.2122 15.3304 0 -3.6575 9.3474 -12.3051 0 0 -43.0111zm16.7303 23.3005c-0.2934,2.4835 -0.3387,4.9897 0,7.3152l0 -7.3152zm0 22.2619l0 14.9917c-5.5766,0 -11.1534,0 -16.7303,0l0 -14.9917 16.7303 0zm-27.8612 -45.5624l11.1309 0 0 43.0111 -16.9786 0 16.2562 -33.5284 -14.9692 0.1356 4.5607 -9.6183zm11.1309 45.5624l0 14.9917c-8.4441,0 -16.8883,0 -25.3099,0l7.2023 -14.9917 18.1076 0z"
+        fill="#00923F"
+      />
+    </Svg>
+  );
+}
+
 function Highlights({ items }: { items: RetirementReportHighlight[] }) {
   return (
     <View style={styles.highlightRow}>
@@ -296,13 +325,17 @@ function ReportGroup({ title, summary, items }: RetirementReportGroup) {
         <View style={styles.sectionAccent} />
         <PdfText style={styles.sectionTitle}>{title}</PdfText>
       </View>
-      {summary ? <PdfText style={styles.sectionSummary}>{summary}</PdfText> : null}
+      {summary ? (
+        <PdfText style={styles.sectionSummary}>{summary}</PdfText>
+      ) : null}
       {items.map((item) => (
         <View key={item.id} style={styles.itemRow} wrap={false}>
           <View style={styles.itemMeta}>
             <PdfText style={styles.itemLabel}>{item.label}</PdfText>
             {item.description ? (
-              <PdfText style={styles.itemDescription}>{item.description}</PdfText>
+              <PdfText style={styles.itemDescription}>
+                {item.description}
+              </PdfText>
             ) : null}
           </View>
           <PdfText style={styles.itemValue}>{item.formattedValue}</PdfText>
@@ -312,11 +345,7 @@ function ReportGroup({ title, summary, items }: RetirementReportGroup) {
   );
 }
 
-function ChartLegend({
-  series,
-}: {
-  series: RetirementReportChartSeries[];
-}) {
+function ChartLegend({ series }: { series: RetirementReportChartSeries[] }) {
   if (!series.length) {
     return null;
   }
@@ -354,9 +383,9 @@ function LineChartSvg({ chart }: { chart: RetirementReportChart }) {
     }))
     .filter((series) => series.points.length > 0);
 
-  const numericPoints = numericSeries.flatMap((series) => series.points) as Array<
-    { x: number; y: number; color?: string }
-  >;
+  const numericPoints = numericSeries.flatMap(
+    (series) => series.points
+  ) as Array<{ x: number; y: number; color?: string }>;
 
   if (numericPoints.length === 0) {
     return (
@@ -389,8 +418,9 @@ function LineChartSvg({ chart }: { chart: RetirementReportChart }) {
     new Set(numericPoints.map((point) => point.x))
   ).sort((a, b) => a - b);
   const yTickCount = 4;
-  const yTicks = Array.from({ length: yTickCount + 1 }, (_, index) =>
-    minY + ((maxY - minY) / yTickCount) * index
+  const yTicks = Array.from(
+    { length: yTickCount + 1 },
+    (_, index) => minY + ((maxY - minY) / yTickCount) * index
   );
 
   const overlays: ReactElement[] = [];
@@ -564,12 +594,14 @@ function ColumnChartSvg({ chart }: { chart: RetirementReportChart }) {
   );
 
   const yTickCount = 4;
-  const columnTicks = Array.from({ length: yTickCount + 1 }, (_, index) =>
-    (effectiveColumnMax / yTickCount) * index
+  const columnTicks = Array.from(
+    { length: yTickCount + 1 },
+    (_, index) => (effectiveColumnMax / yTickCount) * index
   );
   const lineTicks = lineSeries.length
-    ? Array.from({ length: yTickCount + 1 }, (_, index) =>
-        (effectiveLineMax / yTickCount) * index
+    ? Array.from(
+        { length: yTickCount + 1 },
+        (_, index) => (effectiveLineMax / yTickCount) * index
       )
     : [];
 
@@ -591,8 +623,13 @@ function ColumnChartSvg({ chart }: { chart: RetirementReportChart }) {
             }
           : null;
       })
-      .filter((entry): entry is { series: RetirementReportChartSeries; point: { x: number | string; y: number; color?: string } } =>
-        entry !== null
+      .filter(
+        (
+          entry
+        ): entry is {
+          series: RetirementReportChartSeries;
+          point: { x: number | string; y: number; color?: string };
+        } => entry !== null
       );
 
     if (entries.length === 0) {
@@ -728,22 +765,22 @@ function ColumnChartSvg({ chart }: { chart: RetirementReportChart }) {
         {bars}
 
         {lineSeries.map((series) => {
-        const coordinates = categoryOrder
-          .map((categoryKey, idx) => {
-            const point = series.points.find(
-              (point) => String(point.x) === categoryKey
-            );
-            if (!point) {
-              return null;
-            }
-            return {
-              x: categoryCenters[idx],
-              y: yScaleLine(point.y),
-            };
-          })
-          .filter(
-            (coordinate): coordinate is { x: number; y: number } =>
-              coordinate !== null
+          const coordinates = categoryOrder
+            .map((categoryKey, idx) => {
+              const point = series.points.find(
+                (point) => String(point.x) === categoryKey
+              );
+              if (!point) {
+                return null;
+              }
+              return {
+                x: categoryCenters[idx],
+                y: yScaleLine(point.y),
+              };
+            })
+            .filter(
+              (coordinate): coordinate is { x: number; y: number } =>
+                coordinate !== null
             );
 
           if (coordinates.length === 0) {
@@ -800,14 +837,21 @@ export function RetirementReportDocument({
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.metaHeader} fixed>
-          <PdfText style={styles.metaText}>
-            Raport wygenerowano:{' '}
-            <PdfText style={styles.metaValue}>{generatedAt}</PdfText>
-          </PdfText>
+          <View style={styles.metaLogoWrapper}>
+            <PdfZusLogo width={64} />
+          </View>
+          <View style={styles.metaInfo}>
+            <PdfText style={styles.metaText}>
+              Raport wygenerowano:{' '}
+              <PdfText style={styles.metaValue}>{generatedAt}</PdfText>
+            </PdfText>
+          </View>
         </View>
 
         <View style={styles.header}>
-          <PdfText style={styles.headerTitle}>Raport prognozowanej emerytury</PdfText>
+          <PdfText style={styles.headerTitle}>
+            Raport prognozowanej emerytury
+          </PdfText>
           <PdfText style={styles.headerSubtitle}>
             Podsumowanie na podstawie danych wprowadzonych w symulatorze oraz
             założeń statystycznych ZUS.
@@ -819,17 +863,21 @@ export function RetirementReportDocument({
         <ReportGroup {...dataset.derived} />
 
         {dataset.charts.length > 0 ? (
-          <View style={styles.chartsSection}>
+          <View style={styles.chartsSection} break>
             <View style={styles.chartsHeaderRow}>
               <View style={styles.sectionAccent} />
-              <PdfText style={styles.chartsSectionTitle}>Wizualizacje prognoz</PdfText>
+              <PdfText style={styles.chartsSectionTitle}>
+                Wizualizacje prognoz
+              </PdfText>
             </View>
 
             {dataset.charts.map((chart) => (
               <View key={chart.id} style={styles.chartCard} wrap={false}>
                 <PdfText style={styles.chartTitle}>{chart.title}</PdfText>
                 {chart.description ? (
-                  <PdfText style={styles.chartDescription}>{chart.description}</PdfText>
+                  <PdfText style={styles.chartDescription}>
+                    {chart.description}
+                  </PdfText>
                 ) : null}
                 {chart.yLabel ? (
                   <PdfText style={styles.chartAxisCaption}>
