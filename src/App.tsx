@@ -1,8 +1,4 @@
-import { Button } from '@/components/ui/button';
-import { useRetirementReport } from '@/lib/report';
-import { AboutPage } from '@/routes/about';
 import Dashboard from '@/routes/dashboard';
-import { HomePage } from '@/routes/index';
 import { OnboardingPage } from '@/routes/onboarding';
 import { Onboarding2SalaryPage } from '@/routes/onboarding-2-salary';
 
@@ -20,6 +16,7 @@ import { PageNavigationBar } from './components/PageNavigationBar';
 import { inputAgeAtom, onboardingCompletedAtom } from './lib/atoms';
 import { cn } from './lib/utils';
 import { NotFoundPage } from './routes/404';
+import { DashboardNew } from './routes/dashboard-new';
 import { LandingPage } from './routes/landing';
 
 function RequireOnboarding({ children }: { children: React.ReactNode }) {
@@ -60,11 +57,17 @@ const AppContent = () => {
     <div
       className={cn(
         'h-full w-full',
-        !isOnboarding && !isLanding && isAnyRouteMatch && 'mt-32'
+        !isOnboarding &&
+          !isLanding &&
+          !isDashboard &&
+          isAnyRouteMatch &&
+          'mt-32'
       )}
     >
       {isOnboarding && <OnboardingProgressBar />}
-      {!isOnboarding && !isLanding && isAnyRouteMatch && <PageNavigationBar />}
+      {!isOnboarding && !isLanding && !isDashboard && isAnyRouteMatch && (
+        <PageNavigationBar />
+      )}
 
       <Routes>
         <Route path="/" element={<LandingPage />} />
@@ -85,6 +88,15 @@ const AppContent = () => {
           element={
             <RequireOnboarding>
               <Dashboard />
+            </RequireOnboarding>
+          }
+        />
+
+        <Route
+          path="/dashboard-new"
+          element={
+            <RequireOnboarding>
+              <DashboardNew />
             </RequireOnboarding>
           }
         />
