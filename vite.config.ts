@@ -41,42 +41,6 @@ export default defineConfig({
   },
   // SPA configuration
   build: {
-    rollupOptions: {
-      output: {
-        manualChunks: (id) => {
-          // Split vendor chunks for better caching
-          if (id.includes('node_modules')) {
-            // Split large libraries into separate chunks
-            if (id.includes('highcharts')) {
-              return 'highcharts';
-            }
-            if (id.includes('jotai')) {
-              return 'jotai';
-            }
-            // Keep React and React-DOM together to avoid hook issues
-            if (
-              id.includes('react') ||
-              id.includes('react-dom') ||
-              id.includes('scheduler')
-            ) {
-              return 'react-vendor';
-            }
-            if (id.includes('posthog')) {
-              return 'posthog';
-            }
-            if (id.includes('framer-motion') || id.includes('motion')) {
-              return 'motion';
-            }
-            // Radix UI components together
-            if (id.includes('@radix-ui')) {
-              return 'radix-ui';
-            }
-            // Other node_modules
-            return 'vendor';
-          }
-        },
-      },
-    },
     // Optimize chunk size
     chunkSizeWarningLimit: 1000,
     // Enable minification
