@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { AdminReportButton } from '../components/landing/AdminReportButton';
+
 const cards = [
   {
     title: 'Dokładne prognozy',
@@ -116,6 +118,8 @@ export function LandingPage() {
           </p>
         </div>
       </div>
+
+      <AdminReportButton />
     </div>
   );
 }
