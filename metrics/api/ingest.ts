@@ -9,10 +9,10 @@ export interface IngestPayload {
   gender: string; // Płeć
   salary: number; // Wysokość wynagrodzenia
   includesSicknessPeriods: boolean; // Czy uwzględniał okresy choroby
-  zusBalance: number; // Wysokość zgromadzonych środków na koncie i Subkoncie
+  zusBalance: number | null; // Wysokość zgromadzonych środków na koncie i Subkoncie
   actualPension: number; // Emerytura rzeczywista
   adjustedPension: number; // Emerytura urealniona
-  postalCode: string; // Kod pocztowy
+  postalCode?: string | null; // Kod pocztowy
 }
 
 export const parseRequestBody = (req: VercelRequest): unknown => {
@@ -84,10 +84,10 @@ export const validatePayload = (raw: unknown): IngestPayload | null => {
     typeof gender !== 'string' ||
     !isFiniteNumber(salary) ||
     typeof includesSicknessPeriods !== 'boolean' ||
-    !isFiniteNumber(zusBalance) ||
+    (zusBalance && !isFiniteNumber(zusBalance)) ||
     !isFiniteNumber(actualPension) ||
     !isFiniteNumber(adjustedPension) ||
-    typeof postalCode !== 'string'
+    (postalCode && typeof postalCode !== 'string')
   ) {
     return null;
   }
@@ -98,10 +98,10 @@ export const validatePayload = (raw: unknown): IngestPayload | null => {
     gender: gender.trim(),
     salary,
     includesSicknessPeriods,
-    zusBalance,
+    zusBalance: zusBalance ? zusBalance : null,
     actualPension,
     adjustedPension,
-    postalCode: sanitizePostalCode(postalCode),
+    postalCode: postalCode ? sanitizePostalCode(postalCode) : null,
   };
 };
 
