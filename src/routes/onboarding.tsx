@@ -122,7 +122,10 @@ export function OnboardingPage() {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-2 mb-6">
-          <Label>Miasto zamieszkania (opcjonalne)</Label>
+          <Label>
+            Miasto zamieszkania{' '}
+            <span className="hidden md:inline">(opcjonalne)</span>
+          </Label>
 
           <div className="relative">
             <div className="relative">

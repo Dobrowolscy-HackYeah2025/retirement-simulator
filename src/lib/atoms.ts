@@ -866,7 +866,7 @@ function projectContributionsWithScenario(
 }
 
 // Atom zwracający emeryturę dla wybranego scenariusza
-export const selectedScenarioPensionAtom = atom((get) => {
+export const selectedScenarioPensionAtom = atom<number>((get) => {
   const scenarios = get(scenariosDataAtom);
   const selectedScenario = get(selectedScenarioAtom);
 

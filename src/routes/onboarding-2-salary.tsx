@@ -184,18 +184,7 @@ export function Onboarding2SalaryPage() {
 
     handleLoaderState(false);
     setOnboardingCompleted(true);
-  }, [
-    handleLoaderState,
-    age,
-    gender,
-    city,
-    grossMonthlySalary,
-    workStartYear,
-    plannedRetirementYear,
-    zusAccountBalance,
-    setOnboardingCompleted,
-    reportPayload,
-  ]);
+  }, [handleLoaderState, setOnboardingCompleted, reportPayload]);
 
   const missingFields = useMemo(() => {
     const missing: string[] = [];
