@@ -2,47 +2,6 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const ALLOWED_HEADERS =
   'Content-Type, X-Vercel-Protection-Bypass, Authorization';
-const ALLOWED_HOST = 'symulator-emerytury-zus.vercel.app';
-
-const normalizeHost = (value: string | undefined): string | null => {
-  if (!value) {
-    return null;
-  }
-
-  const trimmed = value.trim().toLowerCase();
-
-  if (!trimmed) {
-    return null;
-  }
-
-  return trimmed.replace(/^https?:\/\//, '').replace(/\/$/, '');
-};
-
-const matchesAllowedHost = (value: string | undefined | string[]): boolean => {
-  if (Array.isArray(value)) {
-    return value.some((item) => normalizeHost(item) === ALLOWED_HOST);
-  }
-
-  return normalizeHost(value) === ALLOWED_HOST;
-};
-
-export const enforceAllowedHost = (
-  req: VercelRequest,
-  res: VercelResponse
-): boolean => {
-  const hostHeader = req.headers.host;
-  const forwardedHostHeader = req.headers['x-forwarded-host'];
-
-  if (
-    matchesAllowedHost(hostHeader) ||
-    matchesAllowedHost(forwardedHostHeader)
-  ) {
-    return true;
-  }
-
-  res.status(403).json({ message: 'Brak dostępu.' });
-  return false;
-};
 
 export const applyCors = (
   req: VercelRequest,
