@@ -108,7 +108,7 @@ function SickLeaveImpactChart() {
   }, [chart, includeSickLeave, sickLeaveImpact]);
 
   return (
-    <Card className="@container/card">
+    <Card className="@container/card h-full">
       <CardHeader>
         <CardTitle as="h2">Wpływ absencji chorobowych</CardTitle>
         <CardDescription>
@@ -116,7 +116,7 @@ function SickLeaveImpactChart() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div ref={chartRef} className="h-[300px] w-full" />
+        <div ref={chartRef} className="h-[350px] w-full" />
       </CardContent>
     </Card>
   );

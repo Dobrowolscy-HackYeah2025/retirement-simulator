@@ -115,7 +115,7 @@ function ReplacementRateChart() {
   }, [chart, replacementRate]);
 
   return (
-    <Card className="@container/card">
+    <Card className="@container/card h-full">
       <CardHeader>
         <CardTitle as="h2">Stopa zastąpienia</CardTitle>
         <CardDescription>
@@ -123,7 +123,7 @@ function ReplacementRateChart() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div ref={chartRef} className="h-[300px] w-full" />
+        <div ref={chartRef} className="h-[350px] w-full" />
       </CardContent>
     </Card>
   );

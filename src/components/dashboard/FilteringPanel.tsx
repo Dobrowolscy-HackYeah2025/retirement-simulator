@@ -1,0 +1,358 @@
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import {
+  includeSickLeaveAtom,
+  inputCityAtom,
+  inputGrossMonthlySalaryAtom,
+  regionalBenchmarkAtom,
+  retirementAgeAtom,
+  selectedScenarioAtom,
+} from '@/lib/atoms';
+
+import { useAtom, useAtomValue } from 'jotai';
+import { Info, Stethoscope } from 'lucide-react';
+
+import { Card } from '../ui/card';
+
+type ScenarioType = 'pessimistic' | 'realistic' | 'optimistic';
+
+export function FilteringPanel() {
+  const [retirementAge, setRetirementAge] = useAtom(retirementAgeAtom);
+  const [salary, setSalary] = useAtom(inputGrossMonthlySalaryAtom);
+  const [includeSickLeave, setIncludeSickLeave] = useAtom(includeSickLeaveAtom);
+  const [selectedCity, setSelectedCity] = useAtom(inputCityAtom);
+  const [selectedScenario, setSelectedScenario] = useAtom(selectedScenarioAtom);
+
+  const regionalBenchmark = useAtomValue(regionalBenchmarkAtom);
+
+  const handleSalaryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Number(e.target.value);
+    if (!isNaN(value) && value >= 0) {
+      setSalary(value);
+    }
+  };
+
+  const handleRetirementAgeChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = Number(e.target.value);
+    if (!isNaN(value) && value >= 60 && value <= 70) {
+      setRetirementAge(value);
+    }
+  };
+
+  const handleScenarioChange = (scenario: ScenarioType) => {
+    setSelectedScenario(scenario);
+  };
+
+  const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedCity(e.target.value);
+  };
+
+  const handleSickLeaveChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIncludeSickLeave(e.target.checked);
+  };
+
+  return (
+    <Card className="bg-card rounded-lg border shadow-sm p-6 h-full">
+      <h3 className="text-2xl font-semibold mb-4 text-foreground">
+        Ustawienia symulacji
+      </h3>
+
+      {/* Scenario Selection */}
+      <div className="mb-6">
+        <div className="flex items-center gap-2 mb-3">
+          <label className="block text-sm font-medium text-foreground">
+            Wybierz scenariusz ekonomiczny:
+          </label>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Info className="w-4 h-4 text-muted-foreground hover:text-primary cursor-help transition-colors" />
+            </TooltipTrigger>
+            <TooltipContent className="max-w-sm">
+              <div className="text-sm">
+                <div className="font-semibold mb-3">
+                  Scenariusze ekonomiczne ZUS
+                </div>
+                <div className="space-y-3">
+                  <div>
+                    <div className="font-medium text-red-400 mb-1">
+                      Pesymistyczny:
+                    </div>
+                    <div className="text-xs space-y-1">
+                      <div>• Wzrost płac: 50% normalnego (wolniejszy)</div>
+                      <div>• Stopy składek: +10% (wyższe)</div>
+                      <div>• Długość życia: -1 rok (krótsza)</div>
+                      <div>• Więcej emerytów w systemie</div>
+                      <div className="text-red-300 font-medium">
+                        → Niższa emerytura
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="font-medium text-green-400 mb-1">
+                      Realistyczny:
+                    </div>
+                    <div className="text-xs space-y-1">
+                      <div>• Wzrost płac: standardowy (dane ZUS)</div>
+                      <div>• Stopy składek: normalne</div>
+                      <div>• Długość życia: standardowa</div>
+                      <div>• Stabilne warunki demograficzne</div>
+                      <div className="text-green-300 font-medium">
+                        → Bazowa emerytura
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="font-medium text-blue-400 mb-1">
+                      Optymistyczny:
+                    </div>
+                    <div className="text-xs space-y-1">
+                      <div>• Wzrost płac: 150% normalnego (szybszy)</div>
+                      <div>• Stopy składek: -10% (niższe)</div>
+                      <div>• Długość życia: +1 rok (dłuższa)</div>
+                      <div>• Mniej emerytów w systemie</div>
+                      <div className="text-blue-300 font-medium">
+                        → Wyższa emerytura
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+        <div className="flex flex-col gap-2 mb-2">
+          <button
+            onClick={() => handleScenarioChange('pessimistic')}
+            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 ${
+              selectedScenario === 'pessimistic'
+                ? 'bg-red-100 text-red-700 border-red-300 dark:bg-red-950 dark:text-red-300 dark:border-red-800'
+                : 'bg-muted text-muted-foreground border-border hover:bg-muted/80'
+            }`}
+          >
+            Pesymistyczny
+          </button>
+          <button
+            onClick={() => handleScenarioChange('realistic')}
+            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 ${
+              selectedScenario === 'realistic'
+                ? 'bg-green-100 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-300 dark:border-green-800'
+                : 'bg-muted text-muted-foreground border-border hover:bg-muted/80'
+            }`}
+          >
+            Realistyczny
+          </button>
+          <button
+            onClick={() => handleScenarioChange('optimistic')}
+            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors border-2 ${
+              selectedScenario === 'optimistic'
+                ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800'
+                : 'bg-muted text-muted-foreground border-border hover:bg-muted/80'
+            }`}
+          >
+            Optymistyczny
+          </button>
+        </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          Scenariusz wpływa na prognozy wzrostu płac i warunki systemowe
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        {/* Retirement Age */}
+        <div>
+          <label
+            htmlFor="retirement-age"
+            className="block text-sm font-medium text-foreground"
+          >
+            <div className="flex items-center gap-2">
+              <span>Wiek przejścia na emeryturę: {retirementAge}</span>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info
+                    className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors cursor-help"
+                    aria-label="Informacje o obliczeniach emerytury"
+                  />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-sm">
+                  <div className="text-sm">
+                    <div className="font-semibold mb-2">
+                      Jak obliczana jest emerytura?
+                    </div>
+                    <div className="mb-2">
+                      <strong>Wzór:</strong> Kapitał emerytalny ÷ (Długość życia
+                      × 12)
+                    </div>
+                    <div className="mb-2">
+                      <strong>Kapitał:</strong> Stan konta ZUS + Składki przez
+                      całe życie
+                    </div>
+                    <div className="mb-2">
+                      <strong>Długość życia:</strong> Maleje z wiekiem przejścia
+                      na emeryturę
+                    </div>
+                    <div className="mb-2">
+                      <strong>Wpływ opóźnienia:</strong>
+                    </div>
+                    <ul className="text-xs ml-4 space-y-1">
+                      <li>• Więcej składek = wyższy kapitał</li>
+                      <li>• Krótsza emerytura = wyższa miesięczna emerytura</li>
+                      <li>• Razem: ~3-6% wzrostu rocznie</li>
+                    </ul>
+                    <div className="text-xs text-muted-foreground mt-2">
+                      * Wzrost jest realistyczny dzięki danym ZUS
+                    </div>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          </label>
+          <input
+            type="range"
+            id="retirement-age"
+            min="60"
+            max="70"
+            step="1"
+            value={retirementAge}
+            onChange={handleRetirementAgeChange}
+            className="mt-2 w-full"
+          />
+        </div>
+
+        {/* Salary */}
+        <div>
+          <label
+            htmlFor="salary"
+            className="block text-sm font-medium text-foreground"
+          >
+            <div className="flex items-center gap-2">
+              <span>Wysokość wynagrodzenia brutto (zł)</span>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info
+                    className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors cursor-help"
+                    aria-label="Informacje o wpływie pensji na emeryturę"
+                  />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-sm">
+                  <div className="text-sm">
+                    <div className="font-semibold mb-2">
+                      Wpływ pensji na emeryturę
+                    </div>
+                    <div className="mb-2">
+                      <strong>Składki:</strong> 19.52% pensji brutto rocznie
+                    </div>
+                    <div className="mb-2">
+                      <strong>Wzrost płac:</strong> Rzeczywiste dane ZUS (3-5%
+                      rocznie)
+                    </div>
+                    <div className="mb-2">
+                      <strong>Kapitał:</strong> Składki × lata pracy + stan
+                      konta ZUS
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      * Wyższa pensja = więcej składek = wyższa emerytura
+                    </div>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          </label>
+          <input
+            id="salary"
+            type="number"
+            value={salary ?? 0}
+            onChange={handleSalaryChange}
+            className="mt-1 block w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+          />
+        </div>
+
+        {/* Sick Leave */}
+        <div className="bg-muted/50 p-4 rounded-lg border border-border">
+          <div className="flex items-start space-x-3">
+            <div className="flex-shrink-0 pt-0.5">
+              <input
+                type="checkbox"
+                id="sick-leave"
+                checked={includeSickLeave}
+                onChange={handleSickLeaveChange}
+                className="rounded"
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <label
+                htmlFor="sick-leave"
+                className="flex items-center gap-2 text-sm font-medium text-foreground cursor-pointer"
+              >
+                <Stethoscope className="w-4 h-4 text-primary flex-shrink-0" />
+                <span>Uwzględnij absencję chorobową</span>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="w-4 h-4 text-muted-foreground hover:text-primary cursor-help transition-colors" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-sm">
+                    <div className="text-sm">
+                      <div className="font-bold mb-3 text-center">
+                        Wpływ L4 na emeryturę
+                      </div>
+                      <div className="space-y-2">
+                        <div className="font-semibold">Jak to działa:</div>
+                        <div className="pl-2">
+                          • Podczas L4 dostajesz 80% wynagrodzenia
+                        </div>
+                        <div className="pl-2">
+                          • Składki emerytalne naliczane są tylko od 80%
+                        </div>
+                        <div className="pl-2">
+                          • To oznacza niższy kapitał emerytalny
+                        </div>
+                        <div className="border-t pt-3 mt-3">
+                          <div className="font-semibold">Średnio w roku:</div>
+                          <div className="pl-2">• Kobiety: 24.2 dni L4</div>
+                          <div className="pl-2">• Mężczyźni: 14.5 dni L4</div>
+                        </div>
+                        <div className="bg-primary text-primary-foreground font-bold p-2 rounded-lg mt-3 text-center">
+                          Rezultat: ~1-2% niższa emerytura
+                        </div>
+                      </div>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </label>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Symulacja uwzględni średnią liczbę dni L4 w ciągu kariery
+                zawodowej
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Region */}
+        <div>
+          <label
+            htmlFor="region"
+            className="block text-sm font-medium text-foreground"
+          >
+            Region
+          </label>
+          <select
+            id="region"
+            value={selectedCity || 'Warszawa'}
+            onChange={handleCityChange}
+            className="mt-1 block w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+          >
+            {regionalBenchmark.map((region) => (
+              <option key={region.region} value={region.region}>
+                {region.region}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+    </Card>
+  );
+}

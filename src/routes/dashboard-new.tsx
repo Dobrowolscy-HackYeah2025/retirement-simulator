@@ -1,4 +1,5 @@
 import { AppSidebar } from '@/components/app-sidebar';
+import { FilteringPanel } from '@/components/dashboard/FilteringPanel';
 import { SectionCards } from '@/components/section-cards';
 import { SiteHeader } from '@/components/site-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
@@ -57,36 +58,49 @@ export function DashboardNew() {
               {/* Main heading for the page - visually hidden but important for accessibility */}
               <h1 className="sr-only">Twoja prognoza emerytalna - Dashboard</h1>
 
-              <SectionCards />
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 px-4 lg:px-6">
+                <div className="lg:col-span-3 flex flex-col gap-4">
+                  <SectionCards />
 
-              <div className="grid grid-cols-1 gap-4 px-4 lg:grid-cols-2 lg:px-6">
-                <Suspense fallback={<ChartSkeleton fullWidth />}>
-                  <div className="lg:col-span-2">
+                  <Suspense fallback={<ChartSkeleton fullWidth />}>
                     <PensionForecastChart />
-                  </div>
-                </Suspense>
+                  </Suspense>
+                </div>
+                <div className="lg:col-span-1 flex flex-col justify-stretch items-stretch">
+                  <FilteringPanel />
+                </div>
+              </div>
 
-                <Suspense fallback={<ChartSkeleton />}>
-                  <ScenariosChart />
-                </Suspense>
+              <div className="grid grid-cols-1 gap-4 px-4 lg:grid-cols-24 lg:px-6 w-full">
+                <div className="lg:col-span-9 h-full">
+                  <Suspense fallback={<ChartSkeleton />}>
+                    <ScenariosChart />
+                  </Suspense>
+                </div>
 
-                <Suspense fallback={<ChartSkeleton />}>
-                  <ContributionHistoryChart />
-                </Suspense>
+                <div className="lg:col-span-9 h-full">
+                  <Suspense fallback={<ChartSkeleton />}>
+                    <ContributionHistoryChart />
+                  </Suspense>
+                </div>
 
-                <Suspense fallback={<ChartSkeleton fullWidth />}>
-                  <div className="lg:col-span-2">
+                <div className="lg:col-span-6 h-full">
+                  <Suspense fallback={<ChartSkeleton />}>
+                    <SickLeaveImpactChart />
+                  </Suspense>
+                </div>
+
+                <div className="lg:col-span-2 h-full">
+                  <Suspense fallback={<ChartSkeleton fullWidth />}>
                     <RegionalBenchmarkChart />
-                  </div>
-                </Suspense>
+                  </Suspense>
+                </div>
 
-                <Suspense fallback={<ChartSkeleton />}>
-                  <ReplacementRateChart />
-                </Suspense>
-
-                <Suspense fallback={<ChartSkeleton />}>
-                  <SickLeaveImpactChart />
-                </Suspense>
+                <div className="lg:col-span-2 h-full">
+                  <Suspense fallback={<ChartSkeleton />}>
+                    <ReplacementRateChart />
+                  </Suspense>
+                </div>
               </div>
             </div>
           </div>
