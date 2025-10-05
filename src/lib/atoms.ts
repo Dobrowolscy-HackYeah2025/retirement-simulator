@@ -29,6 +29,9 @@ export const inputGenderAtom = atom<Gender | null>(
 export const inputCityAtom = atom<string | null>(
   environment.DEV_MODE ? 'Warszawa' : null
 );
+export const inputPostalCodeAtom = atom<string | null>(
+  environment.DEV_MODE ? '39-000' : null
+);
 export const inputGrossMonthlySalaryAtom = atom<number | null>(
   environment.DEV_MODE ? 5000 : null
 );
@@ -1154,5 +1157,59 @@ export const sickLeaveRegionalDataAtom = atom((get) => {
       region: row['powiat aleksandrowski'],
       days: gender === 'female' ? row['38.12'] : row['32.81'],
     })),
+  };
+});
+
+export interface ReportEventPayload {
+  expectedPension: number | null;
+  age: number | null;
+  gender: string | null;
+  salary: number | null;
+  includesSicknessPeriods: boolean;
+  zusBalance: number | null;
+  actualPension: number | null;
+  adjustedPension: number | null;
+  postalCode: string | null;
+}
+
+// Atom danych raportowania zainteresowania (payload zdarzenia)
+export const reportEventPayloadAtom = atom<ReportEventPayload>((get) => {
+  const inputs = get(retirementInputsAtom);
+  const includesSicknessPeriods = Boolean(get(includeSickLeaveAtom));
+  const actualPension = get(selectedScenarioPensionAtom);
+  const adjustedPension = get(selectedScenarioRealPensionAtom);
+  const postalCode = get(inputPostalCodeAtom);
+
+  const sanitizeNumber = (value: number | null | undefined): number | null =>
+    typeof value === 'number' && Number.isFinite(value) ? value : null;
+
+  const sanitizeString = (value: string | null | undefined): string | null => {
+    if (typeof value !== 'string') {
+      return null;
+    }
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed.toUpperCase() : null;
+  };
+
+  const mapGenderToLabel = (gender: Gender | null): string | null => {
+    if (gender === 'female') {
+      return 'kobieta';
+    }
+    if (gender === 'male') {
+      return 'mężczyzna';
+    }
+    return null;
+  };
+
+  return {
+    expectedPension: sanitizeNumber(inputs.expectedPension),
+    age: sanitizeNumber(inputs.age),
+    gender: mapGenderToLabel(inputs.gender),
+    salary: sanitizeNumber(inputs.grossMonthlySalary),
+    includesSicknessPeriods,
+    zusBalance: sanitizeNumber(inputs.zusAccountBalance),
+    actualPension: sanitizeNumber(actualPension),
+    adjustedPension: sanitizeNumber(adjustedPension),
+    postalCode: sanitizeString(postalCode),
   };
 });

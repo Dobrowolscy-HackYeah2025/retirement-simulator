@@ -9,6 +9,7 @@ import {
   inputWorkStartYearAtom,
   inputZusAccountBalanceAtom,
   onboardingCompletedAtom,
+  reportEventPayloadAtom,
   showReportGeneratorAtom,
 } from '@/lib/atoms';
 
@@ -62,6 +63,7 @@ export function Onboarding2SalaryPage() {
   const setZusAccountBalance = useSetAtom(inputZusAccountBalanceAtom);
   const setOnboardingCompleted = useSetAtom(onboardingCompletedAtom);
   const setShowReportGenerator = useSetAtom(showReportGeneratorAtom);
+  const reportPayload = useAtomValue(reportEventPayloadAtom);
   const navigate = useNavigate();
 
   const [salaryInputValue, setSalaryInputValue] = useState(
@@ -178,15 +180,7 @@ export function Onboarding2SalaryPage() {
   }, [handleLoaderState]);
 
   const handleReportComplete = useCallback(() => {
-    trackEvent('show-dashboard', {
-      age,
-      gender,
-      city,
-      grossMonthlySalary,
-      workStartYear,
-      plannedRetirementYear,
-      zusAccountBalance,
-    });
+    trackEvent('show-dashboard', reportPayload);
 
     handleLoaderState(false);
     setOnboardingCompleted(true);
@@ -200,6 +194,7 @@ export function Onboarding2SalaryPage() {
     plannedRetirementYear,
     zusAccountBalance,
     setOnboardingCompleted,
+    reportPayload,
   ]);
 
   const missingFields = useMemo(() => {

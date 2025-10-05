@@ -18,6 +18,7 @@ import {
   inputWorkStartYearAtom,
   inputZusAccountBalanceAtom,
   onboardingCompletedAtom,
+  reportEventPayloadAtom,
 } from '../lib/atoms';
 import {
   AlertDialog,
@@ -86,6 +87,7 @@ export const PageNavigationBar = () => {
   const navigate = useNavigate();
   const [isExitDialogOpen, setIsExitDialogOpen] = useState(false);
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const reportPayload = useAtomValue(reportEventPayloadAtom);
 
   const handleGenerateReport = useCallback(async () => {
     setIsGeneratingReport(true);
@@ -108,15 +110,7 @@ export const PageNavigationBar = () => {
     await ensureNextFrame();
     let reportHandle: { open: () => void } | null = null;
     try {
-      trackEvent('generate-report', {
-        age,
-        gender,
-        city,
-        grossMonthlySalary,
-        workStartYear,
-        plannedRetirementYear,
-        zusAccountBalance,
-      });
+      trackEvent('generate-report', reportPayload);
       reportHandle = await generateRetirementReport();
     } catch (error) {
       console.error('Failed to generate retirement report PDF', error);
@@ -139,6 +133,7 @@ export const PageNavigationBar = () => {
     workStartYear,
     plannedRetirementYear,
     zusAccountBalance,
+    reportPayload,
   ]);
 
   const handleResetInputsAndNavigateHome = useCallback(() => {

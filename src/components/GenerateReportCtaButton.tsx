@@ -12,6 +12,7 @@ import {
   inputPlannedRetirementYearAtom,
   inputWorkStartYearAtom,
   inputZusAccountBalanceAtom,
+  reportEventPayloadAtom,
 } from '../lib/atoms';
 import { useRetirementReport } from '../lib/report';
 import { Button } from './ui/button';
@@ -26,6 +27,7 @@ export const GenerateReportCtaButton = () => {
   const workStartYear = useAtomValue(inputWorkStartYearAtom);
   const plannedRetirementYear = useAtomValue(inputPlannedRetirementYearAtom);
   const zusAccountBalance = useAtomValue(inputZusAccountBalanceAtom);
+  const reportPayload = useAtomValue(reportEventPayloadAtom);
 
   const handleGenerateReport = useCallback(async () => {
     setIsGeneratingReport(true);
@@ -48,15 +50,7 @@ export const GenerateReportCtaButton = () => {
     await ensureNextFrame();
     let reportHandle: { open: () => void } | null = null;
     try {
-      trackEvent('generate-report', {
-        age,
-        gender,
-        city,
-        grossMonthlySalary,
-        workStartYear,
-        plannedRetirementYear,
-        zusAccountBalance,
-      });
+      trackEvent('generate-report', reportPayload);
       reportHandle = await generateRetirementReport();
     } catch (error) {
       console.error('Failed to generate retirement report PDF', error);
@@ -79,6 +73,7 @@ export const GenerateReportCtaButton = () => {
     workStartYear,
     plannedRetirementYear,
     zusAccountBalance,
+    reportPayload,
   ]);
 
   return (
