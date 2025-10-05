@@ -13,18 +13,16 @@ export function Wave({ waveIndex }: { waveIndex: 0 | 1 }) {
   const to = waveIndex === 0 ? A : B;
 
   return (
-    <div className="fixed bottom-0 left-0 z-30 w-full" id="wave-onboarding">
+    <div
+      className="fixed top-0 left-0 z-30 w-full rotate-180"
+      id="wave-onboarding"
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 1440 320"
         className="block"
       >
-        <path
-          fill={GREEN}
-          fillOpacity="1"
-          d={from}
-          key={to /* restart trick */}
-        >
+        <path fill={`${GREEN}70`} d={from} key={to /* restart trick */}>
           <animate
             attributeName="d"
             dur="1s"

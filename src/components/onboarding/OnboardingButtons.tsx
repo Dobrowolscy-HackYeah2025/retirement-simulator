@@ -48,7 +48,11 @@ export const OnboardingButtons = ({
         )}
       </Tooltip>
 
-      <Button variant="ghost" onClick={() => navigate(previousUrl)}>
+      <Button
+        variant="ghost"
+        className="text-muted-foreground"
+        onClick={() => navigate(previousUrl)}
+      >
         Wróć
       </Button>
     </div>
