@@ -174,9 +174,6 @@ const styles = StyleSheet.create({
   chartCard: {
     marginBottom: 18,
     padding: 12,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
     backgroundColor: '#FDFDFD',
   },
   chartTitle: {
@@ -194,6 +191,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     marginTop: 8,
+    justifyContent: 'center',
   },
   legendItem: {
     flexDirection: 'row',
@@ -205,22 +203,22 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 2,
+    marginTop: -1,
   },
   legendLabel: {
     fontSize: 9,
     color: ZUS_COLORS.navy,
-    marginLeft: 4,
+    marginLeft: 6,
+    marginTop: 4,
   },
-  chartAxisCaption: {
+  chartAxesRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  chartAxisLabel: {
     fontSize: 9,
     color: '#4B5563',
-    marginBottom: 4,
-  },
-  chartAxisCaptionBottom: {
-    fontSize: 9,
-    color: '#4B5563',
-    marginTop: 6,
-    textAlign: 'center',
   },
   chartCanvasWrapper: {
     alignItems: 'center',
@@ -238,6 +236,25 @@ const styles = StyleSheet.create({
     color: ZUS_COLORS.navy,
     fontFamily: 'ZUS Sans',
     textAlign: 'center',
+  },
+  chartHintBox: {
+    marginTop: 10,
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: ZUS_COLORS.gray,
+    backgroundColor: '#F8FAFC',
+  },
+  chartHintTitle: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: ZUS_COLORS.navy,
+    marginBottom: 4,
+  },
+  chartHintLine: {
+    fontSize: 9,
+    color: ZUS_COLORS.navy,
+    marginBottom: 2,
   },
   itemRow: {
     flexDirection: 'row',
@@ -335,6 +352,45 @@ const formatColumnValue = (
   }
 
   return formattedBase;
+};
+
+const getChartHints = (chart: RetirementReportChart): string[] => {
+  switch (chart.id) {
+    case 'chart-pension-forecast':
+      return [
+        'Przesuń wiek przejścia na emeryturę w symulatorze, aby sprawdzić jak zmienia się wysokość świadczenia.',
+        'Zwróć uwagę na linię realnej wartości – pokazuje siłę nabywczą po uwzględnieniu inflacji.',
+      ];
+    case 'chart-replacement':
+      return [
+        'Porównaj wskaźnik zastąpienia z planowanym stylem życia – im wyższy odsetek, tym mniejsza luka dochodowa.',
+        'Rozważ dodatkowe oszczędzanie, jeśli słupek „Pozostałe” jest znaczący.',
+      ];
+    case 'chart-sick-leave':
+      return [
+        'Krótsze zwolnienia lekarskie i regularne składki pomagają ograniczyć spadek emerytury.',
+        'Pomyśl o planie awaryjnym finansowym, jeśli przerwy w pracy są częste.',
+      ];
+    case 'chart-contribution-history':
+      return [
+        'Stały wzrost kapitału świadczy o stabilnych wpłatach – sprawdź czy w Twoim przypadku trend jest rosnący.',
+        'W razie przerw w opłacaniu składek rozważ nadrobienie braków, aby poprawić prognozę.',
+      ];
+    case 'chart-scenarios':
+      return [
+        'Scenariusz pesymistyczny zakłada gorszą koniunkturę – przygotuj poduszkę finansową na tę ewentualność.',
+        'Gdy planujesz większe cele, opieraj je na scenariuszu realistycznym lub konserwatywnym.',
+      ];
+    case 'chart-regional-benchmark':
+      return [
+        'Porównaj swoją prognozę z województwami – różnice wynikają m.in. z lokalnych zarobków.',
+        'Jeśli planujesz przeprowadzkę, sprawdź jak zmieniłaby się średnia emerytura w docelowym regionie.',
+      ];
+    default:
+      return [
+        'Wykorzystaj powyższy wykres, aby sprawdzić wpływ swoich decyzji na prognozowaną emeryturę.',
+      ];
+  }
 };
 
 function PdfZusLogo({ width = 64 }: { width?: number }) {
@@ -620,8 +676,7 @@ function ColumnChartSvg({ chart }: { chart: RetirementReportChart }) {
     series.points.map((point) => Math.max(0, point.y))
   );
   const columnMax = columnValues.length > 0 ? Math.max(...columnValues) : 0;
-  const columnPadding =
-    columnMax === 0 ? 0 : Math.max(columnMax * 0.12, 2);
+  const columnPadding = columnMax === 0 ? 0 : Math.max(columnMax * 0.12, 2);
   const paddedColumnMax = columnMax + columnPadding;
   const effectiveColumnMax = paddedColumnMax === 0 ? 1 : paddedColumnMax;
 
@@ -947,35 +1002,52 @@ export function RetirementReportDocument({
 
         {dataset.charts.length > 0 ? (
           <View style={styles.chartsSection} break>
-            <View style={styles.chartsHeaderRow}>
-              <View style={styles.sectionAccent} />
-              <PdfText style={styles.chartsSectionTitle}>
-                Wizualizacje prognoz
-              </PdfText>
-            </View>
-
             {dataset.charts.map((chart) => (
               <View key={chart.id} style={styles.chartCard} wrap={false}>
-                <PdfText style={styles.chartTitle}>{chart.title}</PdfText>
+                <View style={styles.chartsHeaderRow}>
+                  <View style={styles.sectionAccent} />
+                  <PdfText style={styles.chartsSectionTitle}>
+                    {chart.title}
+                  </PdfText>
+                </View>
                 {chart.description ? (
                   <PdfText style={styles.chartDescription}>
                     {chart.description}
                   </PdfText>
                 ) : null}
-                {chart.yLabel ? (
-                  <PdfText style={styles.chartAxisCaption}>
-                    Oś Y: {chart.yLabel}
-                  </PdfText>
-                ) : null}
                 <View style={styles.chartCanvasWrapper} wrap={false}>
                   <ChartRenderer chart={chart} />
                 </View>
-                {chart.xLabel ? (
-                  <PdfText style={styles.chartAxisCaptionBottom}>
-                    Oś X: {chart.xLabel}
+                <View style={styles.chartAxesRow}>
+                  <PdfText style={styles.chartAxisLabel}>
+                    Oś Y: {chart.yLabel ?? 'brak opisu'}
                   </PdfText>
-                ) : null}
+                  <PdfText style={styles.chartAxisLabel}>
+                    Oś X: {chart.xLabel ?? 'brak opisu'}
+                  </PdfText>
+                </View>
                 <ChartLegend series={chart.series} />
+                {(() => {
+                  const hints = getChartHints(chart);
+                  if (!hints.length) {
+                    return null;
+                  }
+                  return (
+                    <View style={styles.chartHintBox} wrap={false}>
+                      <PdfText style={styles.chartHintTitle}>
+                        Wskazówki dla Ciebie
+                      </PdfText>
+                      {hints.map((hint, index) => (
+                        <PdfText
+                          key={`chart-hint-${chart.id}-${index}`}
+                          style={styles.chartHintLine}
+                        >
+                          • {hint}
+                        </PdfText>
+                      ))}
+                    </View>
+                  );
+                })()}
               </View>
             ))}
           </View>
