@@ -32,7 +32,7 @@ export const OnboardingProgressBar = () => {
 
   return (
     <div
-      className="w-2xl max-w-full h-2 absolute top-0 md:top-16 md:-translate-x-1/2 left-0 md:left-1/2 z-70"
+      className="w-2xl max-w-full h-2 absolute top-0 md:top-16 md:-translate-x-1/2 left-0 md:left-1/2 z-60"
       id="progress-bar"
     >
       <div

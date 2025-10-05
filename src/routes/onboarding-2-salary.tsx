@@ -300,9 +300,13 @@ export function Onboarding2SalaryPage() {
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Wybierz rok" />
             </SelectTrigger>
-            <SelectContent className="max-h-60">
+            <SelectContent className="max-h-60" style={{ zIndex: 1000 }}>
               {retirementYears.map((year) => (
-                <SelectItem key={year} value={year.toString()}>
+                <SelectItem
+                  key={year}
+                  value={year.toString()}
+                  style={{ zIndex: 1000 }}
+                >
                   {year}
                 </SelectItem>
               ))}

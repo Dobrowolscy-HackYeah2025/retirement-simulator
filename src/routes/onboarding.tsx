@@ -256,7 +256,7 @@ export function OnboardingPage() {
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Wybierz województwo" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="z-[70]">
             {regionalBenchmark.map((regionItem) => (
               <SelectItem key={regionItem.region} value={regionItem.region}>
                 {regionItem.region}
