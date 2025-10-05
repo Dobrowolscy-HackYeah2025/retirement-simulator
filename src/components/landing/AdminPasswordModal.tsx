@@ -1,4 +1,3 @@
-import { trackEvent } from '@/lib/analytics';
 import { environment } from '@/lib/environment';
 
 import { useState } from 'react';
@@ -76,19 +75,12 @@ export function AdminPasswordModal({
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
-      // Track successful download
-      trackEvent('admin_report_download_success', {});
-
       // Close modal and reset
       onOpenChange(false);
       setPassword('');
       setError(null);
     } catch (err) {
       console.error('Error downloading report:', err);
-      trackEvent('admin_report_download_failed', {
-        reason: 'network_error',
-        error: err instanceof Error ? err.message : 'unknown',
-      });
       setError(
         'Wystąpił błąd podczas pobierania raportu. Sprawdź połączenie i spróbuj ponownie.'
       );
