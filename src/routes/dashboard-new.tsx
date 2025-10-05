@@ -62,14 +62,14 @@ export function DashboardNew() {
                 <div className="lg:col-span-3 flex flex-col gap-4">
                   <SectionCards />
 
-                  <div className="grid grid-cols-4 gap-4">
-                    <div className="lg:col-span-3 h-full">
+                  <div className="grid grid-cols-8 gap-4">
+                    <div className="lg:col-span-5 h-full">
                       <Suspense fallback={<ChartSkeleton fullWidth />}>
                         <PensionForecastChart />
                       </Suspense>
                     </div>
 
-                    <div className="lg:col-span-1 h-full">
+                    <div className="lg:col-span-3 h-full">
                       <Suspense fallback={<ChartSkeleton fullWidth />}>
                         <RegionalBenchmarkChart />
                       </Suspense>
