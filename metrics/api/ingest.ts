@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+
 import { getDb } from '../lib/db';
-import { enforceAllowedOrigin, applyCors } from '../lib/security';
+import { applyCors } from '../lib/security';
 
 interface IngestPayload {
   expectedPension: number; // Emerytura oczekiwana
@@ -30,7 +31,9 @@ const parseRequestBody = (req: VercelRequest): unknown => {
   return req.body;
 };
 
-const toPolandDateParts = (date: Date): { usageDate: string; usageTime: string } => {
+const toPolandDateParts = (
+  date: Date
+): { usageDate: string; usageTime: string } => {
   const formatter = new Intl.DateTimeFormat('pl-PL', {
     timeZone: 'Europe/Warsaw',
     year: 'numeric',
@@ -52,7 +55,8 @@ const toPolandDateParts = (date: Date): { usageDate: string; usageTime: string }
   };
 };
 
-const sanitizePostalCode = (value: string): string => value.trim().toUpperCase();
+const sanitizePostalCode = (value: string): string =>
+  value.trim().toUpperCase();
 
 const isFiniteNumber = (value: unknown): value is number =>
   typeof value === 'number' && Number.isFinite(value);
@@ -102,10 +106,6 @@ const validatePayload = (raw: unknown): IngestPayload | null => {
 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (!enforceAllowedOrigin(req, res)) {
-    return;
-  }
-
   if (applyCors(req, res, 'POST, OPTIONS')) {
     return;
   }

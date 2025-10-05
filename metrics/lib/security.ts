@@ -1,8 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-const ALLOWED_ORIGIN = 'https://symulator-emerytury-zus.vercel.app';
-const ALLOWED_HEADERS = 'Content-Type, X-Vercel-Protection-Bypass, Authorization';
-
+const ALLOWED_HEADERS =
+  'Content-Type, X-Vercel-Protection-Bypass, Authorization';
 const ALLOWED_HOST = 'symulator-emerytury-zus.vercel.app';
 
 const normalizeHost = (value: string | undefined): string | null => {
@@ -16,9 +15,7 @@ const normalizeHost = (value: string | undefined): string | null => {
     return null;
   }
 
-  return trimmed
-    .replace(/^https?:\/\//, '')
-    .replace(/\/$/, '');
+  return trimmed.replace(/^https?:\/\//, '').replace(/\/$/, '');
 };
 
 const matchesAllowedHost = (value: string | undefined | string[]): boolean => {
@@ -29,28 +26,6 @@ const matchesAllowedHost = (value: string | undefined | string[]): boolean => {
   return normalizeHost(value) === ALLOWED_HOST;
 };
 
-const normalizeOrigin = (value: string | undefined): string | null => {
-  if (!value) {
-    return null;
-  }
-
-  const trimmed = value.trim().toLowerCase();
-
-  if (!trimmed) {
-    return null;
-  }
-
-  return trimmed.replace(/\/$/, '');
-};
-
-const matchesAllowedOrigin = (value: string | undefined | string[]): boolean => {
-  if (Array.isArray(value)) {
-    return value.some((item) => normalizeOrigin(item) === ALLOWED_ORIGIN);
-  }
-
-  return normalizeOrigin(value) === ALLOWED_ORIGIN;
-};
-
 export const enforceAllowedHost = (
   req: VercelRequest,
   res: VercelResponse
@@ -58,21 +33,10 @@ export const enforceAllowedHost = (
   const hostHeader = req.headers.host;
   const forwardedHostHeader = req.headers['x-forwarded-host'];
 
-  if (matchesAllowedHost(hostHeader) || matchesAllowedHost(forwardedHostHeader)) {
-    return true;
-  }
-
-  res.status(403).json({ message: 'Brak dostępu.' });
-  return false;
-};
-
-export const enforceAllowedOrigin = (
-  req: VercelRequest,
-  res: VercelResponse
-): boolean => {
-  const originHeader = req.headers.origin;
-
-  if (matchesAllowedOrigin(originHeader)) {
+  if (
+    matchesAllowedHost(hostHeader) ||
+    matchesAllowedHost(forwardedHostHeader)
+  ) {
     return true;
   }
 
@@ -85,9 +49,7 @@ export const applyCors = (
   res: VercelResponse,
   allowedMethods: string
 ): boolean => {
-  if (matchesAllowedOrigin(req.headers.origin)) {
-    res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
-  }
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', allowedMethods);
   res.setHeader('Access-Control-Allow-Headers', ALLOWED_HEADERS);
   res.setHeader('Vary', 'Origin');
