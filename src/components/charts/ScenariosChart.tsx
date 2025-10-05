@@ -45,7 +45,7 @@ function ScenariosChart() {
       yAxis: {
         title: {
           text: 'Kwota emerytury (zł)',
-          style: { color: 'hsl(var(--foreground))' },
+          style: { color: 'black' },
         },
       },
       series: [

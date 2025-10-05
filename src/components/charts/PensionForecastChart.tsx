@@ -60,7 +60,7 @@ function PensionForecastChart() {
         type: 'linear',
         title: {
           text: 'Wiek przejścia na emeryturę',
-          style: { color: CHART_COLORS.darkBlue },
+          style: { color: 'black' },
         },
         min: 60,
         max: 70,
@@ -68,13 +68,13 @@ function PensionForecastChart() {
           {
             id: 'retirement-age-line',
             value: retirementAge,
-            color: CHART_COLORS.darkBlue,
+            color: 'black',
             width: 2,
             dashStyle: 'Solid',
             zIndex: 5, // Wyższy z-index żeby plotline był nad seriami
             label: {
               text: `Wybrany wiek: ${retirementAge} lat`,
-              style: { color: CHART_COLORS.darkBlue, fontWeight: 'bold' },
+              style: { color: 'black', fontWeight: 'bold' },
             },
           },
         ],
@@ -82,7 +82,7 @@ function PensionForecastChart() {
       yAxis: {
         title: {
           text: 'Kwota emerytury (zł)',
-          style: { color: CHART_COLORS.darkBlue },
+          style: { color: 'black' },
         },
       },
       series: [
@@ -145,7 +145,7 @@ function PensionForecastChart() {
       ],
       legend: {
         enabled: true,
-        itemStyle: { color: CHART_COLORS.darkBlue },
+        itemStyle: { color: 'black' },
       },
       tooltip: {
         pointFormat: '<b>{series.name}</b>: {point.y} zł',
@@ -200,13 +200,13 @@ function PensionForecastChart() {
         chart.xAxis[0].addPlotLine({
           id: 'retirement-age-line',
           value: retirementAge,
-          color: CHART_COLORS.darkBlue,
+          color: 'black',
           width: 2,
           dashStyle: 'Solid',
           zIndex: 5, // Wyższy z-index żeby plotline był nad seriami
           label: {
             text: `Wybrany wiek: ${retirementAge} lat`,
-            style: { color: CHART_COLORS.darkBlue, fontWeight: 'bold' },
+            style: { color: 'black', fontWeight: 'bold' },
           },
         });
       } else {
@@ -214,13 +214,13 @@ function PensionForecastChart() {
         chart.xAxis[0].addPlotLine({
           id: 'retirement-age-line',
           value: retirementAge,
-          color: CHART_COLORS.darkBlue,
+          color: 'black',
           width: 2,
           dashStyle: 'Solid',
           zIndex: 5, // Wyższy z-index żeby plotline był nad seriami
           label: {
             text: `Wybrany wiek: ${retirementAge} lat`,
-            style: { color: CHART_COLORS.darkBlue, fontWeight: 'bold' },
+            style: { color: 'black', fontWeight: 'bold' },
           },
         });
       }

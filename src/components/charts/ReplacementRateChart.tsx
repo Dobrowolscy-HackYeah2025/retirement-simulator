@@ -52,7 +52,7 @@ function ReplacementRateChart() {
             enabled: true,
             format: '{point.name}<br/><b>{point.y}%</b>',
             style: {
-              color: 'hsl(var(--foreground))',
+              color: 'black',
               fontWeight: 'bold',
               fontSize: '14px',
               textOutline: 'none',
