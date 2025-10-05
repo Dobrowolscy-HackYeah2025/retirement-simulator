@@ -29,4 +29,5 @@ export const environment = {
   DEV_MODE: parseBool(import.meta.env.VITE_PUBLIC_DEV_MODE),
   METRICS_HOST: requiredStr(import.meta.env.VITE_PUBLIC_METRICS_HOST),
   VERCEL_BYPASS: requiredStr(import.meta.env.VITE_PUBLIC_VERCEL_BYPASS),
+  SHOW_AI_SUMMARY: parseBool(import.meta.env.VITE_PUBLIC_SHOW_AI_SUMMARY),
 };

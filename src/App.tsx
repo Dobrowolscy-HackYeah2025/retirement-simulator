@@ -68,6 +68,8 @@ const AppContent = () => {
         <PageNavigationBar />
       )}
 
+      {/* {isDashboard && <AiBanner />} */}
+
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/onboarding" element={<OnboardingPage />} />

@@ -62,7 +62,11 @@ export function LandingPage() {
           </p>
 
           <Link to="/onboarding">
-            <Button size="lg" variant="default" className="group">
+            <Button
+              size="lg"
+              variant="default"
+              className="group text-base lg:text-lg"
+            >
               <ArrowRightIcon className="group-hover:translate-x-1 transition-transform" />
               Rozpocznij obliczenia
             </Button>

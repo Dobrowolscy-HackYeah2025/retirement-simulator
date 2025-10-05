@@ -1266,3 +1266,7 @@ export const dashboardSummaryAtom = atom<Promise<DashboardSummaryResponse>>(
     }
   }
 );
+
+/** AI */
+export const showAiBannerAtom = atom<boolean>(true);
+export const showAiSummaryAtom = atom<boolean>(false);
