@@ -51,7 +51,7 @@ export default defineConfig({
   },
   // Ensure all routes fallback to index.html for SPA routing
   preview: {
-    port: 4173,
+    port: 5173,
     strictPort: true,
   },
 });
