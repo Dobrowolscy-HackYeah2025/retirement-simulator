@@ -55,6 +55,10 @@ export const AiBanner = () => {
   const textColor = showAiSummary ? '#10331e' : '#10331e';
   const borderColor = showAiSummary ? '#10331e20' : 'transparent';
 
+  if (hasError) {
+    return null;
+  }
+
   return (
     <motion.div
       className="w-full overflow-hidden"
