@@ -1,3 +1,6 @@
+const ORANGE = '#FFB34F';
+const GREEN = '#00993F';
+
 // @todo to think: think whether to use green or orange
 export function Wave({ waveIndex }: { waveIndex: 0 | 1 }) {
   const A =
@@ -10,17 +13,14 @@ export function Wave({ waveIndex }: { waveIndex: 0 | 1 }) {
   const to = waveIndex === 0 ? A : B;
 
   return (
-    <div
-      className="fixed top-0 left-0 z-30 w-full rotate-180"
-      id="wave-onboarding"
-    >
+    <div className="fixed bottom-0 left-0 z-30 w-full" id="wave-onboarding">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 1440 320"
         className="block"
       >
         <path
-          fill="#FFB34F"
+          fill={GREEN}
           fillOpacity="1"
           d={from}
           key={to /* restart trick */}
