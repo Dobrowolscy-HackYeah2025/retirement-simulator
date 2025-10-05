@@ -318,7 +318,11 @@ export function Onboarding2SalaryPage() {
         <div className="relative">
           <div className="flex items-center gap-2 mb-2">
             <Label className="flex items-center gap-1 cursor-help">
-              Stan konta ZUS (opcjonalnie)
+              Stan konta ZUS{' '}
+              <span className="text-xs text-muted-foreground md:hidden">*</span>
+              <span className="text-xs font-normal text-muted-foreground hidden md:inline">
+                (opcjonalne)
+              </span>
             </Label>
             <Tooltip>
               <TooltipTrigger asChild>

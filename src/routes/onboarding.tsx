@@ -164,8 +164,10 @@ export function OnboardingPage() {
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">
           <Label>
-            Miasto zamieszkania{' '}
-            <span className="hidden md:inline">(opcjonalne)</span>
+            Miasto zamieszkania <span className="md:hidden">*</span>{' '}
+            <span className="hidden md:inline text-muted-foreground font-normal">
+              (opcjonalne)
+            </span>
           </Label>
 
           <div className="relative">
@@ -214,7 +216,12 @@ export function OnboardingPage() {
           </div>
         </div>
         <div className="flex flex-col gap-2">
-          <Label>Kod pocztowy (opcjonalne)</Label>
+          <Label>
+            Kod pocztowy <span className="md:hidden">*</span>{' '}
+            <span className="hidden md:inline text-muted-foreground font-normal">
+              (opcjonalne)
+            </span>
+          </Label>
 
           <div className="relative">
             <div className="relative">
@@ -247,7 +254,12 @@ export function OnboardingPage() {
       </div>
 
       <div className="flex flex-col gap-2 mb-6 w-full mt-6">
-        <Label>Województwo (opcjonalne)</Label>
+        <Label>
+          Województwo <span className="md:hidden">*</span>{' '}
+          <span className="hidden md:inline text-muted-foreground font-normal">
+            (opcjonalne)
+          </span>
+        </Label>
 
         <Select
           value={region || ''}

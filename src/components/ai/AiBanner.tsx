@@ -10,16 +10,6 @@ import {
   showAiSummaryAtom,
 } from '../../lib/atoms';
 
-const SAMPLE_AI_SUMMARY = `
- Masz 31 lat. Jestes super zdrowy i aktywny. Masz 100000 zl na koncie emerytalnym.
- Masz 10000 zl na koncie oszczędnościowym.
- Masz 10000 zl na koncie inwestycyjnym.
- Masz 10000 zl na koncie oszczędnościowym. Powinienes muc przejsc na emeryturem.
- Masz 10000 zl na koncie oszczędnościowym. Powinienes muc przejsc na emeryturem.
- Masz 10000 zl na koncie oszczędnościowym. Powinienes muc przejsc na emeryturem.
- Masz 10000 zl na koncie oszczędnościowym. Powinienes muc przejsc na emeryturem.
-`;
-
 export const AiBanner = () => {
   const [showAiBanner, setShowAiBanner] = useAtom(showAiBannerAtom);
   const [showAiSummary, setShowAiSummary] = useAtom(showAiSummaryAtom);
@@ -115,7 +105,8 @@ export const AiBanner = () => {
                 </span>{' '}
                 {hasError
                   ? 'Nie udało się wygenerować podsumowania. Spróbuj ponownie później.'
-                  : summaryData?.summary || SAMPLE_AI_SUMMARY}
+                  : (summaryData?.summary ??
+                    'Nie udało się wygenerować podsumowania. Spróbuj ponownie później.')}
               </div>
             </motion.div>
           </motion.div>
