@@ -209,7 +209,7 @@ function RegionalBenchmarkChart() {
   }, [chart, regionalBenchmark]);
 
   return (
-    <Card className="@container/card max-h-[500px]">
+    <Card className="@container/card h-full">
       <CardHeader>
         <div className="flex items-center gap-2">
           <CardTitle as="h2">Mapa emerytur w województwach</CardTitle>
@@ -250,7 +250,7 @@ function RegionalBenchmarkChart() {
           Średnie emerytury w poszczególnych województwach Polski
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-1 lg:px-6">
         <div className="h-[400px] w-full relative">
           <div ref={chartRef} className="absolute inset-0 h-full w-full" />
         </div>

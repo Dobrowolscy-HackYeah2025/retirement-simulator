@@ -228,7 +228,7 @@ function PensionForecastChart() {
   }, [retirementAge, chart]);
 
   return (
-    <Card className="@container/card max-h-[500px]">
+    <Card className="@container/card h-full">
       <CardHeader>
         <div className="flex items-center gap-2">
           <CardTitle as="h2">Prognoza emerytury vs wiek przejścia</CardTitle>
@@ -264,7 +264,7 @@ function PensionForecastChart() {
           Wpływ wieku przejścia na emeryturę na wysokość świadczenia
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-1 lg:px-6">
         {pensionForecastData.length === 0 ? (
           <div className="flex h-[400px] w-full items-center justify-center text-muted-foreground">
             Brak danych do wyświetlenia
