@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 import { getDb } from '../lib/db';
-import { enforceAllowedHost, applyCors, enforceAdminToken } from '../lib/security';
+import { applyCors, enforceAdminToken } from '../lib/security';
 
 const escapeHtml = (value: unknown): string => {
   if (value === null || value === undefined) {
@@ -17,10 +17,6 @@ const escapeHtml = (value: unknown): string => {
 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (!enforceAllowedHost(req, res)) {
-    return;
-  }
-
   if (applyCors(req, res, 'GET, OPTIONS')) {
     return;
   }
