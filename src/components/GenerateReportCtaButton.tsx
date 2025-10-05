@@ -4,16 +4,7 @@ import { useAtomValue } from 'jotai';
 import { FileTextIcon } from 'lucide-react';
 
 import { trackEvent } from '../lib/analytics';
-import {
-  inputAgeAtom,
-  inputCityAtom,
-  inputGenderAtom,
-  inputGrossMonthlySalaryAtom,
-  inputPlannedRetirementYearAtom,
-  inputWorkStartYearAtom,
-  inputZusAccountBalanceAtom,
-  reportEventPayloadAtom,
-} from '../lib/atoms';
+import { reportEventPayloadAtom } from '../lib/atoms';
 import { useRetirementReport } from '../lib/report';
 import { Button } from './ui/button';
 
@@ -35,7 +26,7 @@ const GeneratingReportOverlay = () => {
       className={`fixed inset-0 z-[999] flex flex-col items-center justify-center gap-6 bg-[color:var(--black)]/55 backdrop-blur-sm px-6 text-center transition-opacity duration-300 ease-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
     >
       <div
-        className="h-16 w-16 rounded-full border-4 border-[color:var(--gray-blue)] border-t-[color:var(--amber)] animate-spin"
+        className="h-16 w-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin"
         aria-hidden="true"
       />
       <div className="flex flex-col gap-3 max-w-md">
@@ -88,8 +79,9 @@ export const GenerateReportCtaButton = () => {
         className="bg-transparent bg-gradient-to-r from-zus-green via-zus-green/97 to-zus-green [background-size:200%_auto] text-white hover:bg-transparent hover:bg-[99%_center] focus-visible:ring-primary/20 relative overflow-hidden group cursor-pointer"
         size="sm"
       >
-        <span className="group-hover:translate-x-40 transition duration-500 flex items-center gap-2">
-          Generuj raport <FileTextIcon className="size-4" />
+        <span className="group-hover:translate-x-50 transition duration-500 flex items-center gap-2">
+          <FileTextIcon className="size-4" />
+          Generuj raport PDF
         </span>
 
         <div className="-translate-x-40 group-hover:translate-x-0 flex items-center justify-center absolute inset-0 transition duration-500 z-20">

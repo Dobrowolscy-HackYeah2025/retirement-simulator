@@ -51,18 +51,15 @@ const buildInputSection = (payload: IngestPayload): string => {
     `Płeć: ${payload.gender}`,
     `Wysokość wynagrodzenia: ${formatNumber(payload.salary)}`,
     `Czy uwzględniał okresy choroby: ${sicknessLabel}`,
-    `Wysokość zgromadzonych środków na koncie ZUS: ${formatNumber(payload.zusBalance)}`,
+    `Wysokość zgromadzonych środków na koncie ZUS: ${payload.zusBalance ? formatNumber(payload.zusBalance) : 'N/A'}`,
     `Emerytura oczekiwana: ${formatNumber(payload.expectedPension)}`,
     `Emerytura rzeczywista: ${formatNumber(payload.actualPension)}`,
     `Emerytura urealniona: ${formatNumber(payload.adjustedPension)}`,
-    `Kod pocztowy: ${payload.postalCode}`,
+    `Kod pocztowy: ${payload.postalCode ? payload.postalCode : 'N/A'}`,
   ];
 
   return parts.join(' ');
 };
-
-type OpenAiContentItem = { type: string; text?: string };
-type OpenAiOutputItem = { content?: OpenAiContentItem[] };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (applyCors(req, res, 'POST, OPTIONS')) {

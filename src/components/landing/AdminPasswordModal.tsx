@@ -67,7 +67,7 @@ export function AdminPasswordModal({
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `metrics-report-${new Date().toISOString().split('T')[0]}.xlsx`;
+      link.download = `raport-zainteresowania-${new Date().toISOString().split('T')[0]}.xlsx`;
       document.body.appendChild(link);
       link.click();
 
@@ -110,7 +110,7 @@ export function AdminPasswordModal({
           <DialogTitle>Pobierz raport (admin)</DialogTitle>
           <DialogDescription>
             Wprowadź hasło administratora, aby pobrać raport zainteresowania w
-            formacie XLSX.
+            formacie XLSX. Widnieje na ostatnim slajdzie prezentacji.
           </DialogDescription>
         </DialogHeader>
 
