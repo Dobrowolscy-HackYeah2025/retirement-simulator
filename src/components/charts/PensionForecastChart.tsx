@@ -6,7 +6,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { pensionForecastDataAtom, retirementAgeAtom } from '@/lib/atoms';
+import { pensionForecastDataAtom, retirementAgeAtom, inputGrossMonthlySalaryAtom } from '@/lib/atoms';
 
 import { useEffect, useRef, useState } from 'react';
 
@@ -24,8 +24,15 @@ const CHART_COLORS = {
 function PensionForecastChart() {
   const pensionForecastData = useAtomValue(pensionForecastDataAtom);
   const retirementAge = useAtomValue(retirementAgeAtom);
+  const grossMonthlySalary = useAtomValue(inputGrossMonthlySalaryAtom);
   const chartRef = useRef<HTMLDivElement>(null);
   const [chart, setChart] = useState<Highcharts.Chart | null>(null);
+
+  // Debug - sprawdź czy dane się zmieniają
+  useEffect(() => {
+    console.log('PensionForecastChart - grossMonthlySalary changed:', grossMonthlySalary);
+    console.log('PensionForecastChart - pensionForecastData changed:', pensionForecastData);
+  }, [grossMonthlySalary, pensionForecastData]);
 
   // Initialize chart
   useEffect(() => {
@@ -88,6 +95,24 @@ function PensionForecastChart() {
             enabled: false, // Wyłączone markery
           },
           lineWidth: 3,
+          dataLabels: {
+            enabled: true,
+            allowOverlap: true,
+            formatter: function() {
+              // Pokaż labelkę tylko dla ostatniego punktu
+              return this.index === this.series.data.length - 1 ? this.series.name : null;
+            },
+            style: {
+              color: 'black',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              textOutline: '1px white',
+            },
+            align: 'left',
+            verticalAlign: 'middle',
+            x: 10,
+            y: 0,
+          },
         },
         {
           name: 'Emerytura realna',
@@ -98,6 +123,24 @@ function PensionForecastChart() {
             enabled: false, // Wyłączone markery
           },
           lineWidth: 3,
+          dataLabels: {
+            enabled: true,
+            allowOverlap: true,
+            formatter: function() {
+              // Pokaż labelkę tylko dla ostatniego punktu
+              return this.index === this.series.data.length - 1 ? this.series.name : null;
+            },
+            style: {
+              color: 'black',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              textOutline: '1px white',
+            },
+            align: 'left',
+            verticalAlign: 'middle',
+            x: 10,
+            y: 20,
+          },
         },
       ],
       legend: {

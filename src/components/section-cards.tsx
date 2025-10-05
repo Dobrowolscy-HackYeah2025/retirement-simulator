@@ -35,8 +35,8 @@ export function SectionCards() {
   return (
     <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 @5xl/main:grid-cols-3">
       {/* Emerytura rzeczywista */}
-      <Card className="@container/card">
-        <CardHeader>
+      <Card className="@container/card py-4 gap-4">
+        <CardHeader className="py-0">
           <CardDescription>Emerytura rzeczywista</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             {selectedPension.toLocaleString()} zł
@@ -53,7 +53,7 @@ export function SectionCards() {
             </Badge>
           </CardAction>
         </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
+        <CardFooter className="flex-col items-start gap-1 text-sm py-0">
           <div className="line-clamp-1 flex gap-2 font-medium">
             {isPensionAboveAverage ? 'Powyżej' : 'Poniżej'} średniej{' '}
             {isPensionAboveAverage ? (
@@ -69,8 +69,8 @@ export function SectionCards() {
       </Card>
 
       {/* Emerytura urealniona */}
-      <Card className="@container/card">
-        <CardHeader>
+      <Card className="@container/card py-4 gap-4">
+        <CardHeader className="py-0">
           <CardDescription>Emerytura urealniona</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             {selectedRealPension.toLocaleString()} zł
@@ -79,7 +79,7 @@ export function SectionCards() {
             <Badge variant="outline">{purchasingPowerPercentage}%</Badge>
           </CardAction>
         </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
+        <CardFooter className="flex-col items-start gap-1 text-sm py-0">
           <div className="line-clamp-1 flex gap-2 font-medium">
             Siła nabywcza po inflacji
           </div>
@@ -90,14 +90,14 @@ export function SectionCards() {
       </Card>
 
       {/* Stopa zastąpienia */}
-      <Card className="@container/card">
-        <CardHeader>
+      <Card className="@container/card py-4 gap-4">
+        <CardHeader className="py-0">
           <CardDescription>Stopa zastąpienia</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             {replacementRate}%
           </CardTitle>
         </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
+        <CardFooter className="flex-col items-start gap-1 text-sm py-0">
           <div className="line-clamp-1 flex gap-2 font-medium">
             Stosunek emerytury do pensji
           </div>
