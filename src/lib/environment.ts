@@ -11,6 +11,10 @@ const parseBool = (str: string, required: boolean = false) => {
     throw new Error('Environment variable is not set');
   }
 
+  if (!required && !str) {
+    return false;
+  }
+
   if (str.toLowerCase() === 'true' || str.toLowerCase() === '1') {
     return true;
   }
