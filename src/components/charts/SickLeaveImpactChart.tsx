@@ -18,7 +18,7 @@ const CHART_COLORS = {
   darkBlue: '#00416e',
 } as const;
 
-export function SickLeaveImpactChart() {
+function SickLeaveImpactChart() {
   const sickLeaveImpact = useAtomValue(sickLeaveImpactAtom);
   const includeSickLeave = useAtomValue(includeSickLeaveAtom);
   const chartRef = useRef<HTMLDivElement>(null);
@@ -110,7 +110,7 @@ export function SickLeaveImpactChart() {
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardTitle>Wpływ absencji chorobowych</CardTitle>
+        <CardTitle as="h2">Wpływ absencji chorobowych</CardTitle>
         <CardDescription>
           Porównanie emerytury z uwzględnieniem L4 i bez
         </CardDescription>
@@ -121,3 +121,5 @@ export function SickLeaveImpactChart() {
     </Card>
   );
 }
+
+export default SickLeaveImpactChart;

@@ -19,7 +19,7 @@ const CHART_COLORS = {
   darkBlue: '#00416e',
 } as const;
 
-export function PensionForecastChart() {
+function PensionForecastChart() {
   const pensionForecastData = useAtomValue(pensionForecastDataAtom);
   const chartRef = useRef<HTMLDivElement>(null);
   const [chart, setChart] = useState<Highcharts.Chart | null>(null);
@@ -133,7 +133,7 @@ export function PensionForecastChart() {
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardTitle>Prognoza emerytury vs wiek przejścia</CardTitle>
+        <CardTitle as="h2">Prognoza emerytury vs wiek przejścia</CardTitle>
         <CardDescription>
           Wpływ wieku przejścia na emeryturę na wysokość świadczenia
         </CardDescription>
@@ -150,3 +150,5 @@ export function PensionForecastChart() {
     </Card>
   );
 }
+
+export default PensionForecastChart;

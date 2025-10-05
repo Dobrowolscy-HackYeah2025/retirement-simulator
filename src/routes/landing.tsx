@@ -78,9 +78,9 @@ export function LandingPage() {
                     {card.icon}
                   </div>
                 </div>
-                <h3 className="text-base md:text-lg font-semibold text-foreground mb-2">
+                <h2 className="text-base md:text-lg font-semibold text-foreground mb-2">
                   {card.title}
-                </h3>
+                </h2>
                 <p className="text-xs md:text-base text-muted-foreground">
                   {card.description}
                 </p>

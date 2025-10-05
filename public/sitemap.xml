@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Main landing page -->
+  <url>
+    <loc>https://symulator-emerytury-zus.vercel.app/</loc>
+    <lastmod>2025-10-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Onboarding page -->
+  <url>
+    <loc>https://symulator-emerytury-zus.vercel.app/#/onboarding</loc>
+    <lastmod>2025-10-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Dashboard page (requires onboarding completion) -->
+  <url>
+    <loc>https://symulator-emerytury-zus.vercel.app/#/dashboard</loc>
+    <lastmod>2025-10-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- New Dashboard page -->
+  <url>
+    <loc>https://symulator-emerytury-zus.vercel.app/#/dashboard-new</loc>
+    <lastmod>2025-10-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+</urlset>

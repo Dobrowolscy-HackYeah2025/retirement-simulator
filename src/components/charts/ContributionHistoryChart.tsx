@@ -18,7 +18,7 @@ const CHART_COLORS = {
   darkBlue: '#00416e',
 } as const;
 
-export function ContributionHistoryChart() {
+function ContributionHistoryChart() {
   const contributionHistory = useAtomValue(contributionHistoryAtom);
   const chartRef = useRef<HTMLDivElement>(null);
   const [chart, setChart] = useState<Highcharts.Chart | null>(null);
@@ -127,7 +127,7 @@ export function ContributionHistoryChart() {
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardTitle>Historia składek emerytalnych</CardTitle>
+        <CardTitle as="h2">Historia składek emerytalnych</CardTitle>
         <CardDescription>
           Składki roczne i narastający kapitał emerytalny
         </CardDescription>
@@ -138,3 +138,5 @@ export function ContributionHistoryChart() {
     </Card>
   );
 }
+
+export default ContributionHistoryChart;

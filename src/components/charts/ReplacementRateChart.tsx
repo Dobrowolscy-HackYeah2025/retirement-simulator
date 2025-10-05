@@ -17,7 +17,7 @@ const CHART_COLORS = {
   greenLight: '#bad4c4',
 } as const;
 
-export function ReplacementRateChart() {
+function ReplacementRateChart() {
   const replacementRate = useAtomValue(replacementRateAtom);
   const chartRef = useRef<HTMLDivElement>(null);
   const [chart, setChart] = useState<Highcharts.Chart | null>(null);
@@ -117,7 +117,7 @@ export function ReplacementRateChart() {
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardTitle>Stopa zastąpienia</CardTitle>
+        <CardTitle as="h2">Stopa zastąpienia</CardTitle>
         <CardDescription>
           Stosunek emerytury do ostatniego wynagrodzenia
         </CardDescription>
@@ -128,3 +128,5 @@ export function ReplacementRateChart() {
     </Card>
   );
 }
+
+export default ReplacementRateChart;

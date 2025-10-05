@@ -12,7 +12,7 @@ export function SiteHeader() {
           orientation="vertical"
           className="mx-2 data-[orientation=vertical]:h-4"
         />
-        <h1 className="text-base font-medium">Twoja prognoza emerytalna</h1>
+        <div className="text-base font-medium">Twoja prognoza emerytalna</div>
         <div className="ml-auto flex items-center gap-2">
           <GenerateReportCtaButton />
         </div>

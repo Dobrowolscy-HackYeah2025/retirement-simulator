@@ -1,0 +1,15 @@
+# robots.txt for Kalkulator Emerytalny ZUS
+
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin or sensitive paths (if any)
+# Disallow: /admin/
+# Disallow: /api/
+
+# Sitemap location
+Sitemap: https://symulator-emerytury-zus.vercel.app/sitemap.xml
+
+# Crawl-delay (optional, adjust if needed)
+# Crawl-delay: 1

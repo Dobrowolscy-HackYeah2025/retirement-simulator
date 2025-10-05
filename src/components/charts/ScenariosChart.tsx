@@ -18,7 +18,7 @@ const CHART_COLORS = {
   greenDark: '#084f25',
 } as const;
 
-export function ScenariosChart() {
+function ScenariosChart() {
   const scenariosData = useAtomValue(scenariosDataAtom);
   const chartRef = useRef<HTMLDivElement>(null);
   const [chart, setChart] = useState<Highcharts.Chart | null>(null);
@@ -98,7 +98,7 @@ export function ScenariosChart() {
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardTitle>Scenariusze "co-jeśli"</CardTitle>
+        <CardTitle as="h2">Scenariusze "co-jeśli"</CardTitle>
         <CardDescription>
           Prognoza emerytury w różnych scenariuszach ekonomicznych
         </CardDescription>
@@ -109,3 +109,5 @@ export function ScenariosChart() {
     </Card>
   );
 }
+
+export default ScenariosChart;

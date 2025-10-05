@@ -19,7 +19,7 @@ const CHART_COLORS = {
   gray: '#bec3ce',
 } as const;
 
-export function RegionalBenchmarkChart() {
+function RegionalBenchmarkChart() {
   const regionalBenchmark = useAtomValue(regionalBenchmarkAtom);
   const chartRef = useRef<HTMLDivElement>(null);
   const [chart, setChart] = useState<Highcharts.Chart | null>(null);
@@ -123,7 +123,7 @@ export function RegionalBenchmarkChart() {
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardTitle>Porównanie z innymi regionami</CardTitle>
+        <CardTitle as="h2">Porównanie z innymi regionami</CardTitle>
         <CardDescription>
           Twoja prognoza vs średnia emerytury w regionach
         </CardDescription>
@@ -134,3 +134,5 @@ export function RegionalBenchmarkChart() {
     </Card>
   );
 }
+
+export default RegionalBenchmarkChart;
