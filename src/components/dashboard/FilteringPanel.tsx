@@ -14,7 +14,7 @@ import {
 import { useEffect, useState } from 'react';
 
 import { useAtom } from 'jotai';
-import { Info, Stethoscope } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 import { Card } from '../ui/card';
 import { Checkbox } from '../ui/checkbox';
@@ -250,7 +250,7 @@ export function FilteringPanel() {
 
       <div className="bg-muted/50 p-4 rounded-lg border border-border mb-6">
         <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 pt-0.5">
+          <div className="flex-shrink-0">
             <Checkbox
               checked={includeSickLeave}
               onCheckedChange={handleSickLeaveChange}
@@ -259,9 +259,8 @@ export function FilteringPanel() {
           <div className="flex-1 min-w-0">
             <label
               htmlFor="sick-leave"
-              className="flex items-center gap-2 text-sm font-medium text-foreground cursor-pointer"
+              className="flex items-center gap-3 text-sm font-medium text-foreground cursor-pointer"
             >
-              <Stethoscope className="w-4 h-4 text-primary flex-shrink-0" />
               <span>Uwzględnij absencję chorobową</span>
               <Tooltip>
                 <TooltipTrigger asChild>
