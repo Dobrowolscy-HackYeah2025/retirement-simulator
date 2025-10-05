@@ -1,4 +1,4 @@
-import HeroImage from '@/assets/hero.png';
+import HeroImage from '@/assets/hero.webp';
 import ZusLogo from '@/assets/zus_logo.svg';
 import { Button } from '@/components/ui/button';
 
