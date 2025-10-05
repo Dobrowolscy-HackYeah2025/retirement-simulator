@@ -40,7 +40,7 @@ export function LandingPage() {
           </div>
 
           <h1 className="text-4xl md:text-7xl font-bold text-foreground mb-6">
-            Kalkulator
+            Symulator
             <br />
             Emerytalny ZUS
           </h1>
