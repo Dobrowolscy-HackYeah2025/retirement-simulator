@@ -85,17 +85,22 @@ function RegionalBenchmarkChart() {
         ).then(response => response.json());
 
         // Przygotuj dane dla mapy
-        const mapData = regionalBenchmark.map((item) => [
-          regionToHcKey[item.region],
-          item.average,
-          item.isSelected
-        ]);
+        const mapData = regionalBenchmark.map((item) => ({
+          'hc-key': regionToHcKey[item.region],
+          value: item.average,
+          name: item.region, // Dodaj polską nazwę regionu
+          selected: item.isSelected,
+        }));
 
         const newChart = Highcharts.mapChart(chartRef.current, {
           chart: {
             map: topology,
             backgroundColor: 'transparent',
             panning: false, // Wyłącza panowanie
+            spacingTop: 20, // Dodaj przestrzeń na górze dla labeli
+            spacingBottom: 20, // Dodaj przestrzeń na dole dla labeli
+            spacingLeft: 20, // Dodaj przestrzeń po lewej dla labeli
+            spacingRight: 20, // Dodaj przestrzeń po prawej dla labeli
           },
           title: {
             text: '',
@@ -149,7 +154,8 @@ function RegionalBenchmarkChart() {
               },
               tooltip: {
                 formatter: function() {
-                  const polishName = englishToPolishNames[this.point.name] || this.point.name;
+                  // Użyj polskiej nazwy z danych mapy
+                  const polishName = this.point.name || 'Nieznany region';
                   return `<b>${polishName}</b><br/>Średnia emerytura: <b>${this.point.value} zł</b>`;
                 },
               },
@@ -192,11 +198,12 @@ function RegionalBenchmarkChart() {
     }
 
     // Przygotuj dane dla mapy
-    const mapData = regionalBenchmark.map((item) => [
-      regionToHcKey[item.region],
-      item.average,
-      item.isSelected
-    ]);
+    const mapData = regionalBenchmark.map((item) => ({
+      'hc-key': regionToHcKey[item.region],
+      value: item.average,
+      name: item.region, // Dodaj polską nazwę regionu
+      selected: item.isSelected,
+    }));
 
     chart.series[0].setData(mapData, false);
     chart.redraw();
