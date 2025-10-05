@@ -83,11 +83,11 @@ export function FilteringPanel() {
 
   return (
     <Card className="bg-card rounded-lg border shadow-sm p-6 h-full gap-0">
-      <h3 className="text-2xl font-semibold text-foreground mb-3">
+      <h3 className="text-2xl font-semibold text-foreground mb-6">
         Ustawienia symulacji
       </h3>
 
-      <div className="mb-6">
+      <div className="mb-8">
         <div className="flex items-center gap-2 mb-3">
           <Tooltip>
             <TooltipTrigger asChild>
@@ -181,14 +181,14 @@ export function FilteringPanel() {
             Pesymistyczny
           </button>
         </div>
-        <p className="text-xs text-muted-foreground mt-2">
+        <p className="text-xs text-muted-foreground mt-3">
           Scenariusz wpływa na prognozy wzrostu płac i warunki systemowe
         </p>
       </div>
 
-      <Separator className="mb-6" />
+      <Separator className="mb-8" />
 
-      <div className="mb-3">
+      <div className="mb-6">
         <label
           htmlFor="retirement-age"
           className="block text-sm font-medium text-foreground mb-2"
@@ -244,7 +244,7 @@ export function FilteringPanel() {
           step={1}
           value={[retirementAge]}
           onValueChange={handleRetirementAgeChange}
-          className="mt-2"
+          className="mt-3 [&_[data-slot=slider-track]]:bg-gray-300 [&_[data-slot=slider-range]]:bg-primary/80"
         />
       </div>
 
