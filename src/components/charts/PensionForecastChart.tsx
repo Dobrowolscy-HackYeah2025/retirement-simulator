@@ -185,7 +185,7 @@ function PensionForecastChart() {
   }, [retirementAge, chart]);
 
   return (
-    <Card className="@container/card">
+    <Card className="@container/card max-h-[500px]">
       <CardHeader>
         <div className="flex items-center gap-2">
           <CardTitle as="h2">Prognoza emerytury vs wiek przejścia</CardTitle>
@@ -227,7 +227,9 @@ function PensionForecastChart() {
             Brak danych do wyświetlenia
           </div>
         ) : (
-          <div ref={chartRef} className="h-[400px] w-full" />
+          <div className="h-[400px] w-full relative">
+            <div ref={chartRef} className="absolute inset-0 h-full w-full" />
+          </div>
         )}
       </CardContent>
     </Card>

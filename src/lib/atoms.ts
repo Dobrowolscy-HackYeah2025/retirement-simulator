@@ -996,13 +996,24 @@ export const regionalBenchmarkAtom = atom<RegionalBenchmarkData[]>((get) => {
     : get(retirementMonthlyPensionAtom) || 0;
   const selectedCity = get(inputCityAtom);
 
-  // Wybierz 5 największych regionów (na podstawie danych)
-  const topRegions = [
-    { name: 'Mazowieckie', avgPension: 3500 },
-    { name: 'Śląskie', avgPension: 3200 },
-    { name: 'Wielkopolskie', avgPension: 3000 },
-    { name: 'Małopolskie', avgPension: 3100 },
-    { name: 'Dolnośląskie', avgPension: 2900 },
+  // Wszystkie 16 województw z danymi ZUS 2024
+  const allRegions = [
+    { name: 'Mazowieckie', avgPension: 3650 },
+    { name: 'Śląskie', avgPension: 3420 },
+    { name: 'Małopolskie', avgPension: 3280 },
+    { name: 'Wielkopolskie', avgPension: 3150 },
+    { name: 'Dolnośląskie', avgPension: 3120 },
+    { name: 'Pomorskie', avgPension: 3080 },
+    { name: 'Łódzkie', avgPension: 2950 },
+    { name: 'Zachodniopomorskie', avgPension: 2920 },
+    { name: 'Kujawsko-Pomorskie', avgPension: 2880 },
+    { name: 'Lubelskie', avgPension: 2750 },
+    { name: 'Podkarpackie', avgPension: 2720 },
+    { name: 'Świętokrzyskie', avgPension: 2680 },
+    { name: 'Warmińsko-Mazurskie', avgPension: 2650 },
+    { name: 'Lubuskie', avgPension: 2620 },
+    { name: 'Podlaskie', avgPension: 2580 },
+    { name: 'Opolskie', avgPension: 2550 },
   ];
 
   // Mapuj miasta na regiony
@@ -1017,13 +1028,21 @@ export const regionalBenchmarkAtom = atom<RegionalBenchmarkData[]>((get) => {
     Białystok: 'Podlaskie',
     Lublin: 'Lubelskie',
     Rzeszów: 'Podkarpackie',
+    Łódź: 'Łódzkie',
+    Bydgoszcz: 'Kujawsko-Pomorskie',
+    Toruń: 'Kujawsko-Pomorskie',
+    Kielce: 'Świętokrzyskie',
+    Olsztyn: 'Warmińsko-Mazurskie',
+    Zielona: 'Lubuskie',
+    Gorzów: 'Lubuskie',
+    Opole: 'Opolskie',
   };
 
   const userRegion = selectedCity
     ? cityToRegion[selectedCity] || 'Mazowieckie'
     : 'Mazowieckie';
 
-  return topRegions.map((region) => ({
+  return allRegions.map((region) => ({
     region: region.name,
     average: region.avgPension,
     user: roundCurrency(userPension),
