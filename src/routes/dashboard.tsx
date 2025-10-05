@@ -5,6 +5,11 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { Info, Stethoscope } from 'lucide-react';
 
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '../components/ui/tooltip';
+import {
   averagePensionAtom,
   contributionHistoryAtom,
   expectedPensionComparisonAtom,
@@ -245,8 +250,8 @@ export default function Dashboard() {
             dataLabels: {
               enabled: true,
               format: '{point.name}<br/><b>{point.y}%</b>',
-              style: { 
-                color: zusColors.darkBlue, 
+              style: {
+                color: zusColors.darkBlue,
                 fontWeight: 'bold',
                 fontSize: '14px',
                 textOutline: 'none',
@@ -632,13 +637,16 @@ export default function Dashboard() {
                 <div className="text-sm">
                   <div className="font-semibold mb-2">Emerytura nominalna</div>
                   <div className="mb-2">
-                    <strong>Wzór:</strong> Kapitał emerytalny ÷ (Długość życia × 12)
+                    <strong>Wzór:</strong> Kapitał emerytalny ÷ (Długość życia ×
+                    12)
                   </div>
                   <div className="mb-2">
-                    <strong>Kapitał:</strong> Stan konta ZUS + Składki przez całe życie
+                    <strong>Kapitał:</strong> Stan konta ZUS + Składki przez
+                    całe życie
                   </div>
                   <div className="mb-2">
-                    <strong>Długość życia:</strong> {lifeExpectancyInfo.years} lat {lifeExpectancyInfo.months} miesięcy
+                    <strong>Długość życia:</strong> {lifeExpectancyInfo.years}{' '}
+                    lat {lifeExpectancyInfo.months} miesięcy
                   </div>
                   <div className="text-xs text-gray-500">
                     * Wartość w cenach z roku przejścia na emeryturę
@@ -713,13 +721,16 @@ export default function Dashboard() {
                 <div className="text-sm">
                   <div className="font-semibold mb-2">Emerytura urealniona</div>
                   <div className="mb-2">
-                    <strong>Wzór:</strong> Emerytura nominalna ÷ Wskaźnik inflacji
+                    <strong>Wzór:</strong> Emerytura nominalna ÷ Wskaźnik
+                    inflacji
                   </div>
                   <div className="mb-2">
-                    <strong>Inflacja:</strong> Rzeczywiste dane ZUS 2025-{inputs.plannedRetirementYear}
+                    <strong>Inflacja:</strong> Rzeczywiste dane ZUS 2025-
+                    {inputs.plannedRetirementYear}
                   </div>
                   <div className="mb-2">
-                    <strong>Średnia inflacja:</strong> ~2.5% rocznie (prognoza ZUS)
+                    <strong>Średnia inflacja:</strong> ~2.5% rocznie (prognoza
+                    ZUS)
                   </div>
                   <div className="text-xs text-gray-500">
                     * Wartość w cenach z 2025 roku (siła nabywcza)
@@ -741,10 +752,12 @@ export default function Dashboard() {
                   <div className="text-sm">
                     <div className="font-semibold mb-2">Siła nabywcza</div>
                     <div className="mb-2">
-                      <strong>Wzór:</strong> (Emerytura realna ÷ Emerytura nominalna) × 100%
+                      <strong>Wzór:</strong> (Emerytura realna ÷ Emerytura
+                      nominalna) × 100%
                     </div>
                     <div className="mb-2">
-                      <strong>Oznacza:</strong> Jaki procent siły nabywczej zachowasz po inflacji
+                      <strong>Oznacza:</strong> Jaki procent siły nabywczej
+                      zachowasz po inflacji
                     </div>
                     <div className="text-xs text-gray-500">
                       * Im wyższy %, tym lepiej dla Twojej emerytury
@@ -1161,29 +1174,37 @@ export default function Dashboard() {
                       <span>Wiek przejścia na emeryturę: {retirementAge}</span>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Info 
-                            className="h-4 w-4 text-gray-600 hover:text-gray-800 transition-colors cursor-help" 
+                          <Info
+                            className="h-4 w-4 text-gray-600 hover:text-gray-800 transition-colors cursor-help"
                             aria-label="Informacje o obliczeniach emerytury"
                           />
                         </TooltipTrigger>
                         <TooltipContent className="max-w-sm bg-white text-gray-800 border border-gray-200 shadow-lg">
                           <div className="text-sm">
-                            <div className="font-semibold mb-2">Jak obliczana jest emerytura?</div>
-                            <div className="mb-2">
-                              <strong>Wzór:</strong> Kapitał emerytalny ÷ (Długość życia × 12)
+                            <div className="font-semibold mb-2">
+                              Jak obliczana jest emerytura?
                             </div>
                             <div className="mb-2">
-                              <strong>Kapitał:</strong> Stan konta ZUS + Składki przez całe życie
+                              <strong>Wzór:</strong> Kapitał emerytalny ÷
+                              (Długość życia × 12)
                             </div>
                             <div className="mb-2">
-                              <strong>Długość życia:</strong> Maleje z wiekiem przejścia na emeryturę
+                              <strong>Kapitał:</strong> Stan konta ZUS + Składki
+                              przez całe życie
+                            </div>
+                            <div className="mb-2">
+                              <strong>Długość życia:</strong> Maleje z wiekiem
+                              przejścia na emeryturę
                             </div>
                             <div className="mb-2">
                               <strong>Wpływ opóźnienia:</strong>
                             </div>
                             <ul className="text-xs ml-4 space-y-1">
                               <li>• Więcej składek = wyższy kapitał</li>
-                              <li>• Krótsza emerytura = wyższa miesięczna emerytura</li>
+                              <li>
+                                • Krótsza emerytura = wyższa miesięczna
+                                emerytura
+                              </li>
                               <li>• Razem: ~3-6% wzrostu rocznie</li>
                             </ul>
                             <div className="text-xs text-gray-500 mt-2">
@@ -1215,25 +1236,31 @@ export default function Dashboard() {
                       <span>Wysokość wynagrodzenia brutto (zł)</span>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Info 
-                            className="h-4 w-4 text-gray-600 hover:text-gray-800 transition-colors cursor-help" 
+                          <Info
+                            className="h-4 w-4 text-gray-600 hover:text-gray-800 transition-colors cursor-help"
                             aria-label="Informacje o wpływie pensji na emeryturę"
                           />
                         </TooltipTrigger>
                         <TooltipContent className="max-w-sm bg-white text-gray-800 border border-gray-200 shadow-lg">
                           <div className="text-sm">
-                            <div className="font-semibold mb-2">Wpływ pensji na emeryturę</div>
-                            <div className="mb-2">
-                              <strong>Składki:</strong> 19.52% pensji brutto rocznie
+                            <div className="font-semibold mb-2">
+                              Wpływ pensji na emeryturę
                             </div>
                             <div className="mb-2">
-                              <strong>Wzrost płac:</strong> Rzeczywiste dane ZUS (3-5% rocznie)
+                              <strong>Składki:</strong> 19.52% pensji brutto
+                              rocznie
                             </div>
                             <div className="mb-2">
-                              <strong>Kapitał:</strong> Składki × lata pracy + stan konta ZUS
+                              <strong>Wzrost płac:</strong> Rzeczywiste dane ZUS
+                              (3-5% rocznie)
+                            </div>
+                            <div className="mb-2">
+                              <strong>Kapitał:</strong> Składki × lata pracy +
+                              stan konta ZUS
                             </div>
                             <div className="text-xs text-gray-500">
-                              * Wyższa pensja = więcej składek = wyższa emerytura
+                              * Wyższa pensja = więcej składek = wyższa
+                              emerytura
                             </div>
                           </div>
                         </TooltipContent>
@@ -1341,7 +1368,10 @@ export default function Dashboard() {
             {/* Replacement Rate Gauge */}
             <div className="bg-white p-6 rounded-lg shadow">
               <div className="mb-4">
-                <h3 className="text-lg font-semibold mb-1" style={{ color: zusColors.darkBlue }}>
+                <h3
+                  className="text-lg font-semibold mb-1"
+                  style={{ color: zusColors.darkBlue }}
+                >
                   Stopa zastąpienia
                 </h3>
                 <p className="text-sm text-gray-600">
@@ -1354,7 +1384,10 @@ export default function Dashboard() {
             {/* Sick Leave Impact */}
             <div className="bg-white p-6 rounded-lg shadow">
               <div className="mb-4">
-                <h3 className="text-lg font-semibold mb-1" style={{ color: zusColors.darkBlue }}>
+                <h3
+                  className="text-lg font-semibold mb-1"
+                  style={{ color: zusColors.darkBlue }}
+                >
                   Wpływ absencji chorobowych
                 </h3>
                 <p className="text-sm text-gray-600">
