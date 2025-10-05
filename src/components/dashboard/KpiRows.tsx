@@ -9,46 +9,69 @@ import {
   CardTitle,
 } from '../ui/card';
 
-export const KpiRows = ({
-  scenariosData,
-  replacementRate,
-}: {
-  scenariosData: any;
+interface KpiRowsProps {
+  selectedPension: number;
+  selectedRealPension: number;
+  averagePension: number;
   replacementRate: number;
-}) => {
+  purchasingPowerPercentage: number;
+}
+
+export const KpiRows = ({
+  selectedPension,
+  selectedRealPension,
+  averagePension,
+  replacementRate,
+  purchasingPowerPercentage,
+}: KpiRowsProps) => {
+  const pensionVsAverage = Math.round(
+    ((selectedPension - averagePension) / averagePension) * 100
+  );
+  const isPensionAboveAverage = selectedPension > averagePension;
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      {/* Nominal Pension Forecast */}
+      {/* Nominal Pension */}
       <Card>
         <CardHeader>
           <CardDescription className="text-muted-foreground">
-            Prognoza emerytury
+            Emerytura rzeczywista
           </CardDescription>
           <CardTitle className="text-3xl font-bold tabular-nums @[250px]/card:text-4xl">
-            {scenariosData.realistic.toLocaleString()} zł
+            {selectedPension.toLocaleString()} zł
           </CardTitle>
           <CardAction>
-            <TrendingUpIcon className="size-5 text-primary" />
+            {isPensionAboveAverage ? (
+              <TrendingUpIcon className="size-5 text-primary" />
+            ) : (
+              <TrendingDownIcon className="size-5 text-coral-red" />
+            )}
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="flex gap-2 font-medium text-foreground">
-            Emerytura nominalna
+            {isPensionAboveAverage ? 'Powyżej' : 'Poniżej'} średniej{' '}
+            {isPensionAboveAverage ? (
+              <TrendingUpIcon className="size-4" />
+            ) : (
+              <TrendingDownIcon className="size-4" />
+            )}
           </div>
           <div className="text-muted-foreground">
-            Prognozowana kwota miesięczna
+            vs średnia: {averagePension.toLocaleString()} zł (
+            {isPensionAboveAverage ? '+' : ''}
+            {pensionVsAverage}%)
           </div>
         </CardFooter>
       </Card>
 
-      {/* Real Pension Forecast */}
+      {/* Real Pension */}
       <Card className="@container/card">
         <CardHeader>
           <CardDescription className="text-muted-foreground">
-            Emerytura realna
+            Emerytura urealniona
           </CardDescription>
           <CardTitle className="text-3xl font-bold tabular-nums @[250px]/card:text-4xl">
-            {Math.round(scenariosData.realistic * 0.7).toLocaleString()} zł
+            {selectedRealPension.toLocaleString()} zł
           </CardTitle>
           <CardAction>
             <InfoIcon className="size-5 text-muted-foreground" />
@@ -56,10 +79,10 @@ export const KpiRows = ({
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="flex gap-2 font-medium text-foreground">
-            Z uwzględnieniem inflacji
+            Siła nabywcza po inflacji
           </div>
           <div className="text-muted-foreground">
-            Wartość siły nabywczej (~70%)
+            {purchasingPowerPercentage}% wartości nominalnej
           </div>
         </CardFooter>
       </Card>
