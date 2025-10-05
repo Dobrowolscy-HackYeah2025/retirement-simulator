@@ -67,13 +67,6 @@ const GeneratingReportOverlay = () => {
 };
 
 export const PageNavigationBar = () => {
-  const age = useAtomValue(inputAgeAtom);
-  const gender = useAtomValue(inputGenderAtom);
-  const city = useAtomValue(inputCityAtom);
-  const grossMonthlySalary = useAtomValue(inputGrossMonthlySalaryAtom);
-  const workStartYear = useAtomValue(inputWorkStartYearAtom);
-  const plannedRetirementYear = useAtomValue(inputPlannedRetirementYearAtom);
-  const zusAccountBalance = useAtomValue(inputZusAccountBalanceAtom);
   const onboardingCompleted = useAtomValue(onboardingCompletedAtom);
   const setAge = useSetAtom(inputAgeAtom);
   const setGender = useSetAtom(inputGenderAtom);
@@ -93,21 +86,7 @@ export const PageNavigationBar = () => {
     setIsGeneratingReport(true);
     const MIN_LOADER_DURATION_MS = 1_500;
     const loaderStartedAt = performance.now();
-    const ensureNextFrame = () =>
-      new Promise<void>((resolve) => {
-        if (typeof window === 'undefined') {
-          resolve();
-          return;
-        }
-        const raf = window.requestAnimationFrame?.bind(window);
-        if (raf) {
-          raf(() => resolve());
-        } else {
-          window.setTimeout(resolve, 0);
-        }
-      });
 
-    await ensureNextFrame();
     let reportHandle: { open: () => void } | null = null;
     try {
       trackEvent('generate-report', reportPayload);
@@ -124,17 +103,7 @@ export const PageNavigationBar = () => {
       reportHandle?.open();
       setIsGeneratingReport(false);
     }
-  }, [
-    generateRetirementReport,
-    age,
-    gender,
-    city,
-    grossMonthlySalary,
-    workStartYear,
-    plannedRetirementYear,
-    zusAccountBalance,
-    reportPayload,
-  ]);
+  }, [generateRetirementReport, reportPayload]);
 
   const handleResetInputsAndNavigateHome = useCallback(() => {
     setAge(null);
