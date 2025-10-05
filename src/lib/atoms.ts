@@ -30,7 +30,7 @@ export const inputCityAtom = atom<string | null>(
   environment.DEV_MODE ? 'Warszawa' : null
 );
 export const inputPostalCodeAtom = atom<string | null>(
-  environment.DEV_MODE ? '39-000' : null
+  environment.DEV_MODE ? '00-000' : null
 );
 export const inputGrossMonthlySalaryAtom = atom<number | null>(
   environment.DEV_MODE ? 5000 : null

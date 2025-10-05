@@ -3,7 +3,13 @@ import { OnboardingPageWrapper } from '@/components/OnboardingPageWrapper';
 import { useState } from 'react';
 
 import { useAtom } from 'jotai';
-import { CalendarIcon, CheckIcon, MapPinIcon, UserIcon } from 'lucide-react';
+import {
+  CalendarIcon,
+  CheckIcon,
+  MailIcon,
+  MapPinIcon,
+  UserIcon,
+} from 'lucide-react';
 
 import { OnboardingButtons } from '../components/onboarding/OnboardingButtons';
 import { Input } from '../components/ui/input';
@@ -16,7 +22,12 @@ import {
   SelectValue,
 } from '../components/ui/select';
 import { Slider } from '../components/ui/slider';
-import { inputAgeAtom, inputCityAtom, inputGenderAtom } from '../lib/atoms';
+import {
+  inputAgeAtom,
+  inputCityAtom,
+  inputGenderAtom,
+  inputPostalCodeAtom,
+} from '../lib/atoms';
 import { filterCities } from '../lib/polish-cities';
 import { cn } from '../lib/utils';
 
@@ -27,6 +38,7 @@ export function OnboardingPage() {
   const [gender, setGender] = useAtom(inputGenderAtom);
   const [age, setAge] = useAtom(inputAgeAtom);
   const [city, setCity] = useAtom(inputCityAtom);
+  const [postalCode, setPostalCode] = useAtom(inputPostalCodeAtom);
   const [cityInput, setCityInput] = useState(city);
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
 
@@ -108,51 +120,75 @@ export function OnboardingPage() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 mb-6">
-        <Label>Miasto zamieszkania</Label>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col gap-2 mb-6">
+          <Label>Miasto zamieszkania (opcjonalne)</Label>
 
-        <div className="relative">
           <div className="relative">
-            <Input
-              type="text"
-              placeholder="Miasto zamieszkania"
-              defaultValue={userCity || ''}
-              value={cityInput || ''}
-              onChange={(e) => {
-                setCityInput(e.target.value);
-                setShowCitySuggestions(true);
+            <div className="relative">
+              <Input
+                type="text"
+                placeholder="Miasto zamieszkania"
+                defaultValue={userCity || ''}
+                value={cityInput || ''}
+                onChange={(e) => {
+                  setCityInput(e.target.value);
+                  setShowCitySuggestions(true);
 
-                if (e.target.value === '') {
-                  setUserCity('');
+                  if (e.target.value === '') {
+                    setUserCity('');
+                  }
+                }}
+                onFocus={() => setShowCitySuggestions(true)}
+                onBlur={() =>
+                  setTimeout(() => setShowCitySuggestions(false), 200)
                 }
-              }}
-              onFocus={() => setShowCitySuggestions(true)}
-              onBlur={() =>
-                setTimeout(() => setShowCitySuggestions(false), 200)
-              }
-              className="w-full pl-9"
-            />
-            <MapPinIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
-            {userCity && (
-              <CheckIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 size-4 text-primary" />
-            )}
-            {showCitySuggestions && cityInput && (
-              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                {filterCities(cityInput).map((city) => (
-                  <div
-                    key={city}
-                    className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
-                    onClick={() => {
-                      setUserCity(city);
-                      setCityInput(city);
-                      setShowCitySuggestions(false);
-                    }}
-                  >
-                    {city}
-                  </div>
-                ))}
-              </div>
-            )}
+                className="w-full pl-9"
+              />
+              <MapPinIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
+              {userCity && (
+                <CheckIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 size-4 text-primary" />
+              )}
+              {showCitySuggestions && cityInput && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                  {filterCities(cityInput).map((city) => (
+                    <div
+                      key={city}
+                      className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                      onClick={() => {
+                        setUserCity(city);
+                        setCityInput(city);
+                        setShowCitySuggestions(false);
+                      }}
+                    >
+                      {city}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col gap-2 mb-6">
+          <Label>Kod pocztowy (opcjonalne)</Label>
+
+          <div className="relative">
+            <div className="relative">
+              <Input
+                type="text"
+                placeholder="Kod pocztowy"
+                defaultValue={postalCode || ''}
+                value={postalCode || ''}
+                onChange={(e) => {
+                  setPostalCode(e.target.value);
+                }}
+                className="w-full pl-9"
+              />
+              <MailIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
+              {postalCode && (
+                <CheckIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 size-4 text-primary" />
+              )}
+            </div>
           </div>
         </div>
       </div>
