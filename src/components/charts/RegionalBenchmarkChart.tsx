@@ -31,6 +31,19 @@ function RegionalBenchmarkChart() {
   const regionalBenchmark = useAtomValue(regionalBenchmarkAtom);
   const chartRef = useRef<HTMLDivElement>(null);
   const [chart, setChart] = useState<Highcharts.Chart | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Mapowanie województw na kody hc-key dla mapy Polski
   const regionToHcKey: Record<string, string> = {
@@ -100,6 +113,12 @@ function RegionalBenchmarkChart() {
             spacingBottom: 20, // Dodaj przestrzeń na dole dla labeli
             spacingLeft: 20, // Dodaj przestrzeń po lewej dla labeli
             spacingRight: 20, // Dodaj przestrzeń po prawej dla labeli
+            // Mobile-specific settings
+            reflow: true, // Automatyczne dostosowanie do rozmiaru kontenera
+            animation: false, // Wyłącz animacje na mobile dla lepszej wydajności
+            style: {
+              fontFamily: 'inherit',
+            },
           },
           title: {
             text: '',
@@ -107,6 +126,23 @@ function RegionalBenchmarkChart() {
           mapNavigation: {
             enabled: false, // Wyłącza nawigację mapy
             enableMouseWheelZoom: false, // Wyłącza zoomowanie kółkiem myszy
+            enableTouchZoom: false, // Wyłącza zoomowanie dotykiem na mobile
+            enableDoubleClickZoom: false, // Wyłącza zoomowanie podwójnym kliknięciem
+          },
+          // Mobile touch settings
+          plotOptions: {
+            map: {
+              enableMouseTracking: true, // Włącz śledzenie myszy
+              enableTouchTracking: true, // Włącz śledzenie dotyku na mobile
+              states: {
+                hover: {
+                  enabled: true,
+                },
+                select: {
+                  enabled: true,
+                },
+              },
+            },
           },
           colorAxis: {
             min: Math.min(...regionalBenchmark.map(item => item.average)),
@@ -146,7 +182,7 @@ function RegionalBenchmarkChart() {
                 },
                 style: {
                   color: 'black',
-                  fontSize: '11px',
+                  fontSize: isMobile ? '9px' : '11px', // Mniejszy font na mobile
                   fontWeight: '600',
                   textOutline: 'none',
                 },
@@ -183,7 +219,7 @@ function RegionalBenchmarkChart() {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isMobile]);
 
   // Update chart data
   useEffect(() => {
@@ -251,8 +287,15 @@ function RegionalBenchmarkChart() {
         </CardDescription>
       </CardHeader>
       <CardContent className="px-1 lg:px-6">
-        <div className="h-[400px] w-full relative">
-          <div ref={chartRef} className="absolute inset-0 h-full w-full" />
+        <div className={`${isMobile ? 'h-[300px]' : 'h-[400px]'} w-full relative overflow-hidden`}>
+          <div 
+            ref={chartRef} 
+            className="absolute inset-0 h-full w-full" 
+            style={{
+              minHeight: isMobile ? '250px' : '300px', // Responsywna minimalna wysokość
+              touchAction: 'manipulation', // Optymalizacja dla touch
+            }}
+          />
         </div>
       </CardContent>
     </Card>
