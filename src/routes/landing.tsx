@@ -36,7 +36,11 @@ const cards = [
 export function LandingPage() {
   return (
     <div className="min-h-screen overflow-x-hidden">
-      <div className="relative max-w-7xl mx-auto px-6 py-20 pt-24 md:pt-36 lg:pt-40">
+      <div className="max-w-7xl flex justify-end mx-auto mt-8 px-4 md:px-0">
+        <AdminReportButton />
+      </div>
+
+      <div className="relative max-w-7xl mx-auto px-6 pb-20 pt-16 md:pt-20 lg:pt-24">
         <div className="text-left">
           <div className="flex justify-start mb-4">
             <img
@@ -58,9 +62,9 @@ export function LandingPage() {
           </p>
 
           <Link to="/onboarding">
-            <Button size="lg" variant="default">
-              Rozpocznij obliczenia
+            <Button size="lg" variant="default" className="group">
               <ArrowRightIcon className="group-hover:translate-x-1 transition-transform" />
+              Rozpocznij obliczenia
             </Button>
           </Link>
 
@@ -118,8 +122,6 @@ export function LandingPage() {
           </p>
         </div>
       </div>
-
-      <AdminReportButton />
     </div>
   );
 }

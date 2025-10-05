@@ -12,10 +12,10 @@ export const AdminReportButton = () => {
     <>
       <Button
         variant="outline"
-        className="fixed top-4 right-4 z-50"
+        className="group"
         onClick={() => setIsModalOpen(true)}
       >
-        <CloudDownloadIcon />
+        <CloudDownloadIcon className="group-hover:-translate-y-0.5 transition-transform" />
         Pobierz raport (admin)
       </Button>
 
