@@ -46,13 +46,13 @@ function ContributionHistoryChart() {
         {
           title: {
             text: 'Składki (zł)',
-            style: { color: CHART_COLORS.darkBlue },
+            style: { color: 'black' },
           },
         },
         {
           title: {
             text: 'Kapitał (zł)',
-            style: { color: CHART_COLORS.darkBlue },
+            style: { color: 'black' },
           },
           opposite: true,
         },
@@ -83,7 +83,7 @@ function ContributionHistoryChart() {
       ],
       legend: {
         enabled: true,
-        itemStyle: { color: CHART_COLORS.darkBlue },
+        itemStyle: { color: 'black' },
       },
       credits: {
         enabled: false,

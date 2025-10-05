@@ -46,7 +46,7 @@ function SickLeaveImpactChart() {
       yAxis: {
         title: {
           text: 'Kwota emerytury (zł)',
-          style: { color: CHART_COLORS.darkBlue },
+          style: { color: 'black' },
         },
       },
       series: [
@@ -70,7 +70,7 @@ function SickLeaveImpactChart() {
           dataLabels: {
             enabled: true,
             format: '{y} zł',
-            style: { color: CHART_COLORS.darkBlue, fontWeight: 'bold' },
+            style: { color: 'black', fontWeight: 'bold' },
           },
           borderWidth: 0,
           borderRadius: 4,

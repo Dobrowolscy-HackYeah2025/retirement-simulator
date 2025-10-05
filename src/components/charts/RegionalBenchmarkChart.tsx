@@ -118,7 +118,7 @@ function RegionalBenchmarkChart() {
             ],
             labels: {
               style: {
-                color: 'var(--foreground)',
+                color: 'black',
               },
             },
           },
@@ -145,7 +145,7 @@ function RegionalBenchmarkChart() {
                   return englishToPolishNames[this.point.name] || this.point.name;
                 },
                 style: {
-                  color: 'var(--foreground)',
+                  color: 'black',
                   fontSize: '11px',
                   fontWeight: '600',
                   textOutline: 'none',
@@ -162,7 +162,7 @@ function RegionalBenchmarkChart() {
           ],
           legend: {
             enabled: true,
-            itemStyle: { color: 'var(--foreground)' },
+            itemStyle: { color: 'black' },
           },
           credits: {
             enabled: false,
