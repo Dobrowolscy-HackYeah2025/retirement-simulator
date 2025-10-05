@@ -5,6 +5,10 @@ import { createRoot } from 'react-dom/client';
 
 import { App } from './App';
 import './index.css';
+import { applyHighchartsTheme } from './lib/highcharts-theme';
+
+// Apply Highcharts theme globally
+applyHighchartsTheme();
 
 const queryClient = new QueryClient();
 
