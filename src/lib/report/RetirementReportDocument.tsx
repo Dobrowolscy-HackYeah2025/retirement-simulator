@@ -231,6 +231,14 @@ const styles = StyleSheet.create({
     color: '#4B5563',
     fontFamily: 'ZUS Sans',
   },
+  chartValueLabel: {
+    position: 'absolute',
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: ZUS_COLORS.navy,
+    fontFamily: 'ZUS Sans',
+    textAlign: 'center',
+  },
   itemRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -290,6 +298,43 @@ const formatAxisValue = (value: number) => {
     return '0';
   }
   return numberFormatter.format(Math.round(value));
+};
+
+const formatValueLabel = (value: number) => {
+  if (!Number.isFinite(value)) {
+    return '';
+  }
+
+  if (Number.isInteger(value)) {
+    return numberFormatter.format(value);
+  }
+
+  return value.toLocaleString('pl-PL', {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  });
+};
+
+const formatColumnValue = (
+  chart: RetirementReportChart,
+  value: number
+): string => {
+  if (!Number.isFinite(value)) {
+    return '';
+  }
+
+  const label = chart.yLabel?.toLowerCase() ?? '';
+  const formattedBase = formatValueLabel(value);
+
+  if (label.includes('%')) {
+    return `${formattedBase}%`;
+  }
+
+  if (label.includes('zł')) {
+    return `${formattedBase} zł`;
+  }
+
+  return formattedBase;
 };
 
 function PdfZusLogo({ width = 64 }: { width?: number }) {
@@ -575,13 +620,21 @@ function ColumnChartSvg({ chart }: { chart: RetirementReportChart }) {
     series.points.map((point) => Math.max(0, point.y))
   );
   const columnMax = columnValues.length > 0 ? Math.max(...columnValues) : 0;
-  const effectiveColumnMax = columnMax === 0 ? 1 : columnMax;
+  const columnPadding =
+    columnMax === 0 ? 0 : Math.max(columnMax * 0.12, 2);
+  const paddedColumnMax = columnMax + columnPadding;
+  const effectiveColumnMax = paddedColumnMax === 0 ? 1 : paddedColumnMax;
 
   const lineValues = lineSeries.flatMap((series) =>
     series.points.map((point) => Math.max(0, point.y))
   );
   const lineMax = lineValues.length > 0 ? Math.max(...lineValues) : 0;
-  const effectiveLineMax = lineMax === 0 ? effectiveColumnMax : lineMax;
+  const linePadding = lineMax === 0 ? 0 : Math.max(lineMax * 0.12, 2);
+  const paddedLineMax = lineMax + linePadding;
+  const effectiveLineMax =
+    paddedLineMax === 0
+      ? effectiveColumnMax
+      : Math.max(paddedLineMax, effectiveColumnMax);
 
   const yScaleColumn = (value: number) =>
     height - bottom - (Math.max(0, value) / effectiveColumnMax) * innerHeight;
@@ -608,6 +661,7 @@ function ColumnChartSvg({ chart }: { chart: RetirementReportChart }) {
   const barSpacing = 6;
 
   const bars: ReactElement[] = [];
+  const overlays: ReactElement[] = [];
 
   categoryOrder.forEach((categoryKey, index) => {
     const categoryCenter = categoryCenters[index];
@@ -646,10 +700,12 @@ function ColumnChartSvg({ chart }: { chart: RetirementReportChart }) {
       const heightValue = Math.max(0, yScaleColumn(0) - barTop);
       const fill = entry.series.color ?? ZUS_COLORS.green;
 
+      const barX = currentX;
+
       bars.push(
         <Rect
           key={`bar-${categoryKey}-${entry.series.id}-${entryIndex}`}
-          x={currentX}
+          x={barX}
           y={barTop}
           width={barWidth}
           height={heightValue}
@@ -658,11 +714,38 @@ function ColumnChartSvg({ chart }: { chart: RetirementReportChart }) {
         />
       );
 
+      const label = formatColumnValue(chart, entry.point.y);
+      if (label) {
+        const labelX = barX + barWidth / 2;
+        const textHeight = 12; // approx text height including padding
+        const rawLabelY = barTop - textHeight;
+        const lowerBound = top + textHeight / 2;
+        const upperBound = barTop - 4;
+        const boundedLabelY = Math.min(
+          upperBound,
+          Math.max(lowerBound, rawLabelY)
+        );
+        const labelY = Math.max(top + 4, boundedLabelY);
+        overlays.push(
+          <PdfText
+            key={`bar-label-${categoryKey}-${entry.series.id}-${entryIndex}`}
+            style={[
+              styles.chartValueLabel,
+              {
+                left: labelX - 30,
+                top: labelY,
+                width: 60,
+              },
+            ]}
+          >
+            {label}
+          </PdfText>
+        );
+      }
+
       currentX += barWidth + barSpacing;
     });
   });
-
-  const overlays: ReactElement[] = [];
 
   columnTicks.forEach((tickValue, index) => {
     const y = yScaleColumn(tickValue);
