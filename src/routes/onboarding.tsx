@@ -1,9 +1,10 @@
 import { OnboardingPageWrapper } from '@/components/OnboardingPageWrapper';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useAtom } from 'jotai';
 import {
+  AlertCircleIcon,
   CalendarIcon,
   CheckIcon,
   MailIcon,
@@ -29,10 +30,12 @@ import {
   inputPostalCodeAtom,
 } from '../lib/atoms';
 import { filterCities } from '../lib/polish-cities';
-import { cn } from '../lib/utils';
 
 const MIN_USER_AGE = 18;
 const MAX_USER_AGE = 70;
+
+// Polish postal code validation regex (xx-xxx format)
+const POSTAL_CODE_REGEX = /^\d{2}-\d{3}$/;
 
 export function OnboardingPage() {
   const [gender, setGender] = useAtom(inputGenderAtom);
@@ -41,6 +44,8 @@ export function OnboardingPage() {
   const [postalCode, setPostalCode] = useAtom(inputPostalCodeAtom);
   const [cityInput, setCityInput] = useState(city);
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
+  const [postalCodeError, setPostalCodeError] = useState<string | null>(null);
+  const [postalCodeInput, setPostalCodeInput] = useState(postalCode || '');
 
   const userGender =
     gender === 'male' ? 'man' : gender === 'female' ? 'woman' : null;
@@ -59,6 +64,33 @@ export function OnboardingPage() {
     setCity(val);
   };
 
+  // Debounced postal code validation
+  const validatePostalCode = useCallback((code: string) => {
+    if (!code.trim()) {
+      setPostalCodeError(null);
+      return true;
+    }
+
+    if (!POSTAL_CODE_REGEX.test(code)) {
+      setPostalCodeError(
+        'Kod pocztowy musi być w formacie XX-XXX (np. 00-123)'
+      );
+      return false;
+    }
+
+    setPostalCodeError(null);
+    return true;
+  }, []);
+
+  // Debounce effect for postal code validation
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      validatePostalCode(postalCodeInput);
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [postalCodeInput, validatePostalCode]);
+
   const getMissingFields = () => {
     const missing: string[] = [];
 
@@ -72,6 +104,11 @@ export function OnboardingPage() {
 
     if (!userAge || userAge < MIN_USER_AGE || userAge > MAX_USER_AGE) {
       missing.push('wiek');
+    }
+
+    // Check postal code validation
+    if (postalCodeInput.trim() && postalCodeError) {
+      missing.push('poprawny kod pocztowy');
     }
 
     return missing;
@@ -179,65 +216,73 @@ export function OnboardingPage() {
             <div className="relative">
               <Input
                 type="text"
-                placeholder="Kod pocztowy"
-                defaultValue={postalCode || ''}
-                value={postalCode || ''}
+                placeholder="00-123"
+                value={postalCodeInput}
                 onChange={(e) => {
-                  setPostalCode(e.target.value);
+                  const value = e.target.value;
+                  setPostalCodeInput(value);
+                  setPostalCode(value);
                 }}
-                className="w-full pl-9"
+                className={`w-full pl-9 ${postalCodeError ? 'border-red-500 focus:border-red-500' : ''}`}
               />
               <MailIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
-              {postalCode && (
+              {postalCodeInput && !postalCodeError && (
                 <CheckIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 size-4 text-primary" />
               )}
+              {postalCodeError && (
+                <AlertCircleIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 size-4 text-red-500" />
+              )}
             </div>
+            {postalCodeError && (
+              <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                {postalCodeError}
+              </p>
+            )}
           </div>
         </div>
       </div>
 
       <div className="flex flex-col gap-2 mb-6">
-        <Label>Wiek</Label>
-
-        <div
-          className={cn(
-            'relative mb-6',
-            'file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input w-full min-w-0 rounded-md border bg-transparent p-3 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
-            'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
-            'aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive'
-          )}
-        >
-          <div className="flex flex-col gap-2 items-stretch mt-2">
-            <div className="flex flex-row justify-between flex-1 items-center">
-              <CalendarIcon className="size-4 text-muted-foreground -mt-1" />
-
-              <div className="flex-1"></div>
-
-              <div className="flex">
-                <Input
-                  className="min-w-0 text-center"
-                  size={3}
-                  value={userAge!}
-                  onChange={(e) => {
-                    setUserAge(+e.target.value);
-                  }}
-                />
-              </div>
+        <div className="flex flex-col gap-2 items-stretch mt-2">
+          <div className="flex flex-row justify-between flex-1 items-center">
+            <div className="flex items-start gap-2">
+              <CalendarIcon className="size-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Wiek</span>
             </div>
 
-            <div className="flex flex-col gap-1 items-stretch w-full">
-              <Slider
-                value={[userAge || 30]}
-                onValueChange={(value) => setUserAge(value[0])}
+            <div className="flex-1"></div>
+
+            <div className="flex">
+              <Input
+                type="number"
                 min={MIN_USER_AGE}
                 max={MAX_USER_AGE}
                 step={1}
-                className="w-full"
+                className="min-w-0 text-center"
+                size={3}
+                value={userAge!}
+                onChange={(e) => {
+                  setUserAge(+e.target.value);
+                }}
               />
-              <div className="flex w-full justify-between text-xs text-muted-foreground mt-1">
-                <span className="flex-1">{MIN_USER_AGE}</span>
-                <span className="flex-1 text-right">{MAX_USER_AGE}</span>
-              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1 items-stretch w-full">
+            <Slider
+              value={[userAge || 30]}
+              onValueChange={(value) => setUserAge(value[0])}
+              min={MIN_USER_AGE}
+              max={MAX_USER_AGE}
+              step={1}
+              className="w-full"
+            />
+            <div className="flex w-full justify-between text-xs text-muted-foreground mt-1">
+              <span className="flex-1">{MIN_USER_AGE}</span>
+              <span className="flex-1 text-center">
+                {(MIN_USER_AGE + MAX_USER_AGE) / 2}
+              </span>
+              <span className="flex-1 text-right">{MAX_USER_AGE}</span>
             </div>
           </div>
         </div>
