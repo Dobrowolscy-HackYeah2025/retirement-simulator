@@ -14,7 +14,7 @@ export function SiteHeader() {
           className="mx-2 data-[orientation=vertical]:h-4"
         /> */}
           <img src={ZusLogo} className="h-12 w-12 mt-0.5" alt="ZUS Logo" />
-          <div className="lg:text-xl text-base font-medium ml-2">
+          <div className="text-transparent md:text-foreground md:text-base lg:text-xl text-base font-medium ml-2">
             Twoja prognoza emerytalna
           </div>
           <div className="ml-auto flex items-center gap-2">
